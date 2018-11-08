@@ -21,8 +21,9 @@ import java.util.UUID;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.hadoop.hdds.conf.OzoneConfiguration;
 import org.apache.hadoop.hdds.protocol.DatanodeDetails;
+import org.apache.hadoop.hdds.protocol.proto
+    .StorageContainerDatanodeProtocolProtos.ContainerReplicaProto;
 import org.apache.hadoop.hdds.scm.container.common.helpers.ContainerWithPipeline;
-import org.apache.hadoop.hdds.scm.container.states.ContainerStateMap;
 import org.apache.hadoop.ozone.MiniOzoneCluster;
 import org.apache.hadoop.ozone.OzoneConsts;
 import org.apache.hadoop.hdds.protocol.proto.HddsProtos;
@@ -39,8 +40,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.concurrent.TimeoutException;
-
-import org.slf4j.event.Level;
 
 /**
  * Tests for ContainerStateManager.
@@ -318,9 +317,6 @@ public class TestContainerStateManagerIntegration {
 
   @Test
   public void testReplicaMap() throws Exception {
-    GenericTestUtils.setLogLevel(ContainerStateMap.getLOG(), Level.DEBUG);
-    GenericTestUtils.LogCapturer logCapturer = GenericTestUtils.LogCapturer
-        .captureLogs(ContainerStateMap.getLOG());
     DatanodeDetails dn1 = DatanodeDetails.newBuilder().setHostName("host1")
         .setIpAddress("1.1.1.1")
         .setUuid(UUID.randomUUID().toString()).build();
@@ -348,10 +344,12 @@ public class TestContainerStateManagerIntegration {
     // Test 2: Add replica nodes and then test
     ContainerReplica replicaOne = ContainerReplica.newBuilder()
         .setContainerID(id)
+        .setContainerState(ContainerReplicaProto.State.OPEN)
         .setDatanodeDetails(dn1)
         .build();
     ContainerReplica replicaTwo = ContainerReplica.newBuilder()
         .setContainerID(id)
+        .setContainerState(ContainerReplicaProto.State.OPEN)
         .setDatanodeDetails(dn2)
         .build();
     containerStateManager.updateContainerReplica(id, replicaOne);
