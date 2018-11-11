@@ -29,7 +29,6 @@ import org.apache.hadoop.fs.Path;
 
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertIsDirectory;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertIsFile;
-import static org.apache.hadoop.fs.contract.ContractTestUtils.assertMkdirs;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertPathDoesNotExist;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertPathExists;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertRenameOutcome;
@@ -77,7 +76,7 @@ public class ITestAzureBlobFileSystemRenameUnicode extends
   public void testRenameFileUsingUnicode() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
     Path folderPath1 = new Path(srcDir);
-    assertMkdirs(fs, folderPath1);
+    //assertMkdirs(fs, folderPath1);
     assertIsDirectory(fs, folderPath1);
     Path filePath = new Path(folderPath1 + "/" + filename);
     touch(filePath);

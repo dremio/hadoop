@@ -29,7 +29,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.io.IOException;
 
-import org.apache.hadoop.fs.StreamCapabilities;
 import org.apache.hadoop.fs.azurebfs.services.AbfsOutputStream;
 import org.hamcrest.core.IsEqual;
 import org.hamcrest.core.IsNot;
@@ -294,11 +293,11 @@ public class ITestAzureBlobFileSystemFlush extends AbstractAbfsScaleTest {
     final Path testFilePath = path(methodName.getMethodName());
 
     try (FSDataOutputStream stream = getStreamAfterWrite(fs, testFilePath, buffer, false)) {
-      assertFalse(stream.hasCapability(StreamCapabilities.HFLUSH));
-      assertFalse(stream.hasCapability(StreamCapabilities.HSYNC));
-      assertFalse(stream.hasCapability(StreamCapabilities.DROPBEHIND));
-      assertFalse(stream.hasCapability(StreamCapabilities.READAHEAD));
-      assertFalse(stream.hasCapability(StreamCapabilities.UNBUFFER));
+      assertFalse(stream.hasCapability("hflush"));
+      assertFalse(stream.hasCapability("hsync"));
+      assertFalse(stream.hasCapability("dropbehind"));
+      assertFalse(stream.hasCapability("in:readahead"));
+      assertFalse(stream.hasCapability("in:unbuffer"));
     }
   }
 
@@ -308,11 +307,11 @@ public class ITestAzureBlobFileSystemFlush extends AbstractAbfsScaleTest {
     byte[] buffer = getRandomBytesArray();
     final Path testFilePath = path(methodName.getMethodName());
     try (FSDataOutputStream stream = getStreamAfterWrite(fs, testFilePath, buffer, true)) {
-      assertTrue(stream.hasCapability(StreamCapabilities.HFLUSH));
-      assertTrue(stream.hasCapability(StreamCapabilities.HSYNC));
-      assertFalse(stream.hasCapability(StreamCapabilities.DROPBEHIND));
-      assertFalse(stream.hasCapability(StreamCapabilities.READAHEAD));
-      assertFalse(stream.hasCapability(StreamCapabilities.UNBUFFER));
+      assertTrue(stream.hasCapability("hflush"));
+      assertTrue(stream.hasCapability("hsync"));
+      assertFalse(stream.hasCapability("dropbehind"));
+      assertFalse(stream.hasCapability("in:readahead"));
+      assertFalse(stream.hasCapability("in:unbuffer"));
     }
   }
 

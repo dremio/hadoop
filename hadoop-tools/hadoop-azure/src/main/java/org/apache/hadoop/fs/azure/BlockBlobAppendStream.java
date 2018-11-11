@@ -392,7 +392,7 @@ public class BlockBlobAppendStream extends OutputStream implements Syncable,
         MAX_NUMBER_THREADS_IN_THREAD_POOL,
         THREADPOOL_KEEP_ALIVE,
         TimeUnit.SECONDS,
-        new LinkedBlockingQueue<>(),
+        new LinkedBlockingQueue<Runnable>(),
         new UploaderThreadFactory());
   }
 
@@ -552,8 +552,8 @@ public class BlockBlobAppendStream extends OutputStream implements Syncable,
       return false;
     }
     switch (capability.toLowerCase(Locale.ENGLISH)) {
-    case StreamCapabilities.HSYNC:
-    case StreamCapabilities.HFLUSH:
+    case "hsync":
+    case "hflush":
       return true;
     default:
       return false;
@@ -1141,6 +1141,14 @@ public class BlockBlobAppendStream extends OutputStream implements Syncable,
                         + " {} Exception : {}", key, ex);
         firstError.compareAndSet(null, new AzureException(ex));
       }
+    }
+  }
+
+  @Override
+  public void sync() throws IOException {
+    // when block compaction is disabled, sync is empty function
+    if (compactionEnabled) {
+      flush();
     }
   }
 }

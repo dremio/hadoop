@@ -18,14 +18,13 @@
 
 package org.apache.hadoop.fs.azure;
 
-import static org.apache.hadoop.test.PlatformAssumptions.assumeWindows;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +38,10 @@ public class TestShellDecryptionKeyProvider
       .getLogger(TestShellDecryptionKeyProvider.class);
   private static File TEST_ROOT_DIR = new File(System.getProperty(
       "test.build.data", "/tmp"), "TestShellDecryptionKeyProvider");
+
+  private void assumeWindows() {
+    Assume.assumeTrue(false);
+  }
 
   @Test
   public void testScriptPathNotSpecified() throws Exception {

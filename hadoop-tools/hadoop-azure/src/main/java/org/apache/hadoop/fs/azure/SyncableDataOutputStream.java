@@ -70,4 +70,11 @@ public class SyncableDataOutputStream extends DataOutputStream
       ((Syncable) out).hsync();
     }
   }
+
+  @Override
+  public void sync() throws IOException {
+    if (out instanceof Syncable) {
+      ((Syncable) out).sync();
+    }
+  }
 }

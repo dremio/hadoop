@@ -100,7 +100,7 @@ public class ITestListPerformance extends AbstractAzureScaleTest {
     Assume.assumeFalse("Test path exists; skipping", fs.exists(TEST_DIR_PATH));
 
     ExecutorService executorService = Executors.newFixedThreadPool(threads);
-    CloudBlobContainer container = testAccount.getRealContainer();
+    final CloudBlobContainer container = testAccount.getRealContainer();
 
     final String basePath = (fs.getWorkingDirectory().toUri().getPath() + "/" + TEST_DIR_PATH + "/").substring(1);
 

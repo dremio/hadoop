@@ -153,7 +153,7 @@ final class PageBlobOutputStream extends OutputStream implements Syncable, Strea
     this.outBuffer = new ByteArrayOutputStream();
     this.opContext = opContext;
     this.lastQueuedTask = null;
-    this.ioQueue = new LinkedBlockingQueue<Runnable>();
+    this.ioQueue = new LinkedBlockingQueue<>();
 
     // As explained above: the IO writes are not designed for parallelism,
     // so we only have one thread in this thread pool.
@@ -206,8 +206,8 @@ final class PageBlobOutputStream extends OutputStream implements Syncable, Strea
   @Override
   public boolean hasCapability(String capability) {
     switch (capability.toLowerCase(Locale.ENGLISH)) {
-      case StreamCapabilities.HSYNC:
-      case StreamCapabilities.HFLUSH:
+      case "hsync":
+      case "hflush":
         return true;
       default:
         return false;
@@ -288,10 +288,10 @@ final class PageBlobOutputStream extends OutputStream implements Syncable, Strea
       // Since we have to rewrite the last request's last page's data
       // (may be empty), total data size is our data plus whatever was
       // left from there.
-      final int totalDataBytes = dataPayload.length 
+      final int totalDataBytes = dataPayload.length
           + previousLastPageDataWritten.length;
       // Calculate the total number of pages we're writing to the server.
-      final int numberOfPages = (totalDataBytes / PAGE_DATA_SIZE) 
+      final int numberOfPages = (totalDataBytes / PAGE_DATA_SIZE)
           + (totalDataBytes % PAGE_DATA_SIZE == 0 ? 0 : 1);
       // Fill up the raw bytes we're writing.
       byte[] rawPayload = new byte[numberOfPages * PAGE_SIZE];
@@ -327,7 +327,7 @@ final class PageBlobOutputStream extends OutputStream implements Syncable, Strea
 
         if (dataOffset >= previousLastPageDataWritten.length) {
           // Then write the current payload's data.
-          System.arraycopy(dataPayload, 
+          System.arraycopy(dataPayload,
         	  dataOffset - previousLastPageDataWritten.length,
               rawPayload, rawOffset, bytesToCopyFromDataPayload);
         }
