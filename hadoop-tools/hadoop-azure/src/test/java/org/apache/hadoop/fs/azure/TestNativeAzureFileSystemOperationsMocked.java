@@ -18,7 +18,6 @@
 
 package org.apache.hadoop.fs.azure;
 
-import static org.apache.hadoop.test.PlatformAssumptions.assumeNotWindows;
 
 import org.apache.hadoop.fs.FSMainOperationsBaseTest;
 import org.apache.hadoop.fs.FileSystem;
@@ -29,7 +28,7 @@ public class TestNativeAzureFileSystemOperationsMocked extends
 
   private static final String TEST_ROOT_DIR =
       "/tmp/TestNativeAzureFileSystemOperationsMocked";
-  
+
   public TestNativeAzureFileSystemOperationsMocked (){
     super(TEST_ROOT_DIR);
   }
@@ -38,6 +37,8 @@ public class TestNativeAzureFileSystemOperationsMocked extends
   public void setUp() throws Exception {
     fSys = AzureBlobStorageTestAccount.createMock().getFileSystem();
   }
+
+  private void assumeNotWindows() {}
 
   @Override
   protected FileSystem createFileSystem() throws Exception {
@@ -51,7 +52,6 @@ public class TestNativeAzureFileSystemOperationsMocked extends
     assumeNotWindows();
   }
 
-  @Override
   public void testGlobStatusThrowsExceptionForUnreadableDir()
       throws Exception {
     System.out.println(

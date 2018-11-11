@@ -89,7 +89,7 @@ public class AbfsOutputStream extends OutputStream implements Syncable, StreamCa
         maxConcurrentRequestCount,
         10L,
         TimeUnit.SECONDS,
-        new LinkedBlockingQueue<>());
+        new LinkedBlockingQueue<Runnable>());
     this.completionService = new ExecutorCompletionService<>(this.threadExecutor);
   }
 
@@ -102,8 +102,8 @@ public class AbfsOutputStream extends OutputStream implements Syncable, StreamCa
   @Override
   public boolean hasCapability(String capability) {
     switch (capability.toLowerCase(Locale.ENGLISH)) {
-      case StreamCapabilities.HSYNC:
-      case StreamCapabilities.HFLUSH:
+      case "hsync":
+      case "hflush":
         return supportFlush;
       default:
         return false;
@@ -210,6 +210,13 @@ public class AbfsOutputStream extends OutputStream implements Syncable, StreamCa
    */
   @Override
   public void hflush() throws IOException {
+    if (supportFlush) {
+      flushInternal();
+    }
+  }
+
+  @Override
+  public void sync() throws IOException {
     if (supportFlush) {
       flushInternal();
     }

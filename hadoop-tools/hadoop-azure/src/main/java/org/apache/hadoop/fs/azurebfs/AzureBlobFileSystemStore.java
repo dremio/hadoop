@@ -969,8 +969,8 @@ public class AzureBlobFileSystemStore {
               owner,
               group,
               null,
-              path,
-              hasAcl, false, false);
+              path
+              );
 
       this.version = version;
     }

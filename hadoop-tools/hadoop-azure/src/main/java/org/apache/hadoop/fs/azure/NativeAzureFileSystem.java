@@ -185,7 +185,7 @@ public class NativeAzureFileSystem extends FileSystem {
       } catch (IOException e) {
         this.committed = false;
       }
-      
+
       if (!this.committed) {
         LOG.error("Deleting corruped rename pending file {} \n {}",
             redoFile, contents);
@@ -196,7 +196,7 @@ public class NativeAzureFileSystem extends FileSystem {
       }
 
       // initialize this object's fields
-      ArrayList<String> fileStrList = new ArrayList<String>();
+      ArrayList<String> fileStrList = new ArrayList<>();
       JsonNode oldFolderName = json.get("OldFolderName");
       JsonNode newFolderName = json.get("NewFolderName");
       if (oldFolderName == null || newFolderName == null) {
@@ -508,7 +508,7 @@ public class NativeAzureFileSystem extends FileSystem {
     /**
      * Recover from a folder rename failure by redoing the intended work,
      * as recorded in the -RenamePending.json file.
-     * 
+     *
      * @throws IOException Thrown when fail to redo.
      */
     public void redo() throws IOException {
@@ -662,7 +662,7 @@ public class NativeAzureFileSystem extends FileSystem {
   /**
    * The time span in seconds before which we consider a temp blob to be
    * dangling (not being actively uploaded to) and up for reclamation.
-   * 
+   *
    * So e.g. if this is 60, then any temporary blobs more than a minute old
    * would be considered dangling.
    */
@@ -1004,6 +1004,15 @@ public class NativeAzureFileSystem extends FileSystem {
       return out;
     }
 
+    @Override
+    public void sync() throws IOException {
+      if (out instanceof Syncable) {
+        ((Syncable) out).sync();
+      } else {
+        hsync();
+      }
+    }
+
     @Override  // Syncable
     public void hflush() throws IOException {
       if (out instanceof Syncable) {
@@ -1056,7 +1065,7 @@ public class NativeAzureFileSystem extends FileSystem {
      * write is that one byte is written to the output stream. The byte to be
      * written is the eight low-order bits of the argument b. The 24 high-order
      * bits of b are ignored.
-     * 
+     *
      * @param b
      *          32-bit integer of block of 4 bytes
      */
@@ -1079,7 +1088,7 @@ public class NativeAzureFileSystem extends FileSystem {
      * Writes b.length bytes from the specified byte array to this output
      * stream. The general contract for write(b) is that it should have exactly
      * the same effect as the call write(b, 0, b.length).
-     * 
+     *
      * @param b
      *          Block of bytes to be written to the output stream.
      */
@@ -1105,7 +1114,7 @@ public class NativeAzureFileSystem extends FileSystem {
      * are written to the output stream in order; element <code>b[off]</code>
      * is the first byte written and <code>b[off+len-1]</code> is the last
      * byte written by this operation.
-     * 
+     *
      * @param b
      *          Byte array to be written.
      * @param off
@@ -1130,7 +1139,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     /**
      * Get the blob name.
-     * 
+     *
      * @return String Blob name.
      */
     public String getKey() {
@@ -1139,7 +1148,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     /**
      * Set the blob name.
-     * 
+     *
      * @param key
      *          Blob name.
      */
@@ -1149,7 +1158,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     /**
      * Get the blob name.
-     * 
+     *
      * @return String Blob name.
      */
     public String getEncodedKey() {
@@ -1158,7 +1167,7 @@ public class NativeAzureFileSystem extends FileSystem {
 
     /**
      * Set the blob name.
-     * 
+     *
      * @param anEncodedKey
      *          Blob name.
      */
@@ -2423,8 +2432,8 @@ public class NativeAzureFileSystem extends FileSystem {
       ArrayList<FileMetadata> finalList) throws IOException {
 
     final int maxListingDepth = 1;
-    Stack<FileMetadata> foldersToProcess = new Stack<FileMetadata>();
-    HashMap<String, FileMetadata> folderContentsMap = new HashMap<String, FileMetadata>();
+    Stack<FileMetadata> foldersToProcess = new Stack<>();
+    HashMap<String, FileMetadata> folderContentsMap = new HashMap<>();
 
     boolean isPartialDelete = false;
 
@@ -2979,7 +2988,7 @@ public class NativeAzureFileSystem extends FileSystem {
     }
 
 
-    ArrayList<String> keysToCreateAsFolder = new ArrayList<String>();
+    ArrayList<String> keysToCreateAsFolder = new ArrayList<>();
     // Check that there is no file in the parent chain of the given path.
     for (Path current = absolutePath, parent = current.getParent();
         parent != null; // Stop when you get to the root
@@ -3698,7 +3707,7 @@ public class NativeAzureFileSystem extends FileSystem {
   /**
    * Implements recover and delete (-move and -delete) behaviors for handling
    * dangling files (blobs whose upload was interrupted).
-   * 
+   *
    * @param root
    *          The root path to check from.
    * @param handler
@@ -3740,7 +3749,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * the data to a temporary blob, but for some reason we crashed in the middle
    * of the upload and left them there. If any are found, we move them to the
    * destination given.
-   * 
+   *
    * @param root
    *          The root path to consider.
    * @param destination
@@ -3760,7 +3769,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * meaning that they are place-holder blobs that we created while we upload
    * the data to a temporary blob, but for some reason we crashed in the middle
    * of the upload and left them there. If any are found, we delete them.
-   * 
+   *
    * @param root
    *          The root path to consider.
    * @throws IOException Thrown when fail to delete.
@@ -3782,7 +3791,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * Encode the key with a random prefix for load balancing in Azure storage.
    * Upload data to a random temporary file then do storage side renaming to
    * recover the original key.
-   * 
+   *
    * @param aKey a key to be encoded.
    * @return Encoded version of the original key.
    */

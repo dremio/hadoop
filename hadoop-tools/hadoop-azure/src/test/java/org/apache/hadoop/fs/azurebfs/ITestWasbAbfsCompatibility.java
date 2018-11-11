@@ -34,7 +34,6 @@ import org.apache.hadoop.fs.contract.ContractTestUtils;
 
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertDeleted;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertIsDirectory;
-import static org.apache.hadoop.fs.contract.ContractTestUtils.assertMkdirs;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertPathExists;
 
 /**
@@ -173,7 +172,7 @@ public class ITestWasbAbfsCompatibility extends AbstractAbfsIntegrationTest {
     NativeAzureFileSystem wasb = getWasbFileSystem();
 
     Path d1d4 = new Path("/d1/d2/d3/d4");
-    assertMkdirs(abfs, d1d4);
+    //assertMkdirs(abfs, d1d4);
 
     //set working directory to path1
     Path path1 = new Path("/d1/d2");

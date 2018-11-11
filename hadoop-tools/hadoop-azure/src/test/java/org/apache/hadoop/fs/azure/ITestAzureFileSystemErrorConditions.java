@@ -91,9 +91,9 @@ public class ITestAzureFileSystemErrorConditions extends
     MockStorageInterface mockStorage = new MockStorageInterface();
     store.setAzureStorageInteractionLayer(mockStorage);
     try (FileSystem fs = new NativeAzureFileSystem(store)) {
-      Configuration conf = new Configuration();
+      final Configuration conf = new Configuration();
       AzureBlobStorageTestAccount.setMockAccountKey(conf);
-      HashMap<String, String> metadata = new HashMap<String, String>();
+      HashMap<String, String> metadata = new HashMap<>();
       metadata.put(AzureNativeFileSystemStore.VERSION_METADATA_KEY,
           "2090-04-05"); // It's from the future!
       mockStorage.addPreExistingContainer(

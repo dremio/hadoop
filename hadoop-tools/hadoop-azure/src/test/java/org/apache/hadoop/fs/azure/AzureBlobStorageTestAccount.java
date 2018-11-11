@@ -18,15 +18,24 @@
 
 package org.apache.hadoop.fs.azure;
 
-import com.microsoft.azure.storage.*;
-import com.microsoft.azure.storage.blob.*;
-import com.microsoft.azure.storage.core.Base64;
-import org.junit.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.DEFAULT_STORAGE_EMULATOR_ACCOUNT_NAME;
+import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.KEY_USE_LOCAL_SAS_KEY_MODE;
+import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.KEY_USE_SECURE_MODE;
+import static org.apache.hadoop.fs.azure.integration.AzureTestUtils.verifyWasbAccountNameInConfig;
 
-import org.apache.commons.configuration2.SubsetConfiguration;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.commons.configuration.SubsetConfiguration;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.integration.AzureTestConstants;
@@ -37,18 +46,24 @@ import org.apache.hadoop.metrics2.MetricsRecord;
 import org.apache.hadoop.metrics2.MetricsSink;
 import org.apache.hadoop.metrics2.MetricsTag;
 import org.apache.hadoop.metrics2.impl.TestMetricsConfig;
+import org.junit.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.DEFAULT_STORAGE_EMULATOR_ACCOUNT_NAME;
-import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.KEY_USE_LOCAL_SAS_KEY_MODE;
-import static org.apache.hadoop.fs.azure.AzureNativeFileSystemStore.KEY_USE_SECURE_MODE;
-import static org.apache.hadoop.fs.azure.integration.AzureTestUtils.verifyWasbAccountNameInConfig;
+import com.microsoft.azure.storage.AccessCondition;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.StorageCredentials;
+import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
+import com.microsoft.azure.storage.StorageCredentialsAnonymous;
+import com.microsoft.azure.storage.blob.BlobContainerPermissions;
+import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
+import com.microsoft.azure.storage.blob.BlobOutputStream;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
+import com.microsoft.azure.storage.blob.SharedAccessBlobPermissions;
+import com.microsoft.azure.storage.blob.SharedAccessBlobPolicy;
+import com.microsoft.azure.storage.core.Base64;
 
 /**
  * Helper class to create WASB file systems backed by either a mock in-memory
@@ -89,7 +104,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
   private MockStorageInterface mockStorage;
   private String pageBlobDirectory;
   private static final ConcurrentLinkedQueue<MetricsRecord> allMetrics =
-      new ConcurrentLinkedQueue<MetricsRecord>();
+      new ConcurrentLinkedQueue<>();
   private static boolean metricsConfigSaved = false;
   private boolean skipContainerDelete = false;
 
@@ -111,7 +126,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Create a test account with an initialized storage reference.
-   * 
+   *
    * @param storage
    *          -- store to be accessed by the account
    * @param account
@@ -128,7 +143,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Create a test account sessions with the default root container.
-   * 
+   *
    * @param fs
    *          - file system, namely WASB file system
    * @param account
@@ -149,7 +164,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
     this.fs = fs;
     this.mockStorage = mockStorage;
   }
-  
+
   private static void addRecord(MetricsRecord record) {
     allMetrics.add(record);
   }
@@ -168,9 +183,9 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   public static String toMockUri(Path path) {
     // Remove the first SEPARATOR
-    return toMockUri(path.toUri().getRawPath().substring(1)); 
+    return toMockUri(path.toUri().getRawPath().substring(1));
   }
-  
+
   public static Path pageBlobPath() {
     return new Path("/" + DEFAULT_PAGE_BLOB_DIRECTORY);
   }
@@ -226,7 +241,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Gets the blob reference to the given blob key.
-   * 
+   *
    * @param blobKey
    *          The blob key (no initial slash).
    * @return The blob reference.
@@ -239,7 +254,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Acquires a short lease on the given blob in this test account.
-   * 
+   *
    * @param blobKey
    *          The key to the blob (no initial slash).
    * @return The lease ID.
@@ -250,7 +265,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Releases the lease on the container.
-   * 
+   *
    * @param leaseID
    *          The lease ID.
    */
@@ -319,7 +334,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Creates a test account that goes against the storage emulator.
-   * 
+   *
    * @return The test account, or null if the emulator isn't setup.
    */
   public static AzureBlobStorageTestAccount createForEmulator()
@@ -405,8 +420,8 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
     AzureFileSystemMetricsSystem.registerSource(
         sourceName, sourceDesc, instrumentation);
-    
-    
+
+
     // Create a new AzureNativeFileSystemStore object.
     AzureNativeFileSystemStore testStorage = new AzureNativeFileSystemStore();
 
@@ -423,7 +438,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Sets the mock account key in the given configuration.
-   * 
+   *
    * @param conf
    *          The configuration.
    */
@@ -444,13 +459,13 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Sets the mock account key in the given configuration.
-   * 
+   *
    * @param conf
    *          The configuration.
    */
   public static void setMockAccountKey(Configuration conf, String accountName) {
     conf.set(ACCOUNT_KEY_PROPERTY_NAME + accountName,
-        Base64.encode(new byte[] { 1, 2, 3 }));  
+        Base64.encode(new byte[] { 1, 2, 3 }));
   }
 
   private static URI createAccountUri(String accountName)
@@ -891,7 +906,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Gets the real blob container backing this account if it's not a mock.
-   * 
+   *
    * @return A container, or null if it's a mock.
    */
   public CloudBlobContainer getRealContainer() {
@@ -900,7 +915,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Gets the real blob account backing this account if it's not a mock.
-   * 
+   *
    * @return An account, or null if it's a mock.
    */
   public CloudStorageAccount getRealAccount() {
@@ -909,13 +924,13 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
 
   /**
    * Gets the mock storage interface if this account is backed by a mock.
-   * 
+   *
    * @return The mock storage, or null if it's backed by a real account.
    */
   public MockStorageInterface getMockStorage() {
     return mockStorage;
   }
-  
+
   public static class StandardCollector implements MetricsSink {
     @Override
     public void init(SubsetConfiguration conf) {
@@ -929,6 +944,7 @@ public final class AzureBlobStorageTestAccount implements AutoCloseable,
     @Override
     public void flush() {
     }
+
   }
 
   public void setPageBlobDirectory(String directory) {

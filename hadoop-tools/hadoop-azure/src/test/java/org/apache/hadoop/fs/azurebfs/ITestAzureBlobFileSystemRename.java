@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.Path;
 
-import static org.apache.hadoop.fs.contract.ContractTestUtils.assertMkdirs;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertPathDoesNotExist;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertRenameOutcome;
 import static org.apache.hadoop.fs.contract.ContractTestUtils.assertIsFile;
@@ -63,7 +62,7 @@ public class ITestAzureBlobFileSystemRename extends
   public void testRenameFileUnderDir() throws Exception {
     final AzureBlobFileSystem fs = getFileSystem();
     Path sourceDir = new Path("/testSrc");
-    assertMkdirs(fs, sourceDir);
+    //assertMkdirs(fs, sourceDir);
     String filename = "file1";
     Path file1 = new Path(sourceDir, filename);
     touch(file1);

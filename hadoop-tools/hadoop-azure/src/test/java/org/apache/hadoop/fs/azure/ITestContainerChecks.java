@@ -24,7 +24,6 @@ import java.io.FileNotFoundException;
 import java.util.EnumSet;
 import java.util.concurrent.Callable;
 
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.azure.AzureBlobStorageTestAccount.CreateOptions;
@@ -129,7 +128,7 @@ public class ITestContainerChecks extends AbstractWasbTestWithTimeout {
     testAccount = blobStorageTestAccount();
     assumeNotNull(testAccount);
     CloudBlobContainer container = testAccount.getRealContainer();
-    FileSystem fs = testAccount.getFileSystem();
+    final FileSystem fs = testAccount.getFileSystem();
 
     // Starting off with the container not there
     assertFalse(container.exists());
@@ -145,8 +144,8 @@ public class ITestContainerChecks extends AbstractWasbTestWithTimeout {
     assertFalse(container.exists());
 
     // Neither should a read.
-    Path foo = new Path("/testContainerCreateOnWrite-foo");
-    Path bar = new Path("/testContainerCreateOnWrite-bar");
+    final Path foo = new Path("/testContainerCreateOnWrite-foo");
+    final Path bar = new Path("/testContainerCreateOnWrite-bar");
     LambdaTestUtils.intercept(FileNotFoundException.class,
         new Callable<String>() {
           @Override
