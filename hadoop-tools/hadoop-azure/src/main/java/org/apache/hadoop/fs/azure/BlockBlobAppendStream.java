@@ -44,11 +44,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import org.apache.commons.lang3.StringUtils;
-
 import org.apache.hadoop.fs.FSExceptionMessages;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.hadoop.fs.StreamCapabilities;
 import org.apache.hadoop.fs.Syncable;
 import org.apache.hadoop.fs.azure.StorageInterface.CloudBlockBlobWrapper;
 import org.apache.hadoop.io.ElasticByteBufferPool;
@@ -83,8 +80,7 @@ import com.microsoft.azure.storage.blob.BlockSearchMode;
  * list upload is managed by uploadingSemaphore.
  */
 
-public class BlockBlobAppendStream extends OutputStream implements Syncable,
-    StreamCapabilities {
+public class BlockBlobAppendStream extends OutputStream implements Syncable {
 
   /**
    * The name of the blob/file.
@@ -337,7 +333,7 @@ public class BlockBlobAppendStream extends OutputStream implements Syncable,
                                final OperationContext opContext)
           throws IOException {
 
-    Preconditions.checkArgument(StringUtils.isNotEmpty(aKey));
+    Preconditions.checkArgument(aKey != null && !aKey.isEmpty());
     Preconditions.checkArgument(bufferSize >= 0);
 
     this.blob = blob;
@@ -540,25 +536,25 @@ public class BlockBlobAppendStream extends OutputStream implements Syncable,
     }
   }
 
-  /**
-   * The Synchronization capabilities of this stream depend upon the compaction
-   * policy.
-   * @param capability string to query the stream support for.
-   * @return true for hsync and hflush when compaction is enabled.
-   */
-  @Override
-  public boolean hasCapability(String capability) {
-    if (!compactionEnabled) {
-      return false;
-    }
-    switch (capability.toLowerCase(Locale.ENGLISH)) {
-    case "hsync":
-    case "hflush":
-      return true;
-    default:
-      return false;
-    }
-  }
+//  /**
+//   * The Synchronization capabilities of this stream depend upon the compaction
+//   * policy.
+//   * @param capability string to query the stream support for.
+//   * @return true for hsync and hflush when compaction is enabled.
+//   */
+//  @Override
+//  public boolean hasCapability(String capability) {
+//    if (!compactionEnabled) {
+//      return false;
+//    }
+//    switch (capability.toLowerCase(Locale.ENGLISH)) {
+//    case "hsync":
+//    case "hflush":
+//      return true;
+//    default:
+//      return false;
+//    }
+//  }
 
   /**
    * Force all data in the output stream to be written to Azure storage.

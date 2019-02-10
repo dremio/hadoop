@@ -606,7 +606,13 @@ public class AzureBlobFileSystemStore {
             path.toString(),
             permission.toString());
     client.setPermission(AbfsHttpConstants.FORWARD_SLASH + getRelativePath(path, true),
-            String.format(AbfsHttpConstants.PERMISSION_FORMAT, permission.toOctal()));
+            String.format(AbfsHttpConstants.PERMISSION_FORMAT, toOctal(permission)));
+  }
+
+  private static short toOctal(FsPermission perm) {
+    int n = perm.toShort();
+    int octal = (n>>>9&1)*1000 + (n>>>6&7)*100 + (n>>>3&7)*10 + (n&7);
+    return (short)octal;
   }
 
   public void modifyAclEntries(final Path path, final List<AclEntry> aclSpec) throws
@@ -820,7 +826,7 @@ public class AzureBlobFileSystemStore {
 
   private String getOctalNotation(FsPermission fsPermission) {
     Preconditions.checkNotNull(fsPermission, "fsPermission");
-    return String.format(AbfsHttpConstants.PERMISSION_FORMAT, fsPermission.toOctal());
+    return String.format(AbfsHttpConstants.PERMISSION_FORMAT, toOctal(fsPermission));
   }
 
   private String getRelativePath(final Path path) {

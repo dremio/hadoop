@@ -38,13 +38,12 @@ import com.google.common.base.Preconditions;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AbfsRestOperationException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.FSExceptionMessages;
-import org.apache.hadoop.fs.StreamCapabilities;
 import org.apache.hadoop.fs.Syncable;
 
 /**
  * The BlobFsOutputStream for Rest AbfsClient.
  */
-public class AbfsOutputStream extends OutputStream implements Syncable, StreamCapabilities {
+public class AbfsOutputStream extends OutputStream implements Syncable {
   private final AbfsClient client;
   private final String path;
   private long position;
@@ -99,16 +98,16 @@ public class AbfsOutputStream extends OutputStream implements Syncable, StreamCa
    * @param capability string to query the stream support for.
    * @return true for hsync and hflush.
    */
-  @Override
-  public boolean hasCapability(String capability) {
-    switch (capability.toLowerCase(Locale.ENGLISH)) {
-      case "hsync":
-      case "hflush":
-        return supportFlush;
-      default:
-        return false;
-    }
-  }
+//  @Override
+//  public boolean hasCapability(String capability) {
+//    switch (capability.toLowerCase(Locale.ENGLISH)) {
+//      case "hsync":
+//      case "hflush":
+//        return supportFlush;
+//      default:
+//        return false;
+//    }
+//  }
 
   /**
    * Writes the specified byte to this output stream. The general contract for

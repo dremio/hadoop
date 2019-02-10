@@ -46,6 +46,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
@@ -61,7 +62,6 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.Seekable;
-import org.apache.hadoop.fs.StreamCapabilities;
 import org.apache.hadoop.fs.Syncable;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.AzureFileSystemMetricsSystem;
@@ -962,7 +962,7 @@ public class NativeAzureFileSystem extends FileSystem {
    * Azure output stream; wraps an inner stream of different types.
    */
   public class NativeAzureFsOutputStream extends OutputStream
-      implements Syncable, StreamCapabilities {
+      implements Syncable {
     private String key;
     private String keyEncoded;
     private OutputStream out;
@@ -1031,19 +1031,19 @@ public class NativeAzureFileSystem extends FileSystem {
       }
     }
 
-    /**
-     * Propagate probe of stream capabilities to nested stream
-     * (if supported), else return false.
-     * @param capability string to query the stream support for.
-     * @return true if the nested stream supports the specific capability.
-     */
-    @Override // StreamCapability
-    public boolean hasCapability(String capability) {
-      if (out instanceof StreamCapabilities) {
-        return ((StreamCapabilities) out).hasCapability(capability);
-      }
-      return false;
-    }
+//    /**
+//     * Propagate probe of stream capabilities to nested stream
+//     * (if supported), else return false.
+//     * @param capability string to query the stream support for.
+//     * @return true if the nested stream supports the specific capability.
+//     */
+//    @Override // StreamCapability
+//    public boolean hasCapability(String capability) {
+//      if (out instanceof StreamCapabilities) {
+//        return ((StreamCapabilities) out).hasCapability(capability);
+//      }
+//      return false;
+//    }
 
     @Override
     public synchronized void close() throws IOException {

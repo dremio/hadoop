@@ -29,13 +29,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hadoop.fs.StreamCapabilities;
 import org.apache.hadoop.fs.Syncable;
 import org.apache.hadoop.fs.azure.StorageInterface.CloudPageBlobWrapper;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -54,7 +52,7 @@ import com.microsoft.azure.storage.blob.CloudPageBlob;
  * An output stream that write file data to a page blob stored using ASV's
  * custom format.
  */
-final class PageBlobOutputStream extends OutputStream implements Syncable, StreamCapabilities {
+final class PageBlobOutputStream extends OutputStream implements Syncable {
   /**
    * The maximum number of raw bytes Azure Storage allows us to upload in a
    * single request (4 MB).
@@ -197,22 +195,22 @@ final class PageBlobOutputStream extends OutputStream implements Syncable, Strea
     }
   }
 
-  /**
-   * Query the stream for a specific capability.
-   *
-   * @param capability string to query the stream support for.
-   * @return true for hsync and hflush.
-   */
-  @Override
-  public boolean hasCapability(String capability) {
-    switch (capability.toLowerCase(Locale.ENGLISH)) {
-      case "hsync":
-      case "hflush":
-        return true;
-      default:
-        return false;
-    }
-  }
+//  /**
+//   * Query the stream for a specific capability.
+//   *
+//   * @param capability string to query the stream support for.
+//   * @return true for hsync and hflush.
+//   */
+//  @Override
+//  public boolean hasCapability(String capability) {
+//    switch (capability.toLowerCase(Locale.ENGLISH)) {
+//      case "hsync":
+//      case "hflush":
+//        return true;
+//      default:
+//        return false;
+//    }
+//  }
 
   /**
    * Closes this output stream and releases any system resources associated with
