@@ -35,6 +35,11 @@ public class ListResultSchema {
   @JsonProperty(value = "paths")
   private List<ListResultEntrySchema> paths;
 
+  @JsonProperty(value = "filesystems")
+  void set(List<ListResultEntrySchema> paths) {
+    this.paths = paths;
+  }
+
   /**
    * * Get the paths value.
    *
