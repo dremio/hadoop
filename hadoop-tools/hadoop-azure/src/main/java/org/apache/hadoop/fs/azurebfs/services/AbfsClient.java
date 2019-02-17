@@ -100,7 +100,7 @@ public class AbfsClient {
   }
 
   List<AbfsHttpHeader> createDefaultHeaders() {
-    final List<AbfsHttpHeader> requestHeaders = new ArrayList<>();
+    final List<AbfsHttpHeader> requestHeaders = new ArrayList<AbfsHttpHeader>();
     requestHeaders.add(new AbfsHttpHeader(X_MS_VERSION, xMsVersion));
     requestHeaders.add(new AbfsHttpHeader(ACCEPT, APPLICATION_JSON
             + COMMA + SINGLE_WHITE_SPACE + APPLICATION_OCTET_STREAM));
@@ -128,30 +128,6 @@ public class AbfsClient {
             AbfsRestOperationType.CreateFileSystem,
             this,
             HTTP_METHOD_PUT,
-            url,
-            requestHeaders);
-    op.execute();
-    return op;
-  }
-
-  public AbfsRestOperation listFilesystems(final String prefix, final String continuation) throws AzureBlobFileSystemException {
-    final List<AbfsHttpHeader> requestHeaders = createDefaultHeaders();
-
-    final AbfsUriQueryBuilder abfsUriQueryBuilder = new AbfsUriQueryBuilder();
-    abfsUriQueryBuilder.addQuery(QUERY_PARAM_RESOURCE, ACCOUNT);
-    if(prefix != null) {
-      abfsUriQueryBuilder.addQuery(PREFIX, prefix);
-    }
-
-    if(continuation != null) {
-      abfsUriQueryBuilder.addQuery(CONTINUATION, continuation);
-    }
-
-    final URL url = createRequestUrl(abfsUriQueryBuilder.toString());
-    final AbfsRestOperation op = new AbfsRestOperation(
-            AbfsRestOperationType.ListFileSystems,
-            this,
-            HTTP_METHOD_GET,
             url,
             requestHeaders);
     op.execute();
