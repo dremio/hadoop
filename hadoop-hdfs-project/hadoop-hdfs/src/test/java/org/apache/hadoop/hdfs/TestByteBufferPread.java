@@ -124,6 +124,7 @@ public class TestByteBufferPread {
       byte[] bufferContents = new byte[FILE_SIZE];
       buffer.get(bufferContents);
       assertArrayEquals(bufferContents, fileContents);
+      buffer.position(buffer.limit());
     }
   }
 
@@ -158,7 +159,7 @@ public class TestByteBufferPread {
 
   /**
    * Reads half of the testFile into the {@link ByteBuffer} by setting a
-   * {@link ByteBuffer#limit()} on the buffer. Validates that only half of the
+   * {@link ByteBuffer#limit} on the buffer. Validates that only half of the
    * testFile is loaded into the buffer.
    */
   private void testPreadWithLimitedByteBuffer(
@@ -192,7 +193,7 @@ public class TestByteBufferPread {
 
   /**
    * Reads half of the testFile into the {@link ByteBuffer} by setting the
-   * {@link ByteBuffer#position()} the half the size of the file. Validates that
+   * {@link ByteBuffer#position} the half the size of the file. Validates that
    * only half of the testFile is loaded into the buffer.
    */
   private void testPreadWithPositionedByteBuffer(

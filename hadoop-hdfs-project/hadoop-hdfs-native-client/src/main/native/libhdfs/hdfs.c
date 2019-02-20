@@ -1048,6 +1048,62 @@ static int hdfsHasStreamCapability(jobject jFile,
         goto done;
     }
     jthr = invokeMethod(env, &jVal, INSTANCE, jFile,
+            HADOOP_ISTRM, "hasCapability", "(Ljava/lang/String;)Z",
+            jCapabilityString);
+    if (jthr) {
+        ret = printExceptionAndFree(env, jthr, PRINT_EXC_ALL,
+                "hdfsHasStreamCapability(%s): FSDataInputStream#hasCapability",
+                capability);
+        goto done;
+    }
+
+done:
+    destroyLocalReference(env, jthr);
+    destroyLocalReference(env, jCapabilityString);
+    if (ret) {
+        errno = ret;
+        return 0;
+    }
+    if (jVal.z == JNI_TRUE) {
+        return 1;
+    }
+    return 0;
+}
+
+/**
+ * Delegates to FsDataInputStream#hasCapability(String). Used to check if a
+ * given input stream supports certain methods, such as
+ * ByteBufferReadable#read(ByteBuffer).
+ *
+ * @param jFile the FsDataInputStream to call hasCapability on
+ * @param capability the name of the capability to query; for a full list of
+ *        possible values see StreamCapabilities
+ *
+ * @return true if the given jFile has the given capability, false otherwise
+ *
+ * @see org.apache.hadoop.fs.StreamCapabilities
+ */
+static int hdfsHasStreamCapability(jobject jFile,
+        const char *capability) {
+    int ret = 0;
+    jthrowable jthr = NULL;
+    jvalue jVal;
+    jstring jCapabilityString = NULL;
+
+    /* Get the JNIEnv* corresponding to current thread */
+    JNIEnv* env = getJNIEnv();
+    if (env == NULL) {
+        errno = EINTERNAL;
+        return 0;
+    }
+
+    jthr = newJavaStr(env, capability, &jCapabilityString);
+    if (jthr) {
+        ret = printExceptionAndFree(env, jthr, PRINT_EXC_ALL,
+                "hdfsHasStreamCapability(%s): newJavaStr", capability);
+        goto done;
+    }
+    jthr = invokeMethod(env, &jVal, INSTANCE, jFile,
             JC_FS_DATA_INPUT_STREAM, "hasCapability", "(Ljava/lang/String;)Z",
             jCapabilityString);
     if (jthr) {

@@ -154,7 +154,7 @@ public class FSDataInputStream extends DataInputStream
     }
 
     throw new UnsupportedOperationException("Byte-buffer read unsupported " +
-            "by " + in.getClass().getCanonicalName());
+            "by input stream");
   }
 
   @Override
@@ -256,7 +256,7 @@ public class FSDataInputStream extends DataInputStream
       return ((ByteBufferPositionedReadable) in).read(position, buf);
     }
     throw new UnsupportedOperationException("Byte-buffer pread unsupported " +
-        "by " + in.getClass().getCanonicalName());
+            "by input stream");
   }
 
   @Override
