@@ -538,7 +538,8 @@ public class CryptoInputStream extends FilterInputStream implements
     } else {
       if (!(in instanceof Seekable)) {
         throw new UnsupportedOperationException(in.getClass().getCanonicalName()
-            + " does not support seek.");
+            + " does not " +
+                "support seek.");
       }
       ((Seekable) in).seek(pos);
       resetStreamOffset(pos);
@@ -714,13 +715,19 @@ public class CryptoInputStream extends FilterInputStream implements
         throw new UnsupportedOperationException(in.getClass().getCanonicalName()
             + " does not support seek.");
       }
-      // Have some decrypted data unread, need to reset.
+      if (!(in instanceof Seekable)) {
+        throw new UnsupportedOperationException("This stream does not " +
+                "support seek.");
+      }// Have some decrypted data unread, need to reset.
       ((Seekable) in).seek(getPos());
       resetStreamOffset(getPos());
     }
     if (!(in instanceof HasEnhancedByteBufferAccess)) {
       throw new UnsupportedOperationException(in.getClass().getCanonicalName()
           + " does not support enhanced byte buffer access.");
+    }if (!(in instanceof HasEnhancedByteBufferAccess)) {
+      throw new UnsupportedOperationException("This stream does not support " +
+          "enhanced byte buffer access.");
     }
     final ByteBuffer buffer = ((HasEnhancedByteBufferAccess) in).
         read(bufferPool, maxLength, opts);
