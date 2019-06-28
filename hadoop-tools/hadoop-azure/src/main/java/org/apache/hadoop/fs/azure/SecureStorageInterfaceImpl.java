@@ -79,7 +79,8 @@ public class SecureStorageInterfaceImpl extends StorageInterface {
   public static final String KEY_USE_CONTAINER_SASKEY_FOR_ALL_ACCESS =
       "fs.azure.saskey.usecontainersaskeyforallaccess";
 
-  public SecureStorageInterfaceImpl(boolean useLocalSASKeyMode,
+  public
+  SecureStorageInterfaceImpl(boolean useLocalSASKeyMode,
       Configuration conf) throws SecureModeException {
 
     if (useLocalSASKeyMode) {

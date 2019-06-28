@@ -1,0 +1,73 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.apache.hadoop.fs.azure;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import org.apache.hadoop.fs.azurebfs.oauth2.AzureADAuthenticator;
+import org.apache.hadoop.fs.azurebfs.oauth2.AzureADToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.microsoft.azure.storage.StorageCredentialsToken;
+import com.microsoft.azure.storage.StorageException;
+
+import jdk.internal.util.Preconditions;
+
+/***
+ * An implementation of the StorageInterface for SAS Key mode.
+ *
+ */
+
+public class OAuthStorageInterfaceImpl extends StorageInterfaceImpl {
+    public static final Logger LOG = LoggerFactory.getLogger(
+            OAuthStorageInterfaceImpl.class);
+    private AzureADCredentials adCredentials;
+    private AzureADToken token;
+
+    @Override
+    public StorageInterface.CloudBlobContainerWrapper getContainerReference(String uri)
+            throws URISyntaxException, StorageException {
+        //TODO: Check whether token is about to expire (5 minutes before expiring)
+        //TODO: If token is about to expire, update the token
+        StorageCredentialsToken credentials = (StorageCredentialsToken) serviceClient.getCredentials();
+        assert credentials.getToken().equals(token.getAccessToken());
+        if(AzureADAuthenticator.isTokenAboutToExpire(this.token)) {
+            //TODO: This needs to be synchronized
+            try {
+                this.token = AzureADAuthenticator.getTokenUsingClientCreds(adCredentials.getClientId(),
+                        adCredentials.getTokenEndpoint(), adCredentials.getClientSecret());
+                credentials.updateToken(this.token.getAccessToken());
+            } catch (IOException e) {
+                throw new StorageException("", "Unable to obtain new token for connection", e);
+            }
+        }
+        return new StorageInterfaceImpl.CloudBlobContainerWrapperImpl(
+                serviceClient.getContainerReference(uri));
+    }
+
+    public void setAdCredentials(AzureADCredentials adCredentials) {
+        this.adCredentials = adCredentials;
+    }
+
+    public void setToken(AzureADToken token) {
+        this.token = token;
+    }
+}
