@@ -54,6 +54,8 @@ import org.apache.hadoop.fs.azure.metrics.AzureFileSystemInstrumentation;
 import org.apache.hadoop.fs.azure.metrics.BandwidthGaugeUpdater;
 import org.apache.hadoop.fs.azure.metrics.ErrorMetricUpdater;
 import org.apache.hadoop.fs.azure.metrics.ResponseReceivedMetricUpdater;
+import org.apache.hadoop.fs.azurebfs.oauth2.AzureADAuthenticator;
+import org.apache.hadoop.fs.azurebfs.oauth2.AzureADToken;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.permission.PermissionStatus;
 import org.apache.hadoop.io.IOUtils;
@@ -70,6 +72,7 @@ import com.microsoft.azure.storage.RetryNoRetry;
 import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageCredentialsAccountAndKey;
 import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
+import com.microsoft.azure.storage.StorageCredentialsToken;
 import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.Constants;
@@ -162,6 +165,12 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   private static final String KEY_AUTO_THROTTLE_ENABLE = "fs.azure.autothrottling.enable";
 
   private static final String KEY_ENABLE_STORAGE_CLIENT_LOGGING = "fs.azure.storage.client.logging";
+
+  //Configuration properties for Azure Active Directory
+  private static final String KEY_AUTH_TYPE = "fs.azure.account.auth.type.";
+  private static final String KEY_AD_CLIENT_ID = "fs.azure.account.oauth2.client.id.";
+  private static final String KEY_AD_TOKEN_ENDPOINT = "fs.azure.account.oauth2.client.endpoint.";
+  private static final String KEY_AD_CLIENT_SECRET = "fs.azure.account.oauth2.client.secret.";
 
   /**
    * Configuration keys to identify if WASB needs to run in Secure mode. In Secure mode
@@ -958,6 +967,41 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         DEFAULT_STORAGE_EMULATOR_ACCOUNT_NAME));
   }
 
+  private void connectUsingAzureAD(String accountName, String containerName, AzureADCredentials adCredentials)
+          throws IOException, StorageException, URISyntaxException {
+
+    AzureADToken token = AzureADAuthenticator.getTokenUsingClientCreds(adCredentials.getTokenEndpoint(),
+            adCredentials.getClientId(),adCredentials.getClientSecret());
+
+    StorageCredentials tokenCredentials = new StorageCredentialsToken(accountName, token.getAccessToken());
+
+    URI blobEndPoint;
+    if (isStorageEmulatorAccount(accountName)) {
+      isStorageEmulator = true;
+      CloudStorageAccount account =
+              CloudStorageAccount.getDevelopmentStorageAccount();
+      storageInteractionLayer.createBlobClient(account);
+    } else {
+      blobEndPoint = new URI(getHTTPScheme() + "://" + accountName);
+      storageInteractionLayer.createBlobClient(blobEndPoint, tokenCredentials);
+    }
+    suppressRetryPolicyInClientIfNeeded();
+
+    container = storageInteractionLayer.getContainerReference(containerName);
+    rootDirectory = container.getDirectoryReference("");
+  }
+
+  @VisibleForTesting
+  public static AzureADCredentials getAzureADCredentialsFromConfiguration(String accountName, Configuration conf) {
+    return new AzureADCredentials(conf.get(getFullyQualifiedKey(accountName, KEY_AD_CLIENT_ID)),
+            conf.get(getFullyQualifiedKey(accountName, KEY_AD_TOKEN_ENDPOINT)),
+            conf.get(getFullyQualifiedKey(accountName, KEY_AD_CLIENT_SECRET)));
+  }
+
+  private static String getFullyQualifiedKey(String accountName, String key) {
+    return key + accountName;
+  }
+
   @VisibleForTesting
   public static String getAccountKeyFromConfiguration(String accountName,
       Configuration conf) throws KeyProviderException {
@@ -1082,6 +1126,13 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         connectUsingConnectionStringCredentials(
             getAccountFromAuthority(sessionUri),
             getContainerFromAuthority(sessionUri), propertyValue);
+        return;
+      }
+      propertyValue = sessionConfiguration.get(getFullyQualifiedKey(accountName, KEY_AUTH_TYPE));
+      if (propertyValue == "ADD") {
+        AzureADCredentials adCredentials = getAzureADCredentialsFromConfiguration(accountName, sessionConfiguration);
+        connectUsingAzureAD(accountName, containerName, adCredentials);
+        return;
       } else {
         LOG.debug("The account access key is not configured for {}. "
             + "Now try anonymous access.", sessionUri);
