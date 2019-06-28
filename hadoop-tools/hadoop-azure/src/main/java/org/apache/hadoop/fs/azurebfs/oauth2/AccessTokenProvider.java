@@ -44,7 +44,7 @@ public abstract class AccessTokenProvider {
    * @throws IOException if there is an error fetching the token
    */
   public synchronized AzureADToken getToken() throws IOException {
-    if (isTokenAboutToExpire()) {
+    if (AzureADAuthenticator.isTokenAboutToExpire(this.token)) {
       LOG.debug("AAD Token is missing or expired:"
               + " Calling refresh-token from abstract base class");
       token = refreshToken();
@@ -64,35 +64,4 @@ public abstract class AccessTokenProvider {
    * @throws IOException if there is an error fetching the token
    */
   protected abstract AzureADToken refreshToken() throws IOException;
-
-  /**
-   * Checks if the token is about to expire in the next 5 minutes.
-   * The 5 minute allowance is to allow for clock skew and also to
-   * allow for token to be refreshed in that much time.
-   *
-   * @return true if the token is expiring in next 5 minutes
-   */
-  private boolean isTokenAboutToExpire() {
-    if (token == null) {
-      LOG.debug("AADToken: no token. Returning expiring=true");
-      return true;   // no token should have same response as expired token
-    }
-    boolean expiring = false;
-    // allow 5 minutes for clock skew
-    long approximatelyNow = System.currentTimeMillis() + FIVE_MINUTES;
-    if (token.getExpiry().getTime() < approximatelyNow) {
-      expiring = true;
-    }
-    if (expiring) {
-      LOG.debug("AADToken: token expiring: "
-              + token.getExpiry().toString()
-              + " : Five-minute window: "
-              + new Date(approximatelyNow).toString());
-    }
-
-    return expiring;
-  }
-
-  // 5 minutes in milliseconds
-  private static final long FIVE_MINUTES = 300 * 1000;
 }

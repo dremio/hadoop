@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Preconditions;
 import org.codehaus.jackson.JsonFactory;
@@ -53,6 +54,8 @@ public final class AzureADAuthenticator {
   private static final String RESOURCE_NAME = "https://storage.azure.com/";
   private static final int CONNECT_TIMEOUT = 30 * 1000;
   private static final int READ_TIMEOUT = 30 * 1000;
+  // 5 minutes in milliseconds
+  private static final long FIVE_MINUTES = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
 
   private AzureADAuthenticator() {
     // no operation
@@ -158,6 +161,33 @@ public final class AzureADAuthenticator {
     return getTokenCall(authEndpoint, qp.serialize(), null, null);
   }
 
+  /**
+   * Checks if the token is about to expire in the next 5 minutes.
+   * The 5 minute allowance is to allow for clock skew and also to
+   * allow for token to be refreshed in that much time.
+   *
+   * @return true if the token is expiring in next 5 minutes
+   */
+  public static boolean isTokenAboutToExpire(AzureADToken token) {
+    if (token == null) {
+      LOG.debug("AADToken: no token. Returning expiring=true");
+      return true;   // no token should have same response as expired token
+    }
+    boolean expiring = false;
+    // allow 5 minutes for clock skew
+    long approximatelyNow = System.currentTimeMillis() + FIVE_MINUTES;
+    if (token.getExpiry().getTime() < approximatelyNow) {
+      expiring = true;
+    }
+    if (expiring) {
+      LOG.debug("AADToken: token expiring: "
+              + token.getExpiry().toString()
+              + " : Five-minute window: "
+              + new Date(approximatelyNow).toString());
+    }
+
+    return expiring;
+  }
 
   /**
    * This exception class contains the http error code,
