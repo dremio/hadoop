@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91388e8f_9dedd344",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1132,
+      "author": {
+        "id": 1000033
+      },
+      "writtenOn": "2019-06-28T19:08:21Z",
+      "side": 1,
+      "message": "Let\u0027s make this consistent with Azure v2\u0027s Hadoop FS property name and also move this to a constant. Can you check if there\u0027s a class in the Azure connector for key/value constants? There\u0027s one in the ADLS driver.\n\nThis should be .equals() or equalsIgnoreCase()",
+      "revId": "03736aa9fe90f4fe328727d14e337ed89a6f684a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    }
+  ]
+}
