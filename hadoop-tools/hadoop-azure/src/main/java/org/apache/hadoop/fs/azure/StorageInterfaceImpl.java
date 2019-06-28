@@ -59,7 +59,7 @@ import com.microsoft.azure.storage.blob.PageRange;
  */
 @InterfaceAudience.Private
 class StorageInterfaceImpl extends StorageInterface {
-  private CloudBlobClient serviceClient;
+  protected CloudBlobClient serviceClient;
   private RetryPolicyFactory retryPolicyFactory;
   private int timeoutIntervalInMs;
 
