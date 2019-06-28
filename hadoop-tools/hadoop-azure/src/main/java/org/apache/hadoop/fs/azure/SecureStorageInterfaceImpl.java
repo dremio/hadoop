@@ -37,6 +37,7 @@ import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.RetryPolicyFactory;
+import com.microsoft.azure.storage.ServiceClient;
 import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.StorageUri;
@@ -100,6 +101,14 @@ public class SecureStorageInterfaceImpl extends StorageInterface {
     this.useContainerSasKeyForAllAccess = conf.getBoolean(KEY_USE_CONTAINER_SASKEY_FOR_ALL_ACCESS, true);
     LOG.debug("Container SAS key {} be used for all access",
         useContainerSasKeyForAllAccess ? "will" : "will not");
+  }
+
+  @Override
+  public ServiceClient getClient(){
+    String errorMsg = "getClient is an invalid operation in"
+            + " SAS Key Mode";
+    LOG.error(errorMsg);
+    throw new UnsupportedOperationException(errorMsg);
   }
 
   @Override
