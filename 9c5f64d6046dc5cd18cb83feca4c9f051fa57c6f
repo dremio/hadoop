@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "93cda98a_cdc55037",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 1000033
+      },
+      "writtenOn": "2019-07-04T07:08:31Z",
+      "side": 1,
+      "message": "Need to set KEY_AUTH_TYPE to a sane default.\n\nUse AUTH_TYPE_OAUTH.equals(conf.get(...)) to avoid null poiinter exceptions if conf.get() returns null.",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "efa59902_4ee87b3c",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
         "patchSetId": 7
@@ -154,6 +171,40 @@
       "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "595ea9bb_e3cd78db",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/SecureStorageInterfaceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000033
+      },
+      "writtenOn": "2019-07-04T07:08:31Z",
+      "side": 1,
+      "message": "Why split this with addition?",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "36d8ed7f_21c3cdae",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/oauth2/AzureADAuthenticator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000033
+      },
+      "writtenOn": "2019-07-04T07:08:31Z",
+      "side": 1,
+      "message": "Let\u0027s use TimeUnit",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
     }
   ]
 }
