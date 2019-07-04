@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6061de01_0b882f48",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/oauth2/AccessTokenProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T06:35:07Z",
+      "side": 0,
+      "message": "Is the FIVE_MINUTES const still used in this file?",
+      "revId": "a1956fd33af2fac139c8337280e25998a90b630c",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
