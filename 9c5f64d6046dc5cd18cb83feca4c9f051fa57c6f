@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "6f9cfb24_2d46dc98",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 1000074
+      },
+      "writtenOn": "2019-07-04T17:39:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "93cda98a_cdc55037",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "efa59902_4ee87b3c",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
         "patchSetId": 7
@@ -191,6 +209,24 @@
     },
     {
       "key": {
+        "uuid": "559c9473_3ad6ff89",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/SecureStorageInterfaceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000074
+      },
+      "writtenOn": "2019-07-04T17:39:30Z",
+      "side": 1,
+      "message": "I just copied from other methods in this class below, I think it\u0027s for readability. Let\u0027s keep it the way it is to match the rest of the file.",
+      "parentUuid": "595ea9bb_e3cd78db",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36d8ed7f_21c3cdae",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/oauth2/AzureADAuthenticator.java",
         "patchSetId": 7
@@ -202,6 +238,24 @@
       "writtenOn": "2019-07-04T07:08:31Z",
       "side": 1,
       "message": "Let\u0027s use TimeUnit",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ac3f86f_46415052",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/oauth2/AzureADAuthenticator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000074
+      },
+      "writtenOn": "2019-07-04T17:39:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36d8ed7f_21c3cdae",
       "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": false
