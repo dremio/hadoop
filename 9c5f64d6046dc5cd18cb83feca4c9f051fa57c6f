@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9abedca0_47c6030d",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 541,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b8454f7_938a6d30",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "93cda98a_cdc55037",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
         "patchSetId": 7
@@ -107,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "d6b99c8c_e927c5f7",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efa59902_4ee87b3c",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ef489cf_2b6d78e3",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
         "patchSetId": 7
@@ -139,6 +175,24 @@
       "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3451252d_a15e9a9b",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 982,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7ef489cf_2b6d78e3",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
     },
     {
       "key": {
@@ -177,6 +231,24 @@
     },
     {
       "key": {
+        "uuid": "0419f7e0_209b1761",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e81338e1_bdd5cd73",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2c8ad2c8_3843d6f3",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
         "patchSetId": 7
@@ -206,6 +278,24 @@
       "side": 1,
       "message": "If it is in the useOAuth block then it will have OAuthStorageInterfaceImpl",
       "parentUuid": "2c8ad2c8_3843d6f3",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c42c8abf_567303fb",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1142,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "de4358a7_81124aff",
       "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": false
@@ -247,6 +337,24 @@
     },
     {
       "key": {
+        "uuid": "5728c46a_389cdb64",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/OAuthStorageInterfaceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a709a060_1a922dc3",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b06b2c66_878dd9f1",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/OAuthStorageInterfaceImpl.java",
         "patchSetId": 7
@@ -279,6 +387,24 @@
       "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0d89cf8_4e1ffdd1",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/OAuthStorageInterfaceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b06b2c66_878dd9f1",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
     },
     {
       "key": {
@@ -317,6 +443,24 @@
     },
     {
       "key": {
+        "uuid": "befa804f_1fcc33e5",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/SecureStorageInterfaceImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "595ea9bb_e3cd78db",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "36d8ed7f_21c3cdae",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/oauth2/AzureADAuthenticator.java",
         "patchSetId": 7
@@ -343,6 +487,24 @@
         "id": 1000074
       },
       "writtenOn": "2019-07-04T17:39:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36d8ed7f_21c3cdae",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bfb3abfe_7f9c931a",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/oauth2/AzureADAuthenticator.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
       "side": 1,
       "message": "Done",
       "parentUuid": "36d8ed7f_21c3cdae",

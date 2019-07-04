@@ -34,6 +34,24 @@
       "revId": "a1956fd33af2fac139c8337280e25998a90b630c",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a10aa3a4_30127311",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/oauth2/AccessTokenProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-07-04T21:49:32Z",
+      "side": 0,
+      "message": "Ack. I see that it\u0027s not defined here...",
+      "parentUuid": "10c06ce6_f9e2fa4c",
+      "revId": "a1956fd33af2fac139c8337280e25998a90b630c",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
     }
   ]
 }
