@@ -16,6 +16,24 @@
       "revId": "a1956fd33af2fac139c8337280e25998a90b630c",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10c06ce6_f9e2fa4c",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/oauth2/AccessTokenProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1000074
+      },
+      "writtenOn": "2019-07-04T06:56:25Z",
+      "side": 0,
+      "message": "no",
+      "parentUuid": "6061de01_0b882f48",
+      "revId": "a1956fd33af2fac139c8337280e25998a90b630c",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
     }
   ]
 }

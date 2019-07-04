@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "e81338e1_bdd5cd73",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 1000074
+      },
+      "writtenOn": "2019-07-04T06:56:25Z",
+      "side": 1,
+      "message": "I was following the existing pattern",
+      "parentUuid": "c10d027f_bac80108",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2c8ad2c8_3843d6f3",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
         "patchSetId": 7
@@ -84,6 +102,24 @@
       "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de4358a7_81124aff",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1142,
+      "author": {
+        "id": 1000074
+      },
+      "writtenOn": "2019-07-04T06:56:25Z",
+      "side": 1,
+      "message": "If it is in the useOAuth block then it will have OAuthStorageInterfaceImpl",
+      "parentUuid": "2c8ad2c8_3843d6f3",
+      "revId": "9c5f64d6046dc5cd18cb83feca4c9f051fa57c6f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
     },
     {
       "key": {
