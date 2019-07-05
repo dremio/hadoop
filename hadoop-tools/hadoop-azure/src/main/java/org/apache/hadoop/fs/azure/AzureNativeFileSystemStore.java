@@ -1879,7 +1879,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
    */
   private Iterable<ListBlobItem> listRootBlobs(boolean includeMetadata,
       boolean useFlatBlobListing) throws StorageException, URISyntaxException {
-    checkAndUpdateClient();
+    checkAndUpdateToken();
     return rootDirectory.listBlobs(
         null,
         useFlatBlobListing,
@@ -1912,7 +1912,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   private Iterable<ListBlobItem> listRootBlobs(String aPrefix, boolean includeMetadata,
       boolean useFlatBlobListing) throws StorageException, URISyntaxException {
 
-    checkAndUpdateClient();
+    checkAndUpdateToken();
     Iterable<ListBlobItem> list = rootDirectory.listBlobs(aPrefix,
         useFlatBlobListing,
         includeMetadata
@@ -1951,7 +1951,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
       EnumSet<BlobListingDetails> listingDetails, BlobRequestOptions options,
       OperationContext opContext) throws StorageException, URISyntaxException {
 
-    checkAndUpdateClient();
+    checkAndUpdateToken();
     CloudBlobDirectoryWrapper directory =  this.container.getDirectoryReference(aPrefix);
     return directory.listBlobs(
         null,
@@ -1961,13 +1961,13 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         opContext);
   }
 
-  private synchronized void checkAndUpdateClient() throws StorageException {
-    if(useOAuth) {
+  private synchronized void checkAndUpdateToken() throws StorageException {
+    if (useOAuth) {
       OAuthStorageInterfaceImpl oAuthStorage = (OAuthStorageInterfaceImpl) storageInteractionLayer;
-      if(oAuthStorage.isTokenAboutToExpire()) {
+      if (oAuthStorage.isTokenAboutToExpire()) {
         try {
-          oAuthStorage.updateTokenAndClient();
-        } catch(IOException ex) {
+          oAuthStorage.updateToken();
+        } catch (IOException ex) {
           throw StorageException.translateClientException(ex);
         }
       }
@@ -1992,10 +1992,10 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
     CloudBlobWrapper blob = null;
     if (isPageBlobKey(aKey)) {
-      checkAndUpdateClient();
+      checkAndUpdateToken();
       blob = this.container.getPageBlobReference(aKey);
     } else {
-      checkAndUpdateClient();
+      checkAndUpdateToken();
       blob = this.container.getBlockBlobReference(aKey);
     blob.setStreamMinimumReadSizeInBytes(downloadBlockSizeBytes);
     blob.setWriteBlockSizeInBytes(uploadBlockSizeBytes);
@@ -2296,10 +2296,10 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
       Iterable<ListBlobItem> objects;
       if (prefix.equals("/")) {
-        checkAndUpdateClient();
+        checkAndUpdateToken();
         objects = listRootBlobs(true, enableFlatListing);
       } else {
-        checkAndUpdateClient();
+        checkAndUpdateToken();
         objects = listRootBlobs(prefix, true, enableFlatListing);
       }
 
@@ -3015,7 +3015,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         throw new UnsupportedOperationException("Append not supported for Page Blobs");
       }
 
-      checkAndUpdateClient();
+      checkAndUpdateToken();
       CloudBlobWrapper blob =  this.container.getBlockBlobReference(key);
 
       OutputStream outputStream;
