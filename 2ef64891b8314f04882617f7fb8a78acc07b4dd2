@@ -1,0 +1,7 @@
+Code-Review+2: Kyle Porter <kporter@dremio.com>
+Verified+1: Kyle Porter <kporter@dremio.com>
+Submitted-by: James Duong <jduong@dremio.com>
+Submitted-at: Fri, 05 Jul 2019 06:20:18 +0000
+Reviewed-on: https://gnarly.drem.io/gerrit/13339
+Project: hadoop
+Branch: refs/heads/2_8_5_azure_dremio
