@@ -46,9 +46,9 @@ public class OAuthStorageInterfaceImpl extends StorageInterfaceImpl {
         synchronized(this) {
             StorageCredentialsToken credentials = (StorageCredentialsToken) serviceClient.getCredentials();
             assert credentials.getToken().equals(token.getAccessToken());
-            if(isTokenAboutToExpire()) {
+            if (isTokenAboutToExpire()) {
                 try {
-                    updateTokenAndClient();
+                    updateToken();
                 } catch(IOException ex) {
                     StorageException.translateClientException(ex);
                 }
@@ -57,24 +57,15 @@ public class OAuthStorageInterfaceImpl extends StorageInterfaceImpl {
         return super.getContainerReference(uri);
     }
 
-    public synchronized void updateTokenAndClient() throws IOException{
-        //Update token
-        this.token = AzureADAuthenticator.getTokenUsingClientCreds(adCredentials.getClientId(),
-                adCredentials.getTokenEndpoint(), adCredentials.getClientSecret());
-        //Update client credentials
-        this.serviceClient.setCloudBlobClientCredentials(
-                new StorageCredentialsToken(getCredentials().getAccountName(),
-                        this.token.getAccessToken()));
-    }
-
     public synchronized boolean isTokenAboutToExpire() {
         return AzureADAuthenticator.isTokenAboutToExpire(this.token);
     }
 
-    public synchronized String updateToken() throws IOException {
+    public synchronized void updateToken() throws IOException {
         this.token = AzureADAuthenticator.getTokenUsingClientCreds(adCredentials.getClientId(),
                 adCredentials.getTokenEndpoint(), adCredentials.getClientSecret());
-        return this.token.getAccessToken();
+
+        ((StorageCredentialsToken) this.serviceClient.getCredentials()).updateToken(token.getAccessToken());
     }
 
     public void setAdCredentials(AzureADCredentials adCredentials) {
