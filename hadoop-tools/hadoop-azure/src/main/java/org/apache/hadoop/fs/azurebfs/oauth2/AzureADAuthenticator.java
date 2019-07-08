@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Preconditions;
+
+import org.apache.hadoop.fs.azure.AzureADCredentials;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
@@ -59,6 +61,19 @@ public final class AzureADAuthenticator {
 
   private AzureADAuthenticator() {
     // no operation
+  }
+
+  /**
+   * Wrapper method to call getTokenUsingClientCreds with AzureADCredentials object
+   *
+   * @param adCredentials Azure Active Directory credentials object that contain clientId,
+   *                      token endpoint and client secret
+   * @return {@link AzureADToken} obtained by calling getTokenUsingClientCreds
+   * @throws IOException throws IOException if there is a failure in getTokenUsingClientCreds
+   */
+  public static AzureADToken getTokenUsingADCreds(AzureADCredentials adCredentials) throws IOException {
+    return getTokenUsingClientCreds(adCredentials.getTokenEndpoint(), adCredentials.getClientId(),
+            adCredentials.getClientSecret());
   }
 
   /**
