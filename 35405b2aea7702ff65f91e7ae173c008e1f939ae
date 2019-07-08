@@ -1,0 +1,8 @@
+Code-Review+2: James Duong <jduong@dremio.com>
+Code-Review+2: Saurav Biswas <sbiswas@dremio.com>
+Verified+1: Kyle Porter <kporter@dremio.com>
+Submitted-by: Tiffany Lam <tiffany@dremio.com>
+Submitted-at: Mon, 08 Jul 2019 18:51:58 +0000
+Reviewed-on: https://gnarly.drem.io/gerrit/13371
+Project: hadoop
+Branch: refs/heads/2_8_5_azure_dremio
