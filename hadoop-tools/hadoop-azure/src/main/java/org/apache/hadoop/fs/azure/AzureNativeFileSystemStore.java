@@ -982,8 +982,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
   private void connectUsingAzureAD(String accountName, String containerName, AzureADCredentials adCredentials)
           throws IOException, StorageException, URISyntaxException {
 
-    final AzureADToken token = AzureADAuthenticator.getTokenUsingClientCreds(adCredentials.getTokenEndpoint(),
-            adCredentials.getClientId(), adCredentials.getClientSecret());
+    final AzureADToken token = AzureADAuthenticator.getTokenUsingADCreds(adCredentials);
     OAuthStorageInterfaceImpl oAuthStorageInterface = (OAuthStorageInterfaceImpl) this.storageInteractionLayer;
     oAuthStorageInterface.setToken(token);
     StorageCredentials tokenCredentials = new StorageCredentialsToken(accountName, token.getAccessToken());
