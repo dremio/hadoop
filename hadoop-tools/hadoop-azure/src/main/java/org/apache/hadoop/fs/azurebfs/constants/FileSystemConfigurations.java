@@ -65,5 +65,7 @@ public final class FileSystemConfigurations {
   public static final boolean DEFAULT_ENABLE_DELEGATION_TOKEN = false;
   public static final boolean DEFAULT_ENABLE_HTTPS = true;
 
+  public static final boolean DEFAULT_DISABLE_IF_MATCH_HEADER_WITH_READ = false;
+
   private FileSystemConfigurations() {}
 }
