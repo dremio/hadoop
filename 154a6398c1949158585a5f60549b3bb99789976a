@@ -34,6 +34,24 @@
       "revId": "154a6398c1949158585a5f60549b3bb99789976a",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd4a9538_e94f91ec",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/services/AbfsClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 1000074
+      },
+      "writtenOn": "2019-08-17T22:50:27Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "0a4ef70d_bce55d4d",
+      "revId": "154a6398c1949158585a5f60549b3bb99789976a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
     }
   ]
 }
