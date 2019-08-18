@@ -1,0 +1,7 @@
+Code-Review+2: Ryan Nicholson <rnicholson@dremio.com>
+Verified+1: Ravindra Pindikura <ravindra@dremio.com>
+Submitted-by: Tiffany Lam <tiffany@dremio.com>
+Submitted-at: Sun, 18 Aug 2019 03:56:28 +0000
+Reviewed-on: https://gnarly.drem.io/gerrit/14079
+Project: hadoop
+Branch: refs/heads/2_8_5_azure_dremio
