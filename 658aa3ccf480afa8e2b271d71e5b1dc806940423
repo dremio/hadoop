@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "70acc17e_586374cd",
+        "filename": "hadoop-tools/hadoop-azure/src/test/java/org/apache/hadoop/fs/azure/MockStorageInterface.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1000074
+      },
+      "writtenOn": "2019-08-22T20:22:56Z",
+      "side": 1,
+      "message": "This is overrode to be consistent with the addition of getClient to StorageInterface so that it compiles",
+      "range": {
+        "startLine": 96,
+        "startChar": 22,
+        "endLine": 96,
+        "endChar": 32
+      },
+      "revId": "658aa3ccf480afa8e2b271d71e5b1dc806940423",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    }
+  ]
+}
