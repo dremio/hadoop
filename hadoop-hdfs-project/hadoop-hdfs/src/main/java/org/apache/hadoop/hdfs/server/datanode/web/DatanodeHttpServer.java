@@ -94,7 +94,7 @@ public class DatanodeHttpServer implements Closeable {
   private static final int HTTP_SELECTOR_THREADS = 1;
   private static final int HTTP_ACCEPTOR_THREADS = 1;
   private static final int HTTP_MAX_THREADS =
-      HTTP_SELECTOR_THREADS + HTTP_ACCEPTOR_THREADS + 1;
+      HTTP_SELECTOR_THREADS + HTTP_ACCEPTOR_THREADS + 2;
 
   public DatanodeHttpServer(final Configuration conf,
       final DataNode datanode,
