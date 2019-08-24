@@ -97,6 +97,17 @@ public class DatanodeHttpServer implements Closeable {
   private final Configuration confForCreate;
   private InetSocketAddress httpAddress;
   private InetSocketAddress httpsAddress;
+<<<<<<< HEAD   (a3b9c3 Revert "HADOOP-16878. FileUtil.copy() to throw IOException i)
+=======
+  static final Logger LOG = LoggerFactory.getLogger(DatanodeHttpServer.class);
+
+  // HttpServer threads are only used for the web UI and basic servlets, so
+  // set them to the minimum possible
+  private static final int HTTP_SELECTOR_THREADS = 1;
+  private static final int HTTP_ACCEPTOR_THREADS = 1;
+  private static final int HTTP_MAX_THREADS =
+      HTTP_SELECTOR_THREADS + HTTP_ACCEPTOR_THREADS + 2;
+>>>>>>> CHANGE (ed5423 - Upgrade jetty version - Fix number of http threads for dat)
 
   public DatanodeHttpServer(final Configuration conf,
         final DataNode datanode,

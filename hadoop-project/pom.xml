@@ -37,7 +37,11 @@
     <!--Whether to proceed to next module if any test failures exist-->
     <ignoreTestFailure>true</ignoreTestFailure>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+<<<<<<< HEAD   (a3b9c3 Revert "HADOOP-16878. FileUtil.copy() to throw IOException i)
     <jetty.version>9.4.40.v20210413</jetty.version>
+=======
+    <jetty.version>9.4.15.v20190215</jetty.version>
+>>>>>>> CHANGE (ed5423 - Upgrade jetty version - Fix number of http threads for dat)
     <test.exclude>_</test.exclude>
     <test.exclude.pattern>_</test.exclude.pattern>
 
