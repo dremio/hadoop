@@ -82,12 +82,10 @@ import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
-import org.eclipse.jetty.server.session.AbstractSessionManager;
 import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -574,12 +572,9 @@ public final class HttpServer2 implements FilterContainer {
       threadPool.setMaxThreads(maxThreads);
     }
 
-    SessionManager sm = webAppContext.getSessionHandler().getSessionManager();
-    if (sm instanceof AbstractSessionManager) {
-      AbstractSessionManager asm = (AbstractSessionManager)sm;
-      asm.setHttpOnly(true);
-      asm.getSessionCookieConfig().setSecure(true);
-    }
+    SessionHandler handler = webAppContext.getSessionHandler();
+    handler.setHttpOnly(true);
+    handler.getSessionCookieConfig().setSecure(true);
 
     ContextHandlerCollection contexts = new ContextHandlerCollection();
     RequestLog requestLog = HttpRequestLog.getRequestLog(name);
@@ -718,12 +713,8 @@ public final class HttpServer2 implements FilterContainer {
       }
       logContext.setDisplayName("logs");
       SessionHandler handler = new SessionHandler();
-      SessionManager sm = handler.getSessionManager();
-      if (sm instanceof AbstractSessionManager) {
-        AbstractSessionManager asm = (AbstractSessionManager) sm;
-        asm.setHttpOnly(true);
-        asm.getSessionCookieConfig().setSecure(true);
-      }
+      handler.setHttpOnly(true);
+      handler.getSessionCookieConfig().setSecure(true);
       logContext.setSessionHandler(handler);
       setContextAttributes(logContext, conf);
       addNoCacheFilter(logContext);
@@ -740,12 +731,8 @@ public final class HttpServer2 implements FilterContainer {
     params.put("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
     params.put("org.eclipse.jetty.servlet.Default.gzip", "true");
     SessionHandler handler = new SessionHandler();
-    SessionManager sm = handler.getSessionManager();
-    if (sm instanceof AbstractSessionManager) {
-      AbstractSessionManager asm = (AbstractSessionManager) sm;
-      asm.setHttpOnly(true);
-      asm.getSessionCookieConfig().setSecure(true);
-    }
+    handler.setHttpOnly(true);
+    handler.getSessionCookieConfig().setSecure(true);
     staticContext.setSessionHandler(handler);
     setContextAttributes(staticContext, conf);
     defaultContexts.put(staticContext, true);
@@ -1186,9 +1173,17 @@ public final class HttpServer2 implements FilterContainer {
   private static void bindListener(ServerConnector listener) throws Exception {
     // jetty has a bug where you can't reopen a listener that previously
     // failed to open w/o issuing a close first, even if the port is changed
-    listener.close();
-    listener.open();
-    LOG.info("Jetty bound to port " + listener.getLocalPort());
+    try {
+      listener.close();
+      listener.open();
+      LOG.info("Jetty bound to port " + listener.getLocalPort());
+    } catch (IOException e) {
+      // Jetty 9.4 wraps BindException into IOException
+      if (e.getCause() instanceof BindException) {
+        throw (BindException) e.getCause();
+      }
+      throw e;
+    }
   }
 
   /**
