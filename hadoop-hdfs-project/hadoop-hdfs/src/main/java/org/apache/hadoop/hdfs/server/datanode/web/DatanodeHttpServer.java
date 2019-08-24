@@ -97,7 +97,6 @@ public class DatanodeHttpServer implements Closeable {
   private final Configuration confForCreate;
   private InetSocketAddress httpAddress;
   private InetSocketAddress httpsAddress;
-
   public DatanodeHttpServer(final Configuration conf,
         final DataNode datanode,
         final ServerSocketChannel externalHttpChannel)
