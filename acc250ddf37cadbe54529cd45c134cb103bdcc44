@@ -1,0 +1,7 @@
+Code-Review+2: James Duong <jduong@dremio.com>
+Verified+1: Kyle Porter <kporter@dremio.com>
+Submitted-by: James Duong <jduong@dremio.com>
+Submitted-at: Wed, 28 Aug 2019 23:12:10 +0000
+Reviewed-on: https://gnarly.drem.io/gerrit/14205
+Project: hadoop
+Branch: refs/heads/branch-3.2.0
