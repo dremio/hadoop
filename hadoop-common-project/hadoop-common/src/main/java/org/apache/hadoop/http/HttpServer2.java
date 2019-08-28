@@ -1173,9 +1173,17 @@ public final class HttpServer2 implements FilterContainer {
   private static void bindListener(ServerConnector listener) throws Exception {
     // jetty has a bug where you can't reopen a listener that previously
     // failed to open w/o issuing a close first, even if the port is changed
-    listener.close();
-    listener.open();
-    LOG.info("Jetty bound to port " + listener.getLocalPort());
+    try {
+      listener.close();
+      listener.open();
+      LOG.info("Jetty bound to port " + listener.getLocalPort());
+    } catch (IOException e) {
+      // Jetty 9.4 wraps BindException into IOException
+      if (e.getCause() instanceof BindException) {
+        throw (BindException) e.getCause();
+      }
+      throw e;
+    }
   }
 
   /**
