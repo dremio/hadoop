@@ -170,10 +170,6 @@ public class AbfsConfiguration{
       DefaultValue = DEFAULT_USE_UPN)
   private boolean useUpn;
 
-  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = FS_AZURE_DISABLE_IF_MATCH_HEADER_WITH_READ,
-      DefaultValue = DEFAULT_DISABLE_IF_MATCH_HEADER_WITH_READ)
-  private boolean disableIfMatchHeaderWithRead;
-
   private Map<String, String> storageAccountKeys;
 
   public AbfsConfiguration(final Configuration rawConfig, String accountName)
@@ -461,10 +457,6 @@ public class AbfsConfiguration{
 
   public boolean isUpnUsed() {
     return this.useUpn;
-  }
-
-  public boolean getDisableIfMatchHeaderWithRead() {
-    return this.disableIfMatchHeaderWithRead;
   }
 
   public AccessTokenProvider getTokenProvider() throws TokenAccessProviderException {

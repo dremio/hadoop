@@ -67,7 +67,5 @@ public final class FileSystemConfigurations {
 
   public static final boolean DEFAULT_USE_UPN = false;
 
-  public static final boolean DEFAULT_DISABLE_IF_MATCH_HEADER_WITH_READ = false;
-
   private FileSystemConfigurations() {}
 }

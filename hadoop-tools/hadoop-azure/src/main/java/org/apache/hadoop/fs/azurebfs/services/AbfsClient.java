@@ -360,10 +360,7 @@ public class AbfsClient {
     final List<AbfsHttpHeader> requestHeaders = createDefaultHeaders();
     requestHeaders.add(new AbfsHttpHeader(RANGE,
             String.format("bytes=%d-%d", position, position + bufferLength - 1)));
-
-    if (!abfsConfiguration.getDisableIfMatchHeaderWithRead()) {
-      requestHeaders.add(new AbfsHttpHeader(IF_MATCH, eTag));
-    }
+    requestHeaders.add(new AbfsHttpHeader(IF_MATCH, eTag));
 
     final AbfsUriQueryBuilder abfsUriQueryBuilder = createDefaultUriQueryBuilder();
 
