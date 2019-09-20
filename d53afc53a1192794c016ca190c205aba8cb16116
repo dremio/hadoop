@@ -1,0 +1,7 @@
+Code-Review+2: Laurent Goujon <laurent@dremio.com>
+Verified+1: Ravindra Pindikura <ravindra@dremio.com>
+Submitted-by: Thippana Vamsi Kalyan <vamsi@dremio.com>
+Submitted-at: Fri, 20 Sep 2019 09:22:07 +0000
+Reviewed-on: https://gnarly.drem.io/gerrit/14704
+Project: hadoop
+Branch: refs/heads/branch-3.2.0-dremio
