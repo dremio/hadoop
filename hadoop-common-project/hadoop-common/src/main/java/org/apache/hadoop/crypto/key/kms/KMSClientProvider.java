@@ -1037,7 +1037,13 @@ public class KMSClientProvider extends KeyProvider implements CryptoExtension,
         }
       });
       if (token != null) {
-        token.setService(dtService);
+        if (getConf().getBoolean(CommonConfigurationKeysPublic.KMS_CLIENT_TOKEN_SERVICE_FORMAT_ENABLE_KEY,
+                CommonConfigurationKeysPublic.KMS_CLIENT_TOKEN_SERVICE_FORMAT_ENABLE_DEFAULT)) {
+          // Only set the new kms service format if specified, versions of Hadoop prior to 3.0.4 cannot accept
+          // URLs with the kms:// prefix.
+          token.setService(dtService);
+        }
+
         LOG.info("New token created: ({})", token);
       } else {
         throw new IOException("Got NULL as delegation token");
