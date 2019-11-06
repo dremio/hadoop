@@ -249,11 +249,16 @@ public class LoadBalancingKMSClientProvider extends KeyProvider implements
     return doOp(new ProviderCallable<Token<?>>() {
       @Override
       public Token<?> call(KMSClientProvider provider) throws IOException {
-        Token<?> token = provider.getDelegationToken(renewer);
+        final Token<?> token = provider.getDelegationToken(renewer);
         // override sub-providers service with our own so it can be used
         // across all providers.
-        token.setService(dtService);
-        LOG.debug("New token service set. Token: ({})", token);
+        if (getConf().getBoolean(CommonConfigurationKeysPublic.KMS_CLIENT_USE_LEGACY_TOKEN_KEY,
+                CommonConfigurationKeysPublic.KMS_CLIENT_USE_LEGACY_TOKEN_DEFAULT)) {
+          // Only set the new kms service format if specified, versions of Hadoop prior to 3.0.4 cannot accept
+          // URLs with the kms:// prefix.
+          token.setService(dtService);
+          LOG.debug("New token service set. Token: ({})", token);
+        }
         return token;
       }
     }, nextIdx(), false);

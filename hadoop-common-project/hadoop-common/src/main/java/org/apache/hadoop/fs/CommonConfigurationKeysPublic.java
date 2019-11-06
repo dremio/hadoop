@@ -814,6 +814,16 @@ public class CommonConfigurationKeysPublic {
    * <a href="{@docRoot}/../hadoop-project-dist/hadoop-common/core-default.xml">
    * core-default.xml</a>
    */
+  public static final String KMS_CLIENT_USE_LEGACY_TOKEN_KEY =
+          "hadoop.security.kms.client.use-legacy-token";
+  /** Default value is enabled. */
+  public static final boolean KMS_CLIENT_USE_LEGACY_TOKEN_DEFAULT = true;
+
+  /**
+   * @see
+   * <a href="{@docRoot}/../hadoop-project-dist/hadoop-common/core-default.xml">
+   * core-default.xml</a>
+   */
   public static final String HADOOP_SECURITY_JAVA_SECURE_RANDOM_ALGORITHM_KEY = 
     "hadoop.security.java.secure.random.algorithm";
   /** Defalt value for HADOOP_SECURITY_JAVA_SECURE_RANDOM_ALGORITHM_KEY */
