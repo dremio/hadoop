@@ -817,7 +817,7 @@ public class CommonConfigurationKeysPublic {
   public static final String KMS_CLIENT_USE_LEGACY_TOKEN_KEY =
           "hadoop.security.kms.client.use-legacy-token";
   /** Default value is enabled. */
-  public static final boolean KMS_CLIENT_USE_LEGACY_TOKEN_DEFAULT = true;
+  public static final boolean KMS_CLIENT_USE_LEGACY_TOKEN_DEFAULT = false;
 
   /**
    * @see
