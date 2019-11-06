@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7cbb8de5_3ded2778",
+        "filename": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/crypto/key/kms/KMSClientProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2019-11-06T16:26:12Z",
+      "side": 1,
+      "message": "isn\u0027t it the opposite: the legacy token doesn\u0027t have service set to the new format?",
+      "range": {
+        "startLine": 1040,
+        "startChar": 8,
+        "endLine": 1045,
+        "endChar": 9
+      },
+      "revId": "b28effc44551bf060bdea7aff92b7603a82ef745",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed6aa90e_8bf96b09",
+        "filename": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/crypto/key/kms/LoadBalancingKMSClientProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2019-11-06T16:26:12Z",
+      "side": 1,
+      "message": "isn\u0027t it the opposite: the legacy token doesn\u0027t have service set to the new format?",
+      "range": {
+        "startLine": 255,
+        "startChar": 8,
+        "endLine": 261,
+        "endChar": 9
+      },
+      "revId": "b28effc44551bf060bdea7aff92b7603a82ef745",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72e60121_ec07da4e",
+        "filename": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/CommonConfigurationKeysPublic.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2019-11-06T16:26:12Z",
+      "side": 1,
+      "message": "if we were to upstream to Hadoop (and maybe we should), default would be false",
+      "revId": "b28effc44551bf060bdea7aff92b7603a82ef745",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    }
+  ]
+}
