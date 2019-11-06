@@ -22,6 +22,30 @@
       "revId": "3cd78b279f0603f67a2630ebf0897a03a9bd633f",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63fadc5a_4f96607e",
+        "filename": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/crypto/key/kms/KMSClientProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2019-11-06T05:31:37Z",
+      "side": 1,
+      "message": "I chatted with Laurent around this, the \"old\" format is already set and this is setting the \"new\" format with the kms:// prefix. So, skipping the setting will keep the old format and allow things to work. If we skipped setting it, then we would never use the new format.",
+      "parentUuid": "4da2558f_517bce70",
+      "range": {
+        "startLine": 1040,
+        "startChar": 8,
+        "endLine": 1045,
+        "endChar": 9
+      },
+      "revId": "3cd78b279f0603f67a2630ebf0897a03a9bd633f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
     }
   ]
 }
