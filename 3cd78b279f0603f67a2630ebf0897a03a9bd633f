@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4da2558f_517bce70",
+        "filename": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/crypto/key/kms/KMSClientProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1045,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2019-11-06T02:11:57Z",
+      "side": 1,
+      "message": "Can we just skip calling setService completely? Do we not need to at call setService without the kms:// prefix?",
+      "range": {
+        "startLine": 1040,
+        "startChar": 8,
+        "endLine": 1045,
+        "endChar": 9
+      },
+      "revId": "3cd78b279f0603f67a2630ebf0897a03a9bd633f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    }
+  ]
+}
