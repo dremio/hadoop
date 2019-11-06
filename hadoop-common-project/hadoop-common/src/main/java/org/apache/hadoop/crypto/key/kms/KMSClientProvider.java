@@ -1037,7 +1037,7 @@ public class KMSClientProvider extends KeyProvider implements CryptoExtension,
         }
       });
       if (token != null) {
-        if (getConf().getBoolean(CommonConfigurationKeysPublic.KMS_CLIENT_USE_LEGACY_TOKEN_KEY,
+        if (!getConf().getBoolean(CommonConfigurationKeysPublic.KMS_CLIENT_USE_LEGACY_TOKEN_KEY,
                 CommonConfigurationKeysPublic.KMS_CLIENT_USE_LEGACY_TOKEN_DEFAULT)) {
           // Only set the new kms service format if specified, versions of Hadoop prior to 3.0.4 cannot accept
           // URLs with the kms:// prefix.
