@@ -1,0 +1,7 @@
+Code-Review+2: Ryan Tse <ryan@dremio.com>
+Verified+1: Kyle Porter <kporter@dremio.com>
+Submitted-by: Kyle Porter <kporter@dremio.com>
+Submitted-at: Wed, 06 Nov 2019 16:02:31 +0000
+Reviewed-on: https://gnarly.drem.io/gerrit/15296
+Project: hadoop
+Branch: refs/heads/branch-3.2.0-dremio
