@@ -46,6 +46,29 @@
       "revId": "3cd78b279f0603f67a2630ebf0897a03a9bd633f",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "adbcff57_ef408f74",
+        "filename": "hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/CommonConfigurationKeysPublic.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 818,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2019-11-06T06:17:26Z",
+      "side": 1,
+      "message": "key name is not great because we don\u0027t know if old or new format is enabled.\n\nsomething like hadoop.security.kms.client.use_legacy_token might be easier to interpret (I think one hadoop ticket had some proposal for a key, but it never materialized)",
+      "range": {
+        "startLine": 818,
+        "startChar": 11,
+        "endLine": 818,
+        "endChar": 65
+      },
+      "revId": "3cd78b279f0603f67a2630ebf0897a03a9bd633f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
     }
   ]
 }
