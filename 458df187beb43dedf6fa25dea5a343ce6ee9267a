@@ -1,0 +1,7 @@
+Verified+1: Doron Rosenberg <doron@dremio.com>
+Code-Review+2: Brandon Huang <brandon@dremio.com>
+Submitted-by: Brandon Huang <brandon@dremio.com>
+Submitted-at: Fri, 27 Dec 2019 22:54:15 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/15693
+Project: hadoop
+Branch: refs/heads/branch-3.2.1-dremio
