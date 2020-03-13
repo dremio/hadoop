@@ -1121,33 +1121,34 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
 
       // Check whether we have a shared access signature for that container.
       String propertyValue = sessionConfiguration.get(KEY_ACCOUNT_SAS_PREFIX
-          + containerName + "." + accountName);
+              + containerName + "." + accountName);
       if (propertyValue != null) {
         // SAS was found. Connect using that.
         connectUsingSASCredentials(accountName, containerName, propertyValue);
         return;
       }
-
-      // Check whether the account is configured with an account key.
-      propertyValue = getAccountKeyFromConfiguration(accountName,
-          sessionConfiguration);
-      if (StringUtils.isNotEmpty(propertyValue)) {
-        // Account key was found.
-        // Create the Azure storage session using the account key and container.
-        connectUsingConnectionStringCredentials(
-            getAccountFromAuthority(sessionUri),
-            getContainerFromAuthority(sessionUri), propertyValue);
-        return;
-      }
+​
       if (useOAuth) {
         AzureADCredentials adCredentials = getAzureADCredentialsFromConfiguration(accountName, sessionConfiguration);
         OAuthStorageInterfaceImpl oAuthStorageInterface = (OAuthStorageInterfaceImpl) this.storageInteractionLayer;
         oAuthStorageInterface.setAdCredentials(adCredentials);
         connectUsingAzureAD(accountName, containerName, adCredentials);
         return;
+      }
+​
+      // Check whether the account is configured with an account key.
+      propertyValue = getAccountKeyFromConfiguration(accountName,
+              sessionConfiguration);
+      if (StringUtils.isNotEmpty(propertyValue)) {
+        // Account key was found.
+        // Create the Azure storage session using the account key and container.
+        connectUsingConnectionStringCredentials(
+                getAccountFromAuthority(sessionUri),
+                getContainerFromAuthority(sessionUri), propertyValue);
+        return;
       } else {
         LOG.debug("The account access key is not configured for {}. "
-            + "Now try anonymous access.", sessionUri);
+                + "Now try anonymous access.", sessionUri);
         connectUsingAnonymousCredentials(sessionUri);
       }
     } catch (Exception e) {
