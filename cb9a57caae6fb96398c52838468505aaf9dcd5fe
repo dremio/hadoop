@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b132d688_7ad0a3df",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azure/AzureNativeFileSystemStore.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1138,
+      "author": {
+        "id": 1000118
+      },
+      "writtenOn": "2020-03-13T20:27:41Z",
+      "side": 1,
+      "message": "Does it make sense to move this even higher? In the lines above, I see it again tries to access a value via sessionConfiguration which seems to bubble up from core-site.xml.",
+      "range": {
+        "startLine": 1132,
+        "startChar": 6,
+        "endLine": 1138,
+        "endChar": 7
+      },
+      "revId": "cb9a57caae6fb96398c52838468505aaf9dcd5fe",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
