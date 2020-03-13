@@ -44,8 +44,10 @@ public class OAuthStorageInterfaceImpl extends StorageInterfaceImpl {
     public StorageInterface.CloudBlobContainerWrapper getContainerReference(String uri)
             throws URISyntaxException, StorageException {
         synchronized(this) {
-            StorageCredentialsToken credentials = (StorageCredentialsToken) serviceClient.getCredentials();
-            assert credentials.getToken().equals(token.getAccessToken());
+            if (serviceClient.getCredentials() instanceof StorageCredentialsToken) {
+                StorageCredentialsToken credentials = (StorageCredentialsToken) serviceClient.getCredentials();
+                assert credentials.getToken().equals(token.getAccessToken());
+            }
             if (isTokenAboutToExpire()) {
                 try {
                     updateToken();
