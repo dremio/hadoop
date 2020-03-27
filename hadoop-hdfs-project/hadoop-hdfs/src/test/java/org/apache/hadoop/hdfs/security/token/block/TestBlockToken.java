@@ -41,6 +41,7 @@ import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.Set;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.mockito.Mockito;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
