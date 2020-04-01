@@ -1290,6 +1290,11 @@ public final class S3AUtils {
     awsConf.setMaxConnections(intOption(conf, MAXIMUM_CONNECTIONS,
         DEFAULT_MAXIMUM_CONNECTIONS, 1));
     initProtocolSettings(conf, awsConf);
+    boolean secureConnections = conf.getBoolean(SECURE_CONNECTIONS,
+        DEFAULT_SECURE_CONNECTIONS);
+    boolean requesterPays = conf.getBoolean(ALLOW_REQUESTER_PAYS,
+            DEFAULT_ALLOW_REQUESTER_PAYS);
+    awsConf.setProtocol(secureConnections ?  Protocol.HTTPS : Protocol.HTTP);
     awsConf.setMaxErrorRetry(intOption(conf, MAX_ERROR_RETRIES,
         DEFAULT_MAX_ERROR_RETRIES, 0));
     awsConf.setConnectionTimeout(intOption(conf, ESTABLISH_TIMEOUT,
@@ -1314,6 +1319,9 @@ public final class S3AUtils {
     if (!signerOverride.isEmpty()) {
      LOG.debug("Signer override = {}", signerOverride);
       awsConf.setSignerOverride(signerOverride);
+    }
+    if (requesterPays) {
+      awsConf.addHeader("x-amz-request-payer", "requester");
     }
   }
 
