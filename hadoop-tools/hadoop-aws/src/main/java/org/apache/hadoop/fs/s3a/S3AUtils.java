@@ -126,6 +126,12 @@ public final class S3AUtils {
 
   private static final String BUCKET_PATTERN = FS_S3A_BUCKET_PREFIX + "%s.%s";
 
+  /**
+   * Header required for accessing for S3 requester-pays buckets.
+   */
+  private static final String S3_REQUESTER_PAYS_HEADER_NAME = "x-amz-request-payer";
+  private static final String S3_REQUESTER_PAYS_HEADER_VALUE = "requester";
+
 
   private S3AUtils() {
   }
@@ -1163,6 +1169,8 @@ public final class S3AUtils {
         DEFAULT_MAXIMUM_CONNECTIONS, 1));
     boolean secureConnections = conf.getBoolean(SECURE_CONNECTIONS,
         DEFAULT_SECURE_CONNECTIONS);
+    boolean requesterPays = conf.getBoolean(ALLOW_REQUESTER_PAYS,
+            DEFAULT_ALLOW_REQUESTER_PAYS);
     awsConf.setProtocol(secureConnections ?  Protocol.HTTPS : Protocol.HTTP);
     awsConf.setMaxErrorRetry(intOption(conf, MAX_ERROR_RETRIES,
         DEFAULT_MAX_ERROR_RETRIES, 0));
@@ -1179,6 +1187,9 @@ public final class S3AUtils {
     if (!signerOverride.isEmpty()) {
      LOG.debug("Signer override = {}", signerOverride);
       awsConf.setSignerOverride(signerOverride);
+    }
+    if (requesterPays) {
+      awsConf.addHeader(S3_REQUESTER_PAYS_HEADER_NAME, S3_REQUESTER_PAYS_HEADER_VALUE);
     }
   }
 
