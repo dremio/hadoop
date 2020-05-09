@@ -36,6 +36,7 @@ public class SnappyDecompressor implements Decompressor {
   private static final Logger LOG =
       LoggerFactory.getLogger(SnappyDecompressor.class.getName());
   private static final int DEFAULT_DIRECT_BUFFER_SIZE = 64 * 1024;
+  private static final Buffer DUMMY_BUFFER = ByteBuffer.allocateDirect(0);
 
   private int directBufferSize;
   private Buffer compressedDirectBuf = null;
@@ -71,8 +72,8 @@ public class SnappyDecompressor implements Decompressor {
   public SnappyDecompressor(int directBufferSize) {
     this.directBufferSize = directBufferSize;
 
-    compressedDirectBuf = ByteBuffer.allocateDirect(directBufferSize);
-    uncompressedDirectBuf = ByteBuffer.allocateDirect(directBufferSize);
+    compressedDirectBuf = directBufferSize == 0 ? DUMMY_BUFFER : ByteBuffer.allocateDirect(directBufferSize);
+    uncompressedDirectBuf = directBufferSize == 0 ? DUMMY_BUFFER : ByteBuffer.allocateDirect(directBufferSize);
     uncompressedDirectBuf.position(directBufferSize);
 
   }
@@ -315,6 +316,10 @@ public class SnappyDecompressor implements Decompressor {
   public static class SnappyDirectDecompressor extends SnappyDecompressor implements
       DirectDecompressor {
     
+    public SnappyDirectDecompressor() {
+      super(0);
+    }
+
     @Override
     public boolean finished() {
       return (endOfInput && super.finished());
