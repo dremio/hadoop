@@ -315,6 +315,10 @@ public class SnappyDecompressor implements Decompressor {
   public static class SnappyDirectDecompressor extends SnappyDecompressor implements
       DirectDecompressor {
     
+    SnappyDirectDecompressor() {
+      super(0);
+    }
+
     @Override
     public boolean finished() {
       return (endOfInput && super.finished());
