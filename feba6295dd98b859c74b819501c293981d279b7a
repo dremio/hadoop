@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d058cd69_7b252c1b",
+        "filename": "hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/security/token/block/BlockTokenIdentifier.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1000034
+      },
+      "writtenOn": "2020-05-16T00:14:41Z",
+      "side": 1,
+      "message": "Is it possible to do a version check to ensure that these aren\u0027t actual errors?",
+      "revId": "feba6295dd98b859c74b819501c293981d279b7a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
