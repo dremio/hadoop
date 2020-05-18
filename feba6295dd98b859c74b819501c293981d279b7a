@@ -1,0 +1,8 @@
+Code-Review+2: Kyle Porter <kporter@dremio.com>
+Code-Review+2: Ravindra Pindikura <ravindra@dremio.com>
+Verified+1: Laurent Goujon <laurent@dremio.com>
+Submitted-by: Laurent Goujon <laurent@dremio.com>
+Submitted-at: Mon, 18 May 2020 14:57:20 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/17875
+Project: hadoop
+Branch: refs/heads/branch-3.2.1-dremio
