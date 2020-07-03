@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "617c42d4_c67a1658",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2020-07-03T15:16:22Z",
+      "side": 1,
+      "message": "Why store the entire Configuration object instead of just remember 2 booleans?",
+      "revId": "579ca1d945e128c861a4e3af03dd16b405ad232a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ea4a8e4_3c2c75bb",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2020-07-03T15:16:22Z",
+      "side": 1,
+      "message": "I would suggest making minimal changes. If we want to bring some changes from the open source community later, I want the minimise the risk of merge conflicts.",
+      "revId": "579ca1d945e128c861a4e3af03dd16b405ad232a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "729c4e57_468d01cc",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2020-07-03T15:16:22Z",
+      "side": 1,
+      "message": "I didn\u0027t realise that the fileStatus object was used in the code. If you have verified that only the path and isDir are used, that is good.",
+      "revId": "579ca1d945e128c861a4e3af03dd16b405ad232a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
