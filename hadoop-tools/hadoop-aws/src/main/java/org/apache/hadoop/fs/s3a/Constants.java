@@ -1013,6 +1013,14 @@ public final class Constants {
   public static final boolean CHANGE_DETECT_REQUIRE_VERSION_DEFAULT = true;
 
   /**
+   * Whether file status check should be done in create() of an S3 file.
+   * Default: true
+   */
+  public static final String CREATE_FILE_STATUS_CHECK = "fs.s3a.create.file-status-check";
+  public static final boolean CREATE_FILE_STATUS_CHECK_DEFAULT = true;
+
+
+  /**
    * Number of times to retry any repeatable S3 client request on failure,
    * excluding throttling requests: {@value}.
    */

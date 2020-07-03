@@ -272,6 +272,8 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
    */
   public static final int DEFAULT_BLOCKSIZE = 32 * 1024 * 1024;
 
+  private boolean doCreateFileStatusCheck = CREATE_FILE_STATUS_CHECK_DEFAULT;
+
   private URI uri;
   private Path workingDir;
   private String username;
@@ -463,6 +465,7 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
    */
   public void initialize(URI name, Configuration originalConf)
       throws IOException {
+    doCreateFileStatusCheck = originalConf.getBoolean(CREATE_FILE_STATUS_CHECK, CREATE_FILE_STATUS_CHECK_DEFAULT);
     // get the host; this is guaranteed to be non-null, non-empty
     bucket = name.getHost();
     AuditSpan span = null;
@@ -1825,27 +1828,29 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
     if (skipProbes) {
       LOG.debug("Skipping existence/overwrite checks");
     } else {
-      try {
-        // get the status or throw an FNFE.
-        // when overwriting, there is no need to look for any existing file,
-        // just a directory (for safety)
-        FileStatus status = innerGetFileStatus(path, false,
-            overwrite
-                ? StatusProbeEnum.DIRECTORIES
-                : StatusProbeEnum.ALL);
+      if (!overwrite || doCreateFileStatusCheck) {
+        try {
+          // get the status or throw an FNFE.
+          // when overwriting, there is no need to look for any existing file,
+          // just a directory (for safety)
+          FileStatus status = innerGetFileStatus(path, false,
+              overwrite
+                  ? StatusProbeEnum.DIRECTORIES
+                  : StatusProbeEnum.ALL);
 
-        // if the thread reaches here, there is something at the path
-        if (status.isDirectory()) {
-          // path references a directory: automatic error
-          throw new FileAlreadyExistsException(path + " is a directory");
+          // if the thread reaches here, there is something at the path
+          if (status.isDirectory()) {
+            // path references a directory: automatic error
+            throw new FileAlreadyExistsException(path + " is a directory");
+          }
+          if (!overwrite) {
+            // path references a file and overwrite is disabled
+            throw new FileAlreadyExistsException(path + " already exists");
+          }
+          LOG.debug("Overwriting file {}", path);
+        } catch (FileNotFoundException e) {
+          // this means there is nothing at the path; all good.
         }
-        if (!overwrite) {
-          // path references a file and overwrite is disabled
-          throw new FileAlreadyExistsException(path + " already exists");
-        }
-        LOG.debug("Overwriting file {}", path);
-      } catch (FileNotFoundException e) {
-        // this means there is nothing at the path; all good.
       }
     }
     instrumentation.fileCreated();
