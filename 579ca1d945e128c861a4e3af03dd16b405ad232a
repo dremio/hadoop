@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "479315bb_d97dc852",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1000149
+      },
+      "writtenOn": "2020-07-03T15:42:31Z",
+      "side": 1,
+      "message": "Changed",
+      "parentUuid": "617c42d4_c67a1658",
+      "revId": "579ca1d945e128c861a4e3af03dd16b405ad232a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ea4a8e4_3c2c75bb",
         "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "7b4d9442_b960b874",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 1000149
+      },
+      "writtenOn": "2020-07-03T15:42:31Z",
+      "side": 1,
+      "message": "Thanks for the thought",
+      "parentUuid": "8ea4a8e4_3c2c75bb",
+      "revId": "579ca1d945e128c861a4e3af03dd16b405ad232a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "729c4e57_468d01cc",
         "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
         "patchSetId": 1
@@ -50,6 +86,24 @@
       "revId": "579ca1d945e128c861a4e3af03dd16b405ad232a",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2c21a05_c4a703dc",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 935,
+      "author": {
+        "id": 1000149
+      },
+      "writtenOn": "2020-07-03T15:42:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "729c4e57_468d01cc",
+      "revId": "579ca1d945e128c861a4e3af03dd16b405ad232a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": false
     }
   ]
 }
