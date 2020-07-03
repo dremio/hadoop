@@ -191,6 +191,9 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
   */
   public static final boolean DELETE_CONSIDERED_IDEMPOTENT = true;
 
+  private static final String OPEN_FILE_STATUS_CHECK = "fs.dremioS3.open.fileStatusCheck";
+  private static final String CREATE_FILE_STATUS_CHECK = "fs.dremioS3.create.fileStatusCheck";
+
   private URI uri;
   private Path workingDir;
   private String username;
@@ -238,6 +241,7 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
   private MetadataStore metadataStore;
   private boolean allowAuthoritativeMetadataStore;
   private Collection<String> allowAuthoritativePaths;
+  private Configuration s3FsConf;
 
   /** Delegation token integration; non-empty when DT support is enabled. */
   private Optional<S3ADelegationTokens> delegationTokens = Optional.empty();
@@ -290,25 +294,25 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
     bucket = name.getHost();
     LOG.debug("Initializing S3AFileSystem for {}", bucket);
     // clone the configuration into one with propagated bucket options
-    Configuration conf = propagateBucketOptions(originalConf, bucket);
+    s3FsConf = propagateBucketOptions(originalConf, bucket);
     // patch the Hadoop security providers
-    patchSecurityCredentialProviders(conf);
+    patchSecurityCredentialProviders(s3FsConf);
     // look for delegation token support early.
-    boolean delegationTokensEnabled = hasDelegationTokenBinding(conf);
+    boolean delegationTokensEnabled = hasDelegationTokenBinding(s3FsConf);
     if (delegationTokensEnabled) {
       LOG.debug("Using delegation tokens");
     }
     // set the URI, this will do any fixup of the URI to remove secrets,
     // canonicalize.
     setUri(name, delegationTokensEnabled);
-    super.initialize(uri, conf);
-    setConf(conf);
+    super.initialize(uri, s3FsConf);
+    setConf(s3FsConf);
     try {
 
       // look for encryption data
       // DT Bindings may override this
       setEncryptionSecrets(new EncryptionSecrets(
-          getEncryptionAlgorithm(bucket, conf),
+          getEncryptionAlgorithm(bucket, s3FsConf),
           getServerSideEncryptionKey(bucket, getConf())));
 
       invoker = new Invoker(new S3ARetryPolicy(getConf()), onRetry);
@@ -324,26 +328,26 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
           onRetry);
       writeHelper = new WriteOperationHelper(this, getConf());
 
-      failOnMetadataWriteError = conf.getBoolean(FAIL_ON_METADATA_WRITE_ERROR,
+      failOnMetadataWriteError = s3FsConf.getBoolean(FAIL_ON_METADATA_WRITE_ERROR,
           FAIL_ON_METADATA_WRITE_ERROR_DEFAULT);
 
-      maxKeys = intOption(conf, MAX_PAGING_KEYS, DEFAULT_MAX_PAGING_KEYS, 1);
+      maxKeys = intOption(s3FsConf, MAX_PAGING_KEYS, DEFAULT_MAX_PAGING_KEYS, 1);
       listing = new Listing(this);
-      partSize = getMultipartSizeProperty(conf,
+      partSize = getMultipartSizeProperty(s3FsConf,
           MULTIPART_SIZE, DEFAULT_MULTIPART_SIZE);
-      multiPartThreshold = getMultipartSizeProperty(conf,
+      multiPartThreshold = getMultipartSizeProperty(s3FsConf,
           MIN_MULTIPART_THRESHOLD, DEFAULT_MIN_MULTIPART_THRESHOLD);
 
       //check but do not store the block size
-      longBytesOption(conf, FS_S3A_BLOCK_SIZE, DEFAULT_BLOCKSIZE, 1);
-      enableMultiObjectsDelete = conf.getBoolean(ENABLE_MULTI_DELETE, true);
+      longBytesOption(s3FsConf, FS_S3A_BLOCK_SIZE, DEFAULT_BLOCKSIZE, 1);
+      enableMultiObjectsDelete = s3FsConf.getBoolean(ENABLE_MULTI_DELETE, true);
 
-      readAhead = longBytesOption(conf, READAHEAD_RANGE,
+      readAhead = longBytesOption(s3FsConf, READAHEAD_RANGE,
           DEFAULT_READAHEAD_RANGE, 0);
 
-      initThreadPools(conf);
+      initThreadPools(s3FsConf);
 
-      int listVersion = conf.getInt(LIST_VERSION, DEFAULT_LIST_VERSION);
+      int listVersion = s3FsConf.getInt(LIST_VERSION, DEFAULT_LIST_VERSION);
       if (listVersion < 1 || listVersion > 2) {
         LOG.warn("Configured fs.s3a.list.version {} is invalid, forcing " +
             "version 2", listVersion);
@@ -358,16 +362,16 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
 
       initTransferManager();
 
-      initCannedAcls(conf);
+      initCannedAcls(s3FsConf);
 
       verifyBucketExists();
 
       inputPolicy = S3AInputPolicy.getPolicy(
-          conf.getTrimmed(INPUT_FADVISE, INPUT_FADV_NORMAL));
+              s3FsConf.getTrimmed(INPUT_FADVISE, INPUT_FADV_NORMAL));
       LOG.debug("Input fadvise policy = {}", inputPolicy);
-      changeDetectionPolicy = ChangeDetectionPolicy.getPolicy(conf);
+      changeDetectionPolicy = ChangeDetectionPolicy.getPolicy(s3FsConf);
       LOG.debug("Change detection policy = {}", changeDetectionPolicy);
-      boolean magicCommitterEnabled = conf.getBoolean(
+      boolean magicCommitterEnabled = s3FsConf.getBoolean(
           CommitConstants.MAGIC_COMMITTER_ENABLED,
           CommitConstants.DEFAULT_MAGIC_COMMITTER_ENABLED);
       LOG.debug("Filesystem support for magic committers {} enabled",
@@ -378,26 +382,26 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
       // instantiate S3 Select support
       selectBinding = new SelectBinding(writeHelper);
 
-      boolean blockUploadEnabled = conf.getBoolean(FAST_UPLOAD, true);
+      boolean blockUploadEnabled = s3FsConf.getBoolean(FAST_UPLOAD, true);
 
       if (!blockUploadEnabled) {
         LOG.warn("The \"slow\" output stream is no longer supported");
       }
-      blockOutputBuffer = conf.getTrimmed(FAST_UPLOAD_BUFFER,
+      blockOutputBuffer = s3FsConf.getTrimmed(FAST_UPLOAD_BUFFER,
           DEFAULT_FAST_UPLOAD_BUFFER);
       partSize = ensureOutputParameterInRange(MULTIPART_SIZE, partSize);
       blockFactory = S3ADataBlocks.createFactory(this, blockOutputBuffer);
-      blockOutputActiveBlocks = intOption(conf,
+      blockOutputActiveBlocks = intOption(s3FsConf,
           FAST_UPLOAD_ACTIVE_BLOCKS, DEFAULT_FAST_UPLOAD_ACTIVE_BLOCKS, 1);
       LOG.debug("Using S3ABlockOutputStream with buffer = {}; block={};" +
               " queue limit={}",
           blockOutputBuffer, partSize, blockOutputActiveBlocks);
-      long authDirTtl = conf.getTimeDuration(METADATASTORE_METADATA_TTL,
+      long authDirTtl = s3FsConf.getTimeDuration(METADATASTORE_METADATA_TTL,
           DEFAULT_METADATASTORE_METADATA_TTL, TimeUnit.MILLISECONDS);
       ttlTimeProvider = new S3Guard.TtlTimeProvider(authDirTtl);
 
       setMetadataStore(S3Guard.getMetadataStore(this, ttlTimeProvider));
-      allowAuthoritativeMetadataStore = conf.getBoolean(METADATASTORE_AUTHORITATIVE,
+      allowAuthoritativeMetadataStore = s3FsConf.getBoolean(METADATASTORE_AUTHORITATIVE,
           DEFAULT_METADATASTORE_AUTHORITATIVE);
       allowAuthoritativePaths = S3Guard.getAuthoritativePaths(this);
 
@@ -405,7 +409,7 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
         LOG.debug("Using metadata store {}, authoritative store={}, authoritative path={}",
             getMetadataStore(), allowAuthoritativeMetadataStore, allowAuthoritativePaths);
       }
-      initMultipartUploads(conf);
+      initMultipartUploads(s3FsConf);
     } catch (AmazonClientException e) {
       throw translateException("initializing ", new Path(name), e);
     }
@@ -927,7 +931,10 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
       throws IOException {
 
     entryPoint(INVOCATION_OPEN);
-    final S3AFileStatus fileStatus = (S3AFileStatus) getFileStatus(path);
+    /* I am NOT sure if this is a ticking time bomb. For now, I have made sure that ONLY path and isDir are being used. */
+    final FileStatus dummyFileStatus = new FileStatus(0, false, 0, 0, 0, path);
+    final S3AFileStatus fileStatus = (S3AFileStatus)
+            (s3FsConf.getBoolean(OPEN_FILE_STATUS_CHECK, true) ? getFileStatus(path) : dummyFileStatus);
     if (fileStatus.isDirectory()) {
       throw new FileNotFoundException("Can't open " + path
           + " because it is a directory");
@@ -1050,24 +1057,25 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
     entryPoint(INVOCATION_CREATE);
     final Path path = qualify(f);
     String key = pathToKey(path);
-    FileStatus status = null;
-    try {
-      // get the status or throw an FNFE
-      status = getFileStatus(path);
+    if (s3FsConf.getBoolean(CREATE_FILE_STATUS_CHECK, true)) {
+      try {
+        // get the status or throw an FNFE
+        final FileStatus status = getFileStatus(path);
 
-      // if the thread reaches here, there is something at the path
-      if (status.isDirectory()) {
-        // path references a directory: automatic error
-        throw new FileAlreadyExistsException(path + " is a directory");
-      }
-      if (!overwrite) {
-        // path references a file and overwrite is disabled
-        throw new FileAlreadyExistsException(path + " already exists");
-      }
-      LOG.debug("Overwriting file {}", path);
-    } catch (FileNotFoundException e) {
-      // this means the file is not found
+        // if the thread reaches here, there is something at the path
+        if (status.isDirectory()) {
+          // path references a directory: automatic error
+          throw new FileAlreadyExistsException(path + " is a directory");
+        }
+        if (!overwrite) {
+          // path references a file and overwrite is disabled
+          throw new FileAlreadyExistsException(path + " already exists");
+        }
+        LOG.debug("Overwriting file {}", path);
+      } catch (FileNotFoundException e) {
+        // this means the file is not found
 
+      }
     }
     instrumentation.fileCreated();
     PutTracker putTracker =
