@@ -191,6 +191,9 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
   */
   public static final boolean DELETE_CONSIDERED_IDEMPOTENT = true;
 
+  private static boolean doOpenFileStatusCheck = true;
+  private static boolean doCreateFileStatusCheck = true;
+
   private URI uri;
   private Path workingDir;
   private String username;
@@ -286,6 +289,8 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
    */
   public void initialize(URI name, Configuration originalConf)
       throws IOException {
+    doCreateFileStatusCheck = originalConf.getBoolean("fs.dremioS3.create.fileStatusCheck", true);
+    doOpenFileStatusCheck = originalConf.getBoolean("fs.dremioS3.open.fileStatusCheck", true);
     // get the host; this is guaranteed to be non-null, non-empty
     bucket = name.getHost();
     LOG.debug("Initializing S3AFileSystem for {}", bucket);
@@ -363,7 +368,7 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
       verifyBucketExists();
 
       inputPolicy = S3AInputPolicy.getPolicy(
-          conf.getTrimmed(INPUT_FADVISE, INPUT_FADV_NORMAL));
+              conf.getTrimmed(INPUT_FADVISE, INPUT_FADV_NORMAL));
       LOG.debug("Input fadvise policy = {}", inputPolicy);
       changeDetectionPolicy = ChangeDetectionPolicy.getPolicy(conf);
       LOG.debug("Change detection policy = {}", changeDetectionPolicy);
@@ -927,7 +932,9 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
       throws IOException {
 
     entryPoint(INVOCATION_OPEN);
-    final S3AFileStatus fileStatus = (S3AFileStatus) getFileStatus(path);
+    /* I am NOT sure if this is a ticking time bomb. For now, I have made sure that ONLY path and isDir are being used. */
+    final FileStatus dummyFileStatus = new FileStatus(0, false, 0, 0, 0, path);
+    final S3AFileStatus fileStatus = (S3AFileStatus) (doOpenFileStatusCheck ? getFileStatus(path) : dummyFileStatus);
     if (fileStatus.isDirectory()) {
       throw new FileNotFoundException("Can't open " + path
           + " because it is a directory");
@@ -1050,24 +1057,25 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
     entryPoint(INVOCATION_CREATE);
     final Path path = qualify(f);
     String key = pathToKey(path);
-    FileStatus status = null;
-    try {
-      // get the status or throw an FNFE
-      status = getFileStatus(path);
+    if (doCreateFileStatusCheck) {
+      try {
+        // get the status or throw an FNFE
+        final FileStatus status = getFileStatus(path);
 
-      // if the thread reaches here, there is something at the path
-      if (status.isDirectory()) {
-        // path references a directory: automatic error
-        throw new FileAlreadyExistsException(path + " is a directory");
-      }
-      if (!overwrite) {
-        // path references a file and overwrite is disabled
-        throw new FileAlreadyExistsException(path + " already exists");
-      }
-      LOG.debug("Overwriting file {}", path);
-    } catch (FileNotFoundException e) {
-      // this means the file is not found
+        // if the thread reaches here, there is something at the path
+        if (status.isDirectory()) {
+          // path references a directory: automatic error
+          throw new FileAlreadyExistsException(path + " is a directory");
+        }
+        if (!overwrite) {
+          // path references a file and overwrite is disabled
+          throw new FileAlreadyExistsException(path + " already exists");
+        }
+        LOG.debug("Overwriting file {}", path);
+      } catch (FileNotFoundException e) {
+        // this means the file is not found
 
+      }
     }
     instrumentation.fileCreated();
     PutTracker putTracker =
