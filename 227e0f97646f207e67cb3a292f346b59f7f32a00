@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9090af20_aa97e7cf",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2020-07-03T15:46:03Z",
+      "side": 1,
+      "message": "Why static?",
+      "revId": "227e0f97646f207e67cb3a292f346b59f7f32a00",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
