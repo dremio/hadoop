@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b721572_3bfad459",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2020-07-10T10:18:10Z",
+      "side": 1,
+      "message": "file status checks optional during create() (remove and open())",
+      "revId": "6798743f0aecbde25f385b246f831cb91caea072",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
