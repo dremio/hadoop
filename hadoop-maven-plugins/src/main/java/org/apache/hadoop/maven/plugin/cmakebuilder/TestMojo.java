@@ -217,6 +217,13 @@ public class TestMojo extends AbstractMojo {
       getLog().info("skipTests is in effect for test " + testName);
       return false;
     }
+    // Were we told to skip all native tests?
+    String skipNativeTests = session.
+        getSystemProperties().getProperty("skipNativeTests");
+    if (isTruthy(skipNativeTests)) {
+      getLog().info("skipNativeTests is in effect for test " + testName);
+      return false;
+    }
     // Does the binary exist?  If not, we shouldn't try to run it.
     if (!binary.exists()) {
       if (skipIfMissing) {
