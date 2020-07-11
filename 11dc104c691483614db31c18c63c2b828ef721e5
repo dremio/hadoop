@@ -37,6 +37,23 @@
     },
     {
       "key": {
+        "uuid": "fc41ee03_723e8e2e",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2020-07-11T09:59:12Z",
+      "side": 1,
+      "message": "Yes, some code is passing false explicitly to overwrite\n\nThis should be changed to:\nif (doCreateFileStatusCheck || !overwrite)",
+      "revId": "11dc104c691483614db31c18c63c2b828ef721e5",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fc1df461_8cd0acd0",
         "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
         "patchSetId": 5
