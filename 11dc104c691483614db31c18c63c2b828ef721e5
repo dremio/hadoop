@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09613b96_efb8cac1",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2020-07-11T04:42:02Z",
+      "side": 1,
+      "message": "have we consider upstreaming the patch? should probably follow convention (adding a key to s3a Constants class/ use fs.s3a.create.check-file-status)",
+      "revId": "11dc104c691483614db31c18c63c2b828ef721e5",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc1df461_8cd0acd0",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2020-07-11T04:42:02Z",
+      "side": 1,
+      "message": "this doesn\u0027t seem to check for overwrite, and so is it possible we might overwrite an existing file because we don\u0027t do the check anymore? At first glance, some dremio code would pass false for overwrite...",
+      "range": {
+        "startLine": 819,
+        "startChar": 0,
+        "endLine": 829,
+        "endChar": 14
+      },
+      "revId": "11dc104c691483614db31c18c63c2b828ef721e5",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
