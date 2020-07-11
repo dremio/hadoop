@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "88ed8fe7_afe6c4b8",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1000149
+      },
+      "writtenOn": "2020-07-11T13:22:17Z",
+      "side": 1,
+      "message": "Change is part of Constants now and tries to confirm with convention",
+      "parentUuid": "59f03f3a_f30d910d",
+      "revId": "11dc104c691483614db31c18c63c2b828ef721e5",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fc41ee03_723e8e2e",
         "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
         "patchSetId": 5
@@ -48,6 +66,24 @@
       "writtenOn": "2020-07-11T09:59:12Z",
       "side": 1,
       "message": "Yes, some code is passing false explicitly to overwrite\n\nThis should be changed to:\nif (doCreateFileStatusCheck || !overwrite)",
+      "revId": "11dc104c691483614db31c18c63c2b828ef721e5",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0545e205_480f156d",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 1000149
+      },
+      "writtenOn": "2020-07-11T13:22:17Z",
+      "side": 1,
+      "message": "Made overwrite part of the condition",
+      "parentUuid": "fc41ee03_723e8e2e",
       "revId": "11dc104c691483614db31c18c63c2b828ef721e5",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
