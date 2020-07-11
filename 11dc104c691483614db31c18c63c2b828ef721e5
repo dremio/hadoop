@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "59f03f3a_f30d910d",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2020-07-11T06:38:41Z",
+      "side": 1,
+      "message": "The expectation from Hadoop\u0027s implementation of the create() system call is that if the file exists, there should be an exception thrown.\n\nSo, the implementation here is correct.\n\nDremio uses S3 for reflections, CTAS and job results - in all cases, it creates new folders and creates files inside of these folders. We dont need to do a file exists check in all of these cases.\n\nAlso, not sure if you are aware of why we are making this change.\n\nS3\u0027s eventual consistency clearly mentions that the following:\nAmazon S3 provides read-after-write consistency for PUTS of new objects in your S3 bucket in all Regions with one caveat. The caveat is that if you make a HEAD or GET request to a key name before the object is created, then create the object shortly after that, a subsequent GET might not return the object due to eventual consistency.\n\nSource: https://docs.aws.amazon.com/AmazonS3/latest/dev/Introduction.html\n\nAs part of create(), this code correctly checks for the file\u0027s existence so that it can throw a FileAlreadyExistsException. However, this is going to cause issues with S3\u0027s eventual consistency because we did a GET on the object. As part of create(), this code does a GET followed by a PUT on the same object.\n\nBased on the eventual consistency model, a later GET is not guaranteed to succeed. This is what we were hitting when we were getting FileNotFoundException as part of the open() call.\n\nI dont see this patch making sense to the community - hence, no plans of making this change upstream.",
+      "parentUuid": "09613b96_efb8cac1",
+      "revId": "11dc104c691483614db31c18c63c2b828ef721e5",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fc1df461_8cd0acd0",
         "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
         "patchSetId": 5
@@ -30,6 +48,30 @@
       "writtenOn": "2020-07-11T04:42:02Z",
       "side": 1,
       "message": "this doesn\u0027t seem to check for overwrite, and so is it possible we might overwrite an existing file because we don\u0027t do the check anymore? At first glance, some dremio code would pass false for overwrite...",
+      "range": {
+        "startLine": 819,
+        "startChar": 0,
+        "endLine": 829,
+        "endChar": 14
+      },
+      "revId": "11dc104c691483614db31c18c63c2b828ef721e5",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf68340f_3f5efe64",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2020-07-11T06:38:41Z",
+      "side": 1,
+      "message": "As I mentioned, my understanding is that Dremio\u0027s usage of dist is for CTAS, JobResults and reflections. In all these cases, we create a new folder and create brand new files in the folder. No overwrite, no need to check for the existence of the file, etc.\n\nAre you aware of any use cases where Dremio uses S3 or any file system to overwrite files?\n\nAs a precaution, we could add a Precondition to ensure that overwrite is always false and check if we run into issues as part of testing.",
+      "parentUuid": "fc1df461_8cd0acd0",
       "range": {
         "startLine": 819,
         "startChar": 0,
