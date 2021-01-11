@@ -1127,7 +1127,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         connectUsingSASCredentials(accountName, containerName, propertyValue);
         return;
       }
-​
+
       if (useOAuth) {
         AzureADCredentials adCredentials = getAzureADCredentialsFromConfiguration(accountName, sessionConfiguration);
         OAuthStorageInterfaceImpl oAuthStorageInterface = (OAuthStorageInterfaceImpl) this.storageInteractionLayer;
@@ -1135,7 +1135,7 @@ public class AzureNativeFileSystemStore implements NativeFileSystemStore {
         connectUsingAzureAD(accountName, containerName, adCredentials);
         return;
       }
-​
+
       // Check whether the account is configured with an account key.
       propertyValue = getAccountKeyFromConfiguration(accountName,
               sessionConfiguration);
