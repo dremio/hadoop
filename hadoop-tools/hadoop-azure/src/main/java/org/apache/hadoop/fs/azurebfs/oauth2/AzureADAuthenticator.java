@@ -30,9 +30,9 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.apache.hadoop.thirdparty.com.google.common.base.Preconditions;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
