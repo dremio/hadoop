@@ -1853,7 +1853,9 @@
               <target>${javac.version}</target>
               <compilerArguments>
                 <Xlint/>
-				<Xlint:-unchecked/>
+                <compilerArgs>
+                  <arg>-Xlint:unchecked</arg>
+                </compilerArgs>
                 <Xmaxwarns>9999</Xmaxwarns>
               </compilerArguments>
             </configuration>
