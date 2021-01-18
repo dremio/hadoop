@@ -1,0 +1,7 @@
+Code-Review+2: Harsh Maheshwari <harshm@dremio.com>
+Verified+1: Vivekanand Vellanki <vivek@dremio.com>
+Submitted-by: Naman Udasi <naman.udasi@dremio.com>
+Submitted-at: Mon, 18 Jan 2021 12:52:10 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/21061
+Project: hadoop
+Branch: refs/heads/2_8_5_azure_dremio
