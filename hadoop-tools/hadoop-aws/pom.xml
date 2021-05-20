@@ -438,6 +438,13 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
+        <dependencies>
+          <dependency>
+            <groupId>de.skuzzle.enforcer</groupId>
+            <artifactId>restrict-imports-enforcer-rule</artifactId>
+            <version>${restrict-imports.enforcer.version}</version>
+          </dependency>
+        </dependencies>
         <executions>
           <execution>
             <id>banned-illegal-imports</id>
@@ -447,20 +454,12 @@
             </goals>
             <configuration>
               <rules>
-                <restrictImports>
-                  <includeTestCode>false</includeTestCode>
-                  <reason>Restrict mapreduce imports to committer code</reason>
-                  <exclusions>
-                    <exclusion>org.apache.hadoop.fs.s3a.commit.AbstractS3ACommitter</exclusion>
-                    <exclusion>org.apache.hadoop.fs.s3a.commit.AbstractS3ACommitterFactory</exclusion>
-                    <exclusion>org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory</exclusion>
-                    <exclusion>org.apache.hadoop.fs.s3a.commit.impl.*</exclusion>
-                    <exclusion>org.apache.hadoop.fs.s3a.commit.magic.*</exclusion>
-                    <exclusion>org.apache.hadoop.fs.s3a.commit.staging.*</exclusion>
-                  </exclusions>
+                <restrictImports implementation="de.skuzzle.enforcer.restrictimports.rule.RestrictImports">
+                  <includeTestCode>true</includeTestCode>
+                  <reason>Use hadoop-common provided Sets rather than Guava provided Sets</reason>
                   <bannedImports>
-                    <bannedImport>org.apache.hadoop.mapreduce.**</bannedImport>
-                    <bannedImport>org.apache.hadoop.mapred.**</bannedImport>
+                    <bannedImport>org.apache.hadoop.thirdparty.com.google.common.collect.Sets</bannedImport>
+                    <bannedImport>com.google.common.collect.Sets</bannedImport>
                   </bannedImports>
                 </restrictImports>
               </rules>

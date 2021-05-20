@@ -34,7 +34,8 @@ import java.util.stream.Collectors;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
-import org.apache.hadoop.thirdparty.com.google.common.collect.Sets;
+
+import org.apache.hadoop.util.Sets;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
