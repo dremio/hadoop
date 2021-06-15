@@ -38,8 +38,11 @@ import java.util.concurrent.Future;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import org.apache.hadoop.fs.LocatedFileStatus;
+import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClientThrottlingIntercept;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -342,6 +345,56 @@ public class AzureBlobFileSystem extends FileSystem {
     } catch (AzureBlobFileSystemException ex) {
       checkException(f, ex, AzureServiceErrorCode.PATH_NOT_FOUND);
       return false;
+    }
+
+  }
+
+  class AbfsListIterator implements RemoteIterator<LocatedFileStatus> {
+
+    private  AbfsListPathResponse currBatchResponse;
+    private int currIndex;
+    private boolean Recursive;
+
+    public AbfsListIterator(AbfsListPathResponse response, boolean recursive) {
+      currBatchResponse = response;
+      Recursive = recursive;
+      currIndex = 0;
+
+    }
+
+    @Override
+    public boolean hasNext() throws IOException {
+
+      return currIndex < currBatchResponse.getFileStatuses().length;
+
+    }
+
+    @Override
+    public LocatedFileStatus next() throws IOException {
+      Preconditions.checkArgument(hasNext(), "No next found");
+      FileStatus currentFile = currBatchResponse.getFileStatuses()[currIndex];
+      currIndex = currIndex + 1;
+      if (currBatchResponse.shouldLoadNextBatch(currIndex)) {
+        currBatchResponse = abfsStore.batchlistStatus(currBatchResponse.getPath(), Recursive, currBatchResponse.getContinuation());
+        currIndex = 0;
+      }
+      return new LocatedFileStatus(currentFile, null);
+
+    }
+  }
+
+  @Override
+  public RemoteIterator<LocatedFileStatus> listFiles(Path f, boolean recursive) throws FileNotFoundException, IOException {
+    LOG.debug("AzureBlobFileSystem.listFiles path: {}", f.toString());
+
+    Path qualifiedPath = makeQualified(f);
+    performAbfsAuthCheck(FsAction.READ, qualifiedPath);
+    try {
+      return new AbfsListIterator(abfsStore.batchlistStatus(qualifiedPath, recursive, null), recursive);
+    } catch (AzureBlobFileSystemException ex) {
+      checkException(f, ex);
+      throw new IOException("Exception while trying to list the files");
+
     }
 
   }
