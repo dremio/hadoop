@@ -53,6 +53,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
@@ -72,6 +73,7 @@ import org.apache.hadoop.fs.azurebfs.services.AbfsAclHelper;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.AbfsHttpOperation;
 import org.apache.hadoop.fs.azurebfs.services.AbfsInputStream;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
 import org.apache.hadoop.fs.azurebfs.services.AbfsOutputStream;
 import org.apache.hadoop.fs.azurebfs.services.AbfsPermission;
 import org.apache.hadoop.fs.azurebfs.services.AbfsRestOperation;
@@ -510,6 +512,61 @@ public class AzureBlobFileSystemStore {
             parseLastModifiedTime(lastModified),
             path,
             eTag);
+  }
+
+
+  public AbfsListPathResponse batchlistStatus(final Path path, boolean recursive, String continuation) throws IOException {
+    LOG.debug("BatchlistStatus filesystem: {} path: {} max_results: {} recursive: {}", client.getFileSystem(), path,LIST_MAX_RESULTS,recursive);
+
+    String relativePath = path.isRoot() ? AbfsHttpConstants.EMPTY_STRING : getRelativePath(path);
+    ArrayList<FileStatus> fileStatuses = new ArrayList<>();
+
+    AbfsRestOperation op = client.listPath(relativePath, recursive, LIST_MAX_RESULTS, continuation);
+    continuation = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_CONTINUATION);
+    ListResultSchema retrievedSchema = op.getResult().getListResultSchema();
+    if (retrievedSchema == null) {
+      throw new AbfsRestOperationException(
+              AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
+              AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
+              "listStatusAsync path not found",
+              null, op.getResult());
+    }
+
+    long blockSize = abfsConfiguration.getAzureBlockSize();
+
+    for (ListResultEntrySchema entry : retrievedSchema.paths()) {
+      final String owner = identityTransformer.transformIdentityForGetRequest(entry.owner(), userName);
+      final String group = identityTransformer.transformIdentityForGetRequest(entry.group(), primaryUserGroup);
+      final FsPermission fsPermission = entry.permissions() == null
+              ? new AbfsPermission(FsAction.ALL, FsAction.ALL, FsAction.ALL)
+              : AbfsPermission.valueOf(entry.permissions());
+      final boolean hasAcl = AbfsPermission.isExtendedAcl(entry.permissions());
+      long lastModifiedMillis = 0;
+      long contentLength = entry.contentLength() == null ? 0 : entry.contentLength();
+      boolean isDirectory = entry.isDirectory() == null ? false : entry.isDirectory();
+      if (entry.lastModified() != null && !entry.lastModified().isEmpty()) {
+        lastModifiedMillis = parseLastModifiedTime(entry.lastModified());
+      }
+
+      Path entryPath = new Path(File.separator + entry.name());
+      entryPath = entryPath.makeQualified(this.uri, entryPath);
+      fileStatuses.add(
+              new VersionedFileStatus(
+                      owner,
+                      group,
+                      fsPermission,
+                      hasAcl,
+                      contentLength,
+                      isDirectory,
+                      1,
+                      blockSize,
+                      lastModifiedMillis,
+                      entryPath,
+                      entry.eTag()));
+    }
+
+    return new AbfsListPathResponse(path, fileStatuses.toArray(new FileStatus[fileStatuses.size()]), continuation);
+
   }
 
   public FileStatus[] listStatus(final Path path) throws IOException {
