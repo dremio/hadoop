@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "92ce3d5e_9506885e",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "nit: start with small case",
+      "range": {
+        "startLine": 354,
+        "startChar": 34,
+        "endLine": 354,
+        "endChar": 51
+      },
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb6a5032_2d51151d",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "why?",
+      "range": {
+        "startLine": 364,
+        "startChar": 0,
+        "endLine": 364,
+        "endChar": 22
+      },
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5bc944d6_c923e160",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "The method should throw an error if there\u0027s no next. Better to have a precondition instead of the if block- \n\nPreconditions.assertTrue(hasNext(), \"No next\");",
+      "range": {
+        "startLine": 378,
+        "startChar": 10,
+        "endLine": 378,
+        "endChar": 19
+      },
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3610b86f_e7642a3b",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "minor: lets just create a delegate method in the response class\n\nif (currBatchResponse.shouldLoadNextBatch(currIndex)) {\n   // logic\n}",
+      "range": {
+        "startLine": 381,
+        "startChar": 26,
+        "endLine": 381,
+        "endChar": 43
+      },
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06e4a918_e4c6bc72",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "We\u0027re handling the index in an error prone way. Let\u0027s do following - \n\na. increment the index before this logic. \nb. If a new batch is loaded, reset currIndex to 0.",
+      "range": {
+        "startLine": 384,
+        "startChar": 12,
+        "endLine": 384,
+        "endChar": 21
+      },
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3c90bd2_6bb31d19",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "nit: fix indentation",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 403,
+        "endChar": 68
+      },
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba87427e_bf74b0fc",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "throw",
+      "range": {
+        "startLine": 412,
+        "startChar": 13,
+        "endLine": 412,
+        "endChar": 17
+      },
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34d53b9f_27c37fb1",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystemStore.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "nit: start with smallcase",
+      "range": {
+        "startLine": 518,
+        "startChar": 30,
+        "endLine": 518,
+        "endChar": 45
+      },
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50fcc316_4f7de145",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/services/AbfsListPathResponse.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-15T14:17:14Z",
+      "side": 1,
+      "message": "nit: Fix indentation",
+      "revId": "3a95a0e7b1ddc198f47eec9423168f172a1d2182",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
