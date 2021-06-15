@@ -38,8 +38,11 @@ import java.util.concurrent.Future;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import org.apache.hadoop.fs.LocatedFileStatus;
+import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClientThrottlingIntercept;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -342,6 +345,71 @@ public class AzureBlobFileSystem extends FileSystem {
     } catch (AzureBlobFileSystemException ex) {
       checkException(f, ex, AzureServiceErrorCode.PATH_NOT_FOUND);
       return false;
+    }
+
+  }
+
+  class AbfsListIterator implements RemoteIterator<LocatedFileStatus> {
+
+    private  AbfsListPathResponse CurrBatchResponse;
+    private int currIndex;
+    private boolean Recursive;
+
+    public AbfsListIterator(AbfsListPathResponse response, boolean recursive) {
+      CurrBatchResponse = response;
+      Recursive = recursive;
+      if (response.getFileStatuses().length > 0) {
+        currIndex = 0;
+      } else {
+        currIndex = 1;
+      }
+    }
+
+    @Override
+    public boolean hasNext() throws IOException {
+
+      return currIndex < CurrBatchResponse.getFileStatuses().length;
+
+    }
+
+    @Override
+    public LocatedFileStatus next() throws IOException {
+
+      if (currIndex < CurrBatchResponse.getFileStatuses().length) {
+
+        FileStatus currentFile = CurrBatchResponse.getFileStatuses()[currIndex];
+        if (currIndex == (CurrBatchResponse.getFileStatuses().length - 1) && CurrBatchResponse.getContinuation() != null && !CurrBatchResponse.getContinuation().isEmpty()) {
+          CurrBatchResponse = abfsStore.BatchlistStatus(CurrBatchResponse.getPath(), Recursive, CurrBatchResponse.getContinuation());
+          if (CurrBatchResponse.getFileStatuses().length > 0) {
+            currIndex = -1;
+          } else {
+            currIndex = 1;
+          }
+
+        }
+        currIndex = currIndex + 1;
+        return new LocatedFileStatus(currentFile, null);
+
+      } else {
+        return null;
+      }
+
+    }
+  }
+
+  @Override
+  public RemoteIterator<LocatedFileStatus> listFiles(Path f, boolean recursive) throws FileNotFoundException, IOException {
+    LOG.debug(
+            "AzureBlobFileSystem.listFiles path: {}", f.toString());
+
+    Path qualifiedPath = makeQualified(f);
+    performAbfsAuthCheck(FsAction.READ, qualifiedPath);
+    try {
+      AbfsListIterator result = new AbfsListIterator(abfsStore.BatchlistStatus(qualifiedPath, recursive, null), recursive);
+      return result;
+    } catch (AzureBlobFileSystemException ex) {
+      checkException(f, ex);
+      return null;
     }
 
   }
