@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a104770c_b1140908",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-17T06:47:41Z",
+      "side": 1,
+      "message": "Why is it set to 1 ?",
+      "revId": "7ba241928bb6776f5031c3240015080bbc2ff715",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5630d617_9de1cddb",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-17T06:47:41Z",
+      "side": 1,
+      "message": "repeat q: why to set it 1",
+      "range": {
+        "startLine": 385,
+        "startChar": 10,
+        "endLine": 385,
+        "endChar": 19
+      },
+      "revId": "7ba241928bb6776f5031c3240015080bbc2ff715",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e12ff9c1_f73e6ea4",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-17T06:47:41Z",
+      "side": 1,
+      "message": "nit: can be returned directly\n\nreturn new AbfsListIterator(abfsStore.batchlistStatus(qualifiedPath, recursive, null), recursive);",
+      "revId": "7ba241928bb6776f5031c3240015080bbc2ff715",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31be5bca_30e9849f",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystemStore.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 1000136
+      },
+      "writtenOn": "2021-06-17T06:47:41Z",
+      "side": 1,
+      "message": "please add a debug log here describing the request params.",
+      "range": {
+        "startLine": 543,
+        "startChar": 12,
+        "endLine": 543,
+        "endChar": 19
+      },
+      "revId": "7ba241928bb6776f5031c3240015080bbc2ff715",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    }
+  ]
+}
