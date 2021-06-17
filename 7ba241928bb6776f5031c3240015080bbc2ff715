@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "28d6c7dc_dfe9a999",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2021-06-17T07:03:50Z",
+      "side": 1,
+      "message": "Looks like he wants the hasNext() to work the way it is written.\n\nEven if currIndex \u003d 0; hasNext() should work since 0 \u003c 0 is false",
+      "parentUuid": "5630d617_9de1cddb",
+      "range": {
+        "startLine": 385,
+        "startChar": 10,
+        "endLine": 385,
+        "endChar": 19
+      },
+      "revId": "7ba241928bb6776f5031c3240015080bbc2ff715",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e12ff9c1_f73e6ea4",
         "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystem.java",
         "patchSetId": 2
