@@ -1,0 +1,7 @@
+Verified+1: jenkins (via gerrit) <jenkins@dremio.com>
+Code-Review+2: Harsh Maheshwari <harshm@dremio.com>
+Submitted-by: Ajmeera Nagaraju <ajmeera.nagaraju@dremio.com>
+Submitted-at: Thu, 24 Jun 2021 13:14:34 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/24794
+Project: hadoop
+Branch: refs/heads/2_8_5_azure_dremio
