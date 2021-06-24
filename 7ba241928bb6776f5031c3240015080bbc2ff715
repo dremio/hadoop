@@ -103,6 +103,30 @@
       "revId": "7ba241928bb6776f5031c3240015080bbc2ff715",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0edfbc70_2f7354f2",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystemStore.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 1000240
+      },
+      "writtenOn": "2021-06-24T04:54:26Z",
+      "side": 1,
+      "message": "added a debug log for request params in line 519 for the api",
+      "parentUuid": "31be5bca_30e9849f",
+      "range": {
+        "startLine": 543,
+        "startChar": 12,
+        "endLine": 543,
+        "endChar": 19
+      },
+      "revId": "7ba241928bb6776f5031c3240015080bbc2ff715",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de",
+      "unresolved": true
     }
   ]
 }
