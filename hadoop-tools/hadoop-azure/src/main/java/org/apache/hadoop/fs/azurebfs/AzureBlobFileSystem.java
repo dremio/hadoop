@@ -83,6 +83,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.AbfsCounters;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
 import org.apache.hadoop.fs.azurebfs.services.AbfsListStatusRemoteIterator;
 import org.apache.hadoop.fs.azurebfs.services.AbfsLocatedFileStatus;
 import org.apache.hadoop.fs.azurebfs.services.AuthType;
@@ -705,6 +706,54 @@ public class AzureBlobFileSystem extends FileSystem
     }
 
   }
+
+
+  class AbfsListIterator implements RemoteIterator<LocatedFileStatus> {
+    private AbfsListPathResponse currBatchResponse;
+    private int currIndex;
+    private final boolean recursive;
+    private TracingContext tracingContext;
+
+    public AbfsListIterator(AbfsListPathResponse response, boolean recursive, TracingContext tracingContext) {
+      this.currBatchResponse = response;
+      this.recursive = recursive;
+      this.currIndex = 0;
+      this.tracingContext = tracingContext;
+    }
+
+    @Override
+    public boolean hasNext() throws IOException {
+      return currIndex < currBatchResponse.getFileStatuses().size();
+    }
+
+    @Override
+    public LocatedFileStatus next() throws IOException {
+      Preconditions.checkArgument(hasNext(), "No next found");
+      FileStatus currentFile = currBatchResponse.getFileStatuses().get(currIndex);
+      currIndex = currIndex + 1;
+      if (currBatchResponse.shouldLoadNextBatch(currIndex)) {
+        currBatchResponse = abfsStore.batchListStatus(currBatchResponse.getPath(), recursive, currBatchResponse.getContinuation(), tracingContext);
+        currIndex = 0;
+      }
+      return new LocatedFileStatus(currentFile, null);
+    }
+  }
+
+  @Override
+  public RemoteIterator<LocatedFileStatus> listFiles(Path f, boolean recursive) throws FileNotFoundException, IOException {
+    LOG.debug("AzureBlobFileSystem.listFiles path: {}", f.toString());
+    Path qualifiedPath = makeQualified(f);
+    try {
+      TracingContext tracingContext = new TracingContext(clientCorrelationId,
+              fileSystemId, FSOperationType.LISTSTATUS, true, tracingHeaderFormat,
+              listener);
+      return new AbfsListIterator(abfsStore.batchListStatus(qualifiedPath, recursive, null, tracingContext), recursive, tracingContext);
+    } catch (AzureBlobFileSystemException ex) {
+      checkException(f, ex);
+      throw new IOException("Exception while trying to list the files");
+    }
+  }
+
 
   @Override
   public FileStatus[] listStatus(final Path f) throws IOException {
