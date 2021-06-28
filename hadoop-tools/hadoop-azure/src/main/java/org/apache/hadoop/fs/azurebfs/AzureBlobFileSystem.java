@@ -41,8 +41,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.hadoop.thirdparty.com.google.common.annotations.VisibleForTesting;
-import org.apache.hadoop.thirdparty.com.google.common.base.Preconditions;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +61,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileAlreadyExistsException;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathIOException;
 import org.apache.hadoop.fs.XAttrSetFlag;
@@ -75,6 +76,7 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.SASTokenProviderException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
 import org.apache.hadoop.fs.azurebfs.services.AbfsCounters;
 import org.apache.hadoop.fs.impl.AbstractFSBuilderImpl;
 import org.apache.hadoop.fs.impl.OpenFileParameters;
@@ -86,8 +88,8 @@ import org.apache.hadoop.fs.statistics.IOStatistics;
 import org.apache.hadoop.fs.statistics.IOStatisticsSource;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.AccessControlException;
-import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.UserGroupInformation;
+import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.util.functional.RemoteIterators;
 import org.apache.hadoop.util.DurationInfo;
 import org.apache.hadoop.util.LambdaUtils;
@@ -394,6 +396,49 @@ public class AzureBlobFileSystem extends FileSystem
     }
 
   }
+
+
+  class AbfsListIterator implements RemoteIterator<LocatedFileStatus> {
+    private AbfsListPathResponse currBatchResponse;
+    private int currIndex;
+    private boolean recursive;
+
+    public AbfsListIterator(AbfsListPathResponse response, boolean recursive) {
+      this.currBatchResponse = response;
+      this.recursive = recursive;
+      this.currIndex = 0;
+    }
+
+    @Override
+    public boolean hasNext() throws IOException {
+      return currIndex < currBatchResponse.getFileStatuses().size();
+    }
+
+    @Override
+    public LocatedFileStatus next() throws IOException {
+      Preconditions.checkArgument(hasNext(), "No next found");
+      FileStatus currentFile = currBatchResponse.getFileStatuses().get(currIndex);
+      currIndex = currIndex + 1;
+      if (currBatchResponse.shouldLoadNextBatch(currIndex)) {
+        currBatchResponse = abfsStore.batchListStatus(currBatchResponse.getPath(), recursive, currBatchResponse.getContinuation());
+        currIndex = 0;
+      }
+      return new LocatedFileStatus(currentFile, null);
+    }
+  }
+
+  @Override
+  public RemoteIterator<LocatedFileStatus> listFiles(Path f, boolean recursive) throws FileNotFoundException, IOException {
+    LOG.debug("AzureBlobFileSystem.listFiles path: {}", f.toString());
+    Path qualifiedPath = makeQualified(f);
+    try {
+      return new AbfsListIterator(abfsStore.batchListStatus(qualifiedPath, recursive, null), recursive);
+    } catch (AzureBlobFileSystemException ex) {
+      checkException(f, ex);
+      throw new IOException("Exception while trying to list the files");
+    }
+  }
+
 
   @Override
   public FileStatus[] listStatus(final Path f) throws IOException {
