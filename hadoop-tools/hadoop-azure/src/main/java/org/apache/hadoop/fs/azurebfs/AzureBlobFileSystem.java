@@ -18,41 +18,9 @@
 
 package org.apache.hadoop.fs.azurebfs;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.AccessDeniedException;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.apache.hadoop.io.IOUtils;
-import org.apache.hadoop.thirdparty.com.google.common.annotations.VisibleForTesting;
-import org.apache.hadoop.thirdparty.com.google.common.base.Preconditions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
-import org.apache.hadoop.fs.azurebfs.services.AbfsClientThrottlingIntercept;
-import org.apache.hadoop.fs.azurebfs.services.AbfsListStatusRemoteIterator;
-import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.BlockLocation;
@@ -65,8 +33,9 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathIOException;
 import org.apache.hadoop.fs.PathFilter;
+import org.apache.hadoop.fs.PathIOException;
+import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.fs.XAttrSetFlag;
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations;
@@ -80,7 +49,11 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.SASTokenProviderException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
+import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
+import org.apache.hadoop.fs.azurebfs.services.AbfsClientThrottlingIntercept;
 import org.apache.hadoop.fs.azurebfs.services.AbfsCounters;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListStatusRemoteIterator;
 import org.apache.hadoop.fs.azurebfs.services.AbfsLocatedFileStatus;
 import org.apache.hadoop.fs.azurebfs.utils.Listener;
 import org.apache.hadoop.fs.azurebfs.utils.TracingContext;
@@ -94,13 +67,41 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.statistics.IOStatistics;
 import org.apache.hadoop.fs.statistics.IOStatisticsSource;
 import org.apache.hadoop.fs.store.DataBlocks;
+import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.security.AccessControlException;
-import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.util.functional.RemoteIterators;
+import org.apache.hadoop.security.token.Token;
 import org.apache.hadoop.util.DurationInfo;
 import org.apache.hadoop.util.LambdaUtils;
 import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.util.functional.RemoteIterators;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 
 import static org.apache.hadoop.fs.CommonConfigurationKeys.IOSTATISTICS_LOGGING_LEVEL;
 import static org.apache.hadoop.fs.CommonConfigurationKeys.IOSTATISTICS_LOGGING_LEVEL_DEFAULT;
@@ -475,6 +476,54 @@ public class AzureBlobFileSystem extends FileSystem
     }
 
   }
+
+
+  class AbfsListIterator implements RemoteIterator<LocatedFileStatus> {
+    private AbfsListPathResponse currBatchResponse;
+    private int currIndex;
+    private final boolean recursive;
+    private TracingContext tracingContext;
+
+    public AbfsListIterator(AbfsListPathResponse response, boolean recursive, TracingContext tracingContext) {
+      this.currBatchResponse = response;
+      this.recursive = recursive;
+      this.currIndex = 0;
+      this.tracingContext = tracingContext;
+    }
+
+    @Override
+    public boolean hasNext() throws IOException {
+      return currIndex < currBatchResponse.getFileStatuses().size();
+    }
+
+    @Override
+    public LocatedFileStatus next() throws IOException {
+      Preconditions.checkArgument(hasNext(), "No next found");
+      FileStatus currentFile = currBatchResponse.getFileStatuses().get(currIndex);
+      currIndex = currIndex + 1;
+      if (currBatchResponse.shouldLoadNextBatch(currIndex)) {
+        currBatchResponse = abfsStore.batchListStatus(currBatchResponse.getPath(), recursive, currBatchResponse.getContinuation(), tracingContext);
+        currIndex = 0;
+      }
+      return new LocatedFileStatus(currentFile, null);
+    }
+  }
+
+  @Override
+  public RemoteIterator<LocatedFileStatus> listFiles(Path f, boolean recursive) throws FileNotFoundException, IOException {
+    LOG.debug("AzureBlobFileSystem.listFiles path: {}", f.toString());
+    Path qualifiedPath = makeQualified(f);
+    try {
+      TracingContext tracingContext = new TracingContext(clientCorrelationId,
+              fileSystemId, FSOperationType.LISTSTATUS, true, tracingHeaderFormat,
+              listener);
+      return new AbfsListIterator(abfsStore.batchListStatus(qualifiedPath, recursive, null, tracingContext), recursive, tracingContext);
+    } catch (AzureBlobFileSystemException ex) {
+      checkException(f, ex);
+      throw new IOException("Exception while trying to list the files");
+    }
+  }
+
 
   @Override
   public FileStatus[] listStatus(final Path f) throws IOException {
