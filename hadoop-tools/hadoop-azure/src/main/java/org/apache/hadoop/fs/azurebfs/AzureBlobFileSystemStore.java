@@ -54,6 +54,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hadoop.fs.azurebfs.services.AbfsInputStreamContext;
+import org.apache.hadoop.fs.azurebfs.services.AbfsInputStreamStatisticsImpl;
 import org.apache.hadoop.thirdparty.com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.thirdparty.com.google.common.base.Preconditions;
 import org.apache.hadoop.thirdparty.com.google.common.base.Strings;
@@ -99,8 +101,7 @@ import org.apache.hadoop.fs.azurebfs.services.AbfsClientContextBuilder;
 import org.apache.hadoop.fs.azurebfs.services.AbfsCounters;
 import org.apache.hadoop.fs.azurebfs.services.AbfsHttpOperation;
 import org.apache.hadoop.fs.azurebfs.services.AbfsInputStream;
-import org.apache.hadoop.fs.azurebfs.services.AbfsInputStreamContext;
-import org.apache.hadoop.fs.azurebfs.services.AbfsInputStreamStatisticsImpl;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
 import org.apache.hadoop.fs.azurebfs.services.AbfsOutputStream;
 import org.apache.hadoop.fs.azurebfs.services.AbfsOutputStreamContext;
 import org.apache.hadoop.fs.azurebfs.services.AbfsOutputStreamStatisticsImpl;
@@ -115,7 +116,6 @@ import org.apache.hadoop.fs.azurebfs.services.AbfsPerfInfo;
 import org.apache.hadoop.fs.azurebfs.services.ListingSupport;
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
 import org.apache.hadoop.fs.azurebfs.utils.CRC64;
-import org.apache.hadoop.fs.azurebfs.utils.DateTimeUtils;
 import org.apache.hadoop.fs.azurebfs.utils.TracingContext;
 import org.apache.hadoop.fs.azurebfs.utils.UriUtils;
 import org.apache.hadoop.fs.permission.AclEntry;
@@ -142,6 +142,7 @@ import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.TOKEN_VE
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.AZURE_ABFS_ENDPOINT;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_BUFFERED_PREAD_DISABLE;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_IDENTITY_TRANSFORM_CLASS;
+import static org.apache.hadoop.fs.azurebfs.utils.DateTimeUtils.parseLastModifiedTime;
 
 /**
  * Provides the bridging logic between Hadoop's abstract filesystem and Azure Storage.
@@ -157,6 +158,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
   private String primaryUserGroup;
   private static final String TOKEN_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'";
   private static final String XMS_PROPERTIES_ENCODING = "ISO-8859-1";
+  private static final int LIST_MAX_RESULTS = 500;
   private static final int GET_SET_AGGREGATE_COUNT = 2;
 
   private final Map<AbfsLease, Object> leaseRefs;
@@ -990,7 +992,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
               resourceIsDir,
               1,
               blockSize,
-              DateTimeUtils.parseLastModifiedTime(lastModified),
+              parseLastModifiedTime(lastModified),
               path,
               eTag);
     }
@@ -1079,7 +1081,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
           long contentLength = entry.contentLength() == null ? 0 : entry.contentLength();
           boolean isDirectory = entry.isDirectory() == null ? false : entry.isDirectory();
           if (entry.lastModified() != null && !entry.lastModified().isEmpty()) {
-            lastModifiedMillis = DateTimeUtils.parseLastModifiedTime(
+            lastModifiedMillis = parseLastModifiedTime(
                 entry.lastModified());
           }
 
@@ -1114,6 +1116,56 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
 
     return continuation;
   }
+
+
+  public AbfsListPathResponse batchListStatus(final Path path, boolean recursive, String continuation, TracingContext tracingContext) throws IOException {
+    LOG.debug("BatchListStatus filesystem: {} path: {} max_results: {} recursive: {}", client.getFileSystem(), path, LIST_MAX_RESULTS, recursive);
+    String relativePath = path.isRoot() ? AbfsHttpConstants.EMPTY_STRING : getRelativePath(path);
+    ArrayList<FileStatus> fileStatuses = new ArrayList<>(LIST_MAX_RESULTS);
+    AbfsRestOperation op = client.listPath(relativePath, recursive, LIST_MAX_RESULTS, continuation, tracingContext);
+    continuation = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_CONTINUATION);
+    ListResultSchema retrievedSchema = op.getResult().getListResultSchema();
+    if (retrievedSchema == null) {
+      throw new AbfsRestOperationException(
+              AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
+              AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
+              "listStatusAsync path not found",
+              null, op.getResult());
+    }
+    long blockSize = abfsConfiguration.getAzureBlockSize();
+    for (ListResultEntrySchema entry : retrievedSchema.paths()) {
+      final String owner = identityTransformer.transformIdentityForGetRequest(entry.owner(), true, userName);
+      final String group = identityTransformer.transformIdentityForGetRequest(entry.group(), false, primaryUserGroup);
+
+      final FsPermission fsPermission = AbfsPermission.valueOf(entry.permissions());
+      final boolean hasAcl = AbfsPermission.isExtendedAcl(entry.permissions());
+      long lastModifiedMillis = 0;
+      long contentLength = entry.contentLength() == null ? 0 : entry.contentLength();
+      boolean isDirectory = entry.isDirectory() == null ? false : entry.isDirectory();
+      if (entry.lastModified() != null && !entry.lastModified().isEmpty()) {
+        lastModifiedMillis = parseLastModifiedTime(entry.lastModified());
+      }
+      Path entryPath = new Path(File.separator + entry.name());
+      entryPath = entryPath.makeQualified(this.uri, entryPath);
+      fileStatuses.add(
+              new VersionedFileStatus(
+                      owner,
+                      group,
+                      fsPermission,
+                      hasAcl,
+                      contentLength,
+                      isDirectory,
+                      1,
+                      blockSize,
+                      lastModifiedMillis,
+                      entryPath,
+                      entry.eTag()));
+    }
+    return new AbfsListPathResponse(path, fileStatuses, continuation);
+
+
+  }
+
 
   // generate continuation token for xns account
   private String generateContinuationTokenForXns(final String firstEntryName) {
