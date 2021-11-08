@@ -64,4 +64,15 @@ public abstract class AccessTokenProvider {
    * @throws IOException if there is an error fetching the token
    */
   protected abstract AzureADToken refreshToken() throws IOException;
+
+  /**
+   * Checks if the token is about to expire in the next 5 minutes.
+   * The 5 minute allowance is to allow for clock skew and also to
+   * allow for token to be refreshed in that much time.
+   *
+   * @return true if the token is expiring in next 5 minutes
+   */
+  protected boolean isTokenAboutToExpire() {
+    return AzureADAuthenticator.isTokenAboutToExpire(this.token);
+  }
 }
