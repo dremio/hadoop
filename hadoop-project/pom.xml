@@ -86,12 +86,12 @@
     <apacheds.version>2.0.0-M15</apacheds.version>
 
     <!-- define the Java language version used by the compiler -->
-    <javac.version>1.7</javac.version>
+    <javac.version>1.8</javac.version>
 
     <!-- The java version enforced by the maven enforcer -->
     <!-- more complex patterns can be used here, such as
        [${javac.version})
-    for an open-ended enforcement
+    for  an  open-ended enforcement
     -->
     <enforced.java.version>[${javac.version},)</enforced.java.version>
     <enforced.maven.version>[3.0.2,)</enforced.maven.version>
