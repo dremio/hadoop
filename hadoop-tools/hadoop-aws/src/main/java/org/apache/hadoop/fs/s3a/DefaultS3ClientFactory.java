@@ -167,8 +167,7 @@ public class DefaultS3ClientFactory extends Configured
       final S3ClientCreationParameters parameters) throws IOException {
 
     AmazonS3 client;
-    AmazonS3EncryptionClientV2Builder builder =
-        new AmazonS3EncryptionClientV2Builder();
+    AmazonS3EncryptionClientV2Builder builder = AmazonS3EncryptionClientV2Builder.standard();
     Configuration conf = getConf();
 
     // CSE-KMS Method
