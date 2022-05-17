@@ -18,33 +18,15 @@
 
 package org.apache.hadoop.fs.s3a;
 
+import static org.apache.hadoop.fs.s3a.Constants.AWS_REGION;
+import static org.apache.hadoop.fs.s3a.Constants.AWS_S3_CENTRAL_REGION;
+import static org.apache.hadoop.fs.s3a.Constants.EXPERIMENTAL_AWS_INTERNAL_THROTTLING;
+import static org.apache.hadoop.fs.s3a.Constants.EXPERIMENTAL_AWS_INTERNAL_THROTTLING_DEFAULT;
+import static org.apache.hadoop.fs.s3a.S3AUtils.getEncryptionAlgorithm;
+import static org.apache.hadoop.fs.s3a.S3AUtils.translateException;
+
 import java.io.IOException;
 import java.net.URI;
-
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.SdkClientException;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.handlers.RequestHandler2;
-import com.amazonaws.regions.RegionUtils;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Builder;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder;
-import com.amazonaws.services.s3.AmazonS3EncryptionV2;
-import com.amazonaws.services.s3.S3ClientOptions;
-import com.amazonaws.services.s3.internal.ServiceUtils;
-import com.amazonaws.services.s3.model.CryptoConfigurationV2;
-import com.amazonaws.services.s3.model.CryptoMode;
-import com.amazonaws.services.s3.model.CryptoRangeGetMode;
-import com.amazonaws.services.s3.model.EncryptionMaterialsProvider;
-import com.amazonaws.services.s3.model.KMSEncryptionMaterialsProvider;
-import com.amazonaws.util.AwsHostNameUtils;
-import com.amazonaws.util.RuntimeHttpUtils;
-import org.apache.hadoop.thirdparty.com.google.common.base.Preconditions;
-import org.apache.hadoop.thirdparty.com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.classification.InterfaceAudience;
@@ -53,15 +35,22 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.s3a.statistics.impl.AwsStatisticsCollector;
 import org.apache.hadoop.fs.store.LogExactlyOnce;
+import org.apache.hadoop.thirdparty.com.google.common.annotations.VisibleForTesting;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.apache.hadoop.fs.s3a.Constants.AWS_REGION;
-import static org.apache.hadoop.fs.s3a.Constants.AWS_S3_CENTRAL_REGION;
-import static org.apache.hadoop.fs.s3a.Constants.EXPERIMENTAL_AWS_INTERNAL_THROTTLING;
-import static org.apache.hadoop.fs.s3a.Constants.EXPERIMENTAL_AWS_INTERNAL_THROTTLING_DEFAULT;
-import static org.apache.hadoop.fs.s3a.Constants.S3_ENCRYPTION_KEY;
-import static org.apache.hadoop.fs.s3a.S3AUtils.getEncryptionAlgorithm;
-import static org.apache.hadoop.fs.s3a.S3AUtils.getS3EncryptionKey;
-import static org.apache.hadoop.fs.s3a.S3AUtils.translateException;
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.SdkClientException;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.handlers.RequestHandler2;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Builder;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.S3ClientOptions;
+import com.amazonaws.services.s3.internal.ServiceUtils;
+import com.amazonaws.util.AwsHostNameUtils;
+import com.amazonaws.util.RuntimeHttpUtils;
 
 /**
  * The default {@link S3ClientFactory} implementation.
@@ -135,76 +124,13 @@ public class DefaultS3ClientFactory extends Configured
     S3AEncryptionMethods encryptionMethods =
         getEncryptionAlgorithm(bucket, conf);
     try {
-      // If CSE is enabled then build a S3EncryptionClient.
-      if (S3AEncryptionMethods.CSE_KMS.getMethod()
-          .equals(encryptionMethods.getMethod())) {
-        return buildAmazonS3EncryptionClient(
-            awsConf,
-            parameters);
-      } else {
-        return buildAmazonS3Client(
-            awsConf,
-            parameters);
-      }
+      return buildAmazonS3Client(
+              awsConf,
+              parameters);
     } catch (SdkClientException e) {
       // SDK refused to build.
       throw translateException("creating AWS S3 client", uri.toString(), e);
     }
-  }
-
-  /**
-   * Create an {@link AmazonS3} client of type
-   * {@link AmazonS3EncryptionV2} if CSE is enabled.
-   *
-   * @param awsConf    AWS configuration.
-   * @param parameters parameters.
-   *
-   * @return new AmazonS3 client.
-   * @throws IOException if lookupPassword() has any problem.
-   */
-  protected AmazonS3 buildAmazonS3EncryptionClient(
-      final ClientConfiguration awsConf,
-      final S3ClientCreationParameters parameters) throws IOException {
-
-    AmazonS3 client;
-    AmazonS3EncryptionClientV2Builder builder =
-        new AmazonS3EncryptionClientV2Builder();
-    Configuration conf = getConf();
-
-    // CSE-KMS Method
-    String kmsKeyId = getS3EncryptionKey(bucket, conf, true);
-    // Check if kmsKeyID is not null
-    Preconditions.checkArgument(!StringUtils.isBlank(kmsKeyId), "CSE-KMS "
-        + "method requires KMS key ID. Use " + S3_ENCRYPTION_KEY
-        + " property to set it. ");
-
-    EncryptionMaterialsProvider materialsProvider =
-        new KMSEncryptionMaterialsProvider(kmsKeyId);
-    builder.withEncryptionMaterialsProvider(materialsProvider);
-    //Configure basic params of a S3 builder.
-    configureBasicParams(builder, awsConf, parameters);
-
-    // Configuring endpoint.
-    AmazonS3EncryptionClientV2Builder.EndpointConfiguration epr
-        = createEndpointConfiguration(parameters.getEndpoint(),
-        awsConf, getConf().getTrimmed(AWS_REGION));
-    configureEndpoint(builder, epr);
-
-    // Create cryptoConfig.
-    CryptoConfigurationV2 cryptoConfigurationV2 =
-        new CryptoConfigurationV2(CryptoMode.AuthenticatedEncryption)
-            .withRangeGetMode(CryptoRangeGetMode.ALL);
-    if (epr != null) {
-      cryptoConfigurationV2
-          .withAwsKmsRegion(RegionUtils.getRegion(epr.getSigningRegion()));
-      LOG.debug("KMS region used: {}", cryptoConfigurationV2.getAwsKmsRegion());
-    }
-    builder.withCryptoConfiguration(cryptoConfigurationV2);
-    client = builder.build();
-    IGNORE_CSE_WARN.info("S3 client-side encryption enabled: Ignore S3-CSE "
-        + "Warnings.");
-
-    return client;
   }
 
   /**

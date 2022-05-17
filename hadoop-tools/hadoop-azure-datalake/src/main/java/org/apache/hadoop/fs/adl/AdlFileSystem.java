@@ -207,7 +207,7 @@ public class AdlFileSystem extends FileSystem {
 
     String sslChannelMode = conf.get(ADL_SSL_CHANNEL_MODE,
         "Default");
-    options.setSSLChannelMode(sslChannelMode);
+    //options.setSSLChannelMode(sslChannelMode);
 
     adlClient.setOptions(options);
 
