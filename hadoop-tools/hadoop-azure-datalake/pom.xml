@@ -33,7 +33,8 @@
     <minimalJsonVersion>0.9.1</minimalJsonVersion>
     <file.encoding>UTF-8</file.encoding>
     <downloadSources>true</downloadSources>
-    <azure.data.lake.store.sdk.version>2.3.9</azure.data.lake.store.sdk.version>
+    <!-- as dremio is supporting 2.3.3 same should get upgraded with DX-52847 -->
+    <azure.data.lake.store.sdk.version>2.3.3</azure.data.lake.store.sdk.version>
   </properties>
   <build>
     <plugins>
