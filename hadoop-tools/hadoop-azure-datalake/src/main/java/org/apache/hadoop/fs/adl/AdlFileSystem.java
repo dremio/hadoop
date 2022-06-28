@@ -204,10 +204,10 @@ public class AdlFileSystem extends FileSystem {
     } else {
       LOG.info("No valid ADL SDK timeout configured: using SDK default.");
     }
-
-    String sslChannelMode = conf.get(ADL_SSL_CHANNEL_MODE,
+    //Uncomment when dremio supports azure-data-lake-store-sdk-3.3.9
+    /*String sslChannelMode = conf.get(ADL_SSL_CHANNEL_MODE,
         "Default");
-    options.setSSLChannelMode(sslChannelMode);
+    options.setSSLChannelMode(sslChannelMode);*/
 
     adlClient.setOptions(options);
 
