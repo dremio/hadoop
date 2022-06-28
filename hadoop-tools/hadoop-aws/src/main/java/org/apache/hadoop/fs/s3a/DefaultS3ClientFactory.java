@@ -25,23 +25,15 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.handlers.RequestHandler2;
-import com.amazonaws.regions.RegionUtils;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Builder;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder;
 import com.amazonaws.services.s3.AmazonS3EncryptionV2;
 import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.internal.ServiceUtils;
-import com.amazonaws.services.s3.model.CryptoConfigurationV2;
-import com.amazonaws.services.s3.model.CryptoMode;
-import com.amazonaws.services.s3.model.CryptoRangeGetMode;
-import com.amazonaws.services.s3.model.EncryptionMaterialsProvider;
-import com.amazonaws.services.s3.model.KMSEncryptionMaterialsProvider;
 import com.amazonaws.util.AwsHostNameUtils;
 import com.amazonaws.util.RuntimeHttpUtils;
-import org.apache.hadoop.thirdparty.com.google.common.base.Preconditions;
 import org.apache.hadoop.thirdparty.com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +50,7 @@ import static org.apache.hadoop.fs.s3a.Constants.AWS_REGION;
 import static org.apache.hadoop.fs.s3a.Constants.AWS_S3_CENTRAL_REGION;
 import static org.apache.hadoop.fs.s3a.Constants.EXPERIMENTAL_AWS_INTERNAL_THROTTLING;
 import static org.apache.hadoop.fs.s3a.Constants.EXPERIMENTAL_AWS_INTERNAL_THROTTLING_DEFAULT;
-import static org.apache.hadoop.fs.s3a.Constants.S3_ENCRYPTION_KEY;
 import static org.apache.hadoop.fs.s3a.S3AUtils.getEncryptionAlgorithm;
-import static org.apache.hadoop.fs.s3a.S3AUtils.getS3EncryptionKey;
 import static org.apache.hadoop.fs.s3a.S3AUtils.translateException;
 
 /**
@@ -136,22 +126,24 @@ public class DefaultS3ClientFactory extends Configured
         getEncryptionAlgorithm(bucket, conf);
     try {
       // If CSE is enabled then build a S3EncryptionClient.
-      if (S3AEncryptionMethods.CSE_KMS.getMethod()
+      //Commented for DX-52829, Its internally calling DefaultHostnameVerifier which is causing java.lang.NoClassDefFoundError: com/amazonaws/services/s3/AmazonS3EncryptionClientV2Builder
+      /*if (S3AEncryptionMethods.CSE_KMS.getMethod()
           .equals(encryptionMethods.getMethod())) {
         return buildAmazonS3EncryptionClient(
             awsConf,
             parameters);
-      } else {
-        return buildAmazonS3Client(
-            awsConf,
-            parameters);
-      }
+      }*/
+      return buildAmazonS3Client(
+              awsConf,
+              parameters);
     } catch (SdkClientException e) {
       // SDK refused to build.
       throw translateException("creating AWS S3 client", uri.toString(), e);
     }
   }
 
+  //Commented for DX-52829,
+  // Its internally calling DefaultHostnameVerifier which is causing java.lang.NoClassDefFoundError: com/amazonaws/services/s3/AmazonS3EncryptionClientV2Builder
   /**
    * Create an {@link AmazonS3} client of type
    * {@link AmazonS3EncryptionV2} if CSE is enabled.
@@ -161,7 +153,7 @@ public class DefaultS3ClientFactory extends Configured
    *
    * @return new AmazonS3 client.
    * @throws IOException if lookupPassword() has any problem.
-   */
+   *//*
   protected AmazonS3 buildAmazonS3EncryptionClient(
       final ClientConfiguration awsConf,
       final S3ClientCreationParameters parameters) throws IOException {
@@ -205,7 +197,7 @@ public class DefaultS3ClientFactory extends Configured
         + "Warnings.");
 
     return client;
-  }
+  }*/
 
   /**
    * Use the Builder API to create an AWS S3 client.
