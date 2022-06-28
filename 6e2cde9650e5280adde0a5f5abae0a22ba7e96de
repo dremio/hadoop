@@ -18,6 +18,24 @@
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "890579e8_f0ba0264",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-06-28T20:23:17Z",
+      "side": 1,
+      "message": "Created DX-52829 and DX-52816",
+      "parentUuid": "cbacfcbc_1d826b57",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9b555b9d_d90054ed",
@@ -31,6 +49,24 @@
       "writtenOn": "2022-06-28T16:54:07Z",
       "side": 1,
       "message": "is there a specific reason you need this version change vs simply to align it with dremio?",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "594d33f8_6a0eeae8",
+        "filename": "hadoop-project/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-06-28T20:23:17Z",
+      "side": 1,
+      "message": "Yes it\u0027s just to align with dremio.",
+      "parentUuid": "9b555b9d_d90054ed",
       "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "412423b8_d7fb0416",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/DefaultS3ClientFactory.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-06-28T20:23:17Z",
+      "side": 1,
+      "message": "With this code following issue is being observed:\njava.lang.NoClassDefFoundError: com/amazonaws/services/s3/AmazonS3EncryptionClientV2Builder\n\tat java.lang.Class.getDeclaredConstructors0(Native Method)\n\tat java.lang.Class.privateGetDeclaredConstructors(Class.java:2671)\n\tat java.lang.Class.getConstructor0(Class.java:3075)\n\tat java.lang.Class.getDeclaredConstructor(Class.java:2178)\n\tat org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:131)\n\tat org.apache.hadoop.fs.s3a.S3AFileSystem.bindAWSClient(S3AFileSystem.java:910).\n\nAs you correctly said, it\u0027s not related to AmazonS3EncryptionClientV2Builder. \nInternally its trying to construct DefaultHostnameVerifier which is throwing error as there is not implicit constructor for the same. \n\nFew Ref: https://stackoverflow.com/questions/49646924/error-noclassdeffounderror-org-apache-commons-logging-logfactory\n\nSince its of low priority as of now so commented.",
+      "parentUuid": "8b8b113e_6979beb4",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2f9b74fa_0e0e75c1",
         "filename": "hadoop-tools/hadoop-azure-datalake/src/main/java/org/apache/hadoop/fs/adl/AdlFileSystem.java",
         "patchSetId": 7
@@ -65,6 +119,24 @@
       "writtenOn": "2022-06-28T16:54:07Z",
       "side": 1,
       "message": "If you were to comment, better commenting both lines, but not sure why this line is commented at all: I didn\u0027t find any explanation on the jira or on this change description.\n\nI\u0027m also not convinced by \"remove ssl connection mode for adls as not supported for azure-data-lake-store-sdk-2.3.3 with dremio\". I would expect us to support SSL/TLS for connecting to ADLS already, and to be a requirement for Dremio Cloud anyway (connections to external systems should always use TLS or similar encryption protocols)",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aafe9eae_48514d4b",
+        "filename": "hadoop-tools/hadoop-azure-datalake/src/main/java/org/apache/hadoop/fs/adl/AdlFileSystem.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-06-28T20:23:17Z",
+      "side": 1,
+      "message": "This method  https://github.com/Azure/azure-data-lake-store-java/blob/2.3.9/src/main/java/com/microsoft/azure/datalake/store/ADLStoreOptions.java#L191\nis not available with Dremio forked version , https://gerrit.drem.io/gerrit/plugins/gitiles/azure-data-lake-store-java/+/refs/heads/2.3.3-dremio/src/main/java/com/microsoft/azure/datalake/store/ADLStoreOptions.java\n\nTo support that we will have to upgrade azure-data-lake-store-sdk-2.3.3 too.",
+      "parentUuid": "2f9b74fa_0e0e75c1",
       "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
