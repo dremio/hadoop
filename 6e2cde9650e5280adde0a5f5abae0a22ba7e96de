@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cbacfcbc_1d826b57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2022-06-28T16:54:07Z",
+      "side": 1,
+      "message": "Separate patches for each issue would be better and would simplify rebasing in the future.\n\nAlso not convinced by the reasons why some code is commented. Please provide more details?",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b555b9d_d90054ed",
+        "filename": "hadoop-project/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2022-06-28T16:54:07Z",
+      "side": 1,
+      "message": "is there a specific reason you need this version change vs simply to align it with dremio?",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b8b113e_6979beb4",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/DefaultS3ClientFactory.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2022-06-28T16:54:07Z",
+      "side": 1,
+      "message": "Not sure why this block is commented: is it because this code fails to run when using with Dremio because a newer version of the SDK is being used?\n\nYour comment about the missing constructor seems also incorrect? Even if the constructor is not declared, the implicit constructor should be present (as javap seems to confirm):\n\n```\n$ javap -cp ${HOME}/.m2/repository/com/amazonaws/aws-java-sdk-s3//1.12.75/aws-java-sdk-s3-1.12.75.jar com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder\nCompiled from \"AmazonS3EncryptionClientV2Builder.java\"\npublic final class com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder extends com.amazonaws.services.s3.AmazonS3Builder\u003ccom.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder, com.amazonaws.services.s3.AmazonS3EncryptionV2\u003e {\n  public com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder();\n  public static com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder standard();\n  public void setEncryptionMaterialsProvider(com.amazonaws.services.s3.model.EncryptionMaterialsProvider);\n  public com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder withEncryptionMaterialsProvider(com.amazonaws.services.s3.model.EncryptionMaterialsProvider);\n  public void setCryptoConfiguration(com.amazonaws.services.s3.model.CryptoConfigurationV2);\n  public com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder withCryptoConfiguration(com.amazonaws.services.s3.model.CryptoConfigurationV2);\n  public void setKmsClient(com.amazonaws.services.kms.AWSKMS);\n  public com.amazonaws.services.s3.AmazonS3EncryptionClientV2Builder withKmsClient(com.amazonaws.services.kms.AWSKMS);\n  protected com.amazonaws.services.s3.AmazonS3EncryptionV2 build(com.amazonaws.client.AwsSyncClientParams);\n  protected java.lang.Object build(com.amazonaws.client.AwsSyncClientParams);\n}\n\n```",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f9b74fa_0e0e75c1",
+        "filename": "hadoop-tools/hadoop-azure-datalake/src/main/java/org/apache/hadoop/fs/adl/AdlFileSystem.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2022-06-28T16:54:07Z",
+      "side": 1,
+      "message": "If you were to comment, better commenting both lines, but not sure why this line is commented at all: I didn\u0027t find any explanation on the jira or on this change description.\n\nI\u0027m also not convinced by \"remove ssl connection mode for adls as not supported for azure-data-lake-store-sdk-2.3.3 with dremio\". I would expect us to support SSL/TLS for connecting to ADLS already, and to be a requirement for Dremio Cloud anyway (connections to external systems should always use TLS or similar encryption protocols)",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
