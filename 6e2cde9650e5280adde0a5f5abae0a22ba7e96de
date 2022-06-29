@@ -108,6 +108,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a855a808_4dd2dcff",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/DefaultS3ClientFactory.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-06-29T03:52:24Z",
+      "side": 1,
+      "message": "Test failure: https://jenkins.drem.io/job/dremio-gerrit-changesets/128454/testReport/junit/com.dremio.exec.hive/ITHiveAsyncReadOnS3(hive3)/testAsyncReadOnS3/",
+      "parentUuid": "412423b8_d7fb0416",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2f9b74fa_0e0e75c1",
         "filename": "hadoop-tools/hadoop-azure-datalake/src/main/java/org/apache/hadoop/fs/adl/AdlFileSystem.java",
         "patchSetId": 7
@@ -137,6 +155,24 @@
       "side": 1,
       "message": "This method  https://github.com/Azure/azure-data-lake-store-java/blob/2.3.9/src/main/java/com/microsoft/azure/datalake/store/ADLStoreOptions.java#L191\nis not available with Dremio forked version , https://gerrit.drem.io/gerrit/plugins/gitiles/azure-data-lake-store-java/+/refs/heads/2.3.3-dremio/src/main/java/com/microsoft/azure/datalake/store/ADLStoreOptions.java\n\nTo support that we will have to upgrade azure-data-lake-store-sdk-2.3.3 too.",
       "parentUuid": "2f9b74fa_0e0e75c1",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "631b415a_6f3f6166",
+        "filename": "hadoop-tools/hadoop-azure-datalake/src/main/java/org/apache/hadoop/fs/adl/AdlFileSystem.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-06-29T03:52:24Z",
+      "side": 1,
+      "message": "Test failure :\nhttps://jenkins.drem.io/job/dremio-gerrit-changesets/128454/testReport/com.dremio.plugins.adl.store/TestAzureDataLake/testQueryOnJson/",
+      "parentUuid": "aafe9eae_48514d4b",
       "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
