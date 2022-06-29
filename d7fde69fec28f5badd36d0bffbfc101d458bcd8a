@@ -68,6 +68,24 @@
       "parentUuid": "4fe93ca2_e32118ad",
       "revId": "d7fde69fec28f5badd36d0bffbfc101d458bcd8a",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82b7a3ac_9fcf8d78",
+        "filename": "hadoop-tools/hadoop-azure-datalake/src/main/java/org/apache/hadoop/fs/adl/AdlFileSystem.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-06-29T17:10:56Z",
+      "side": 1,
+      "message": "These are the cherry-pick we have to consider before upgrading to 2.3.9 \nhttps://gerrit.drem.io/gerrit/q/project:azure-data-lake-store-java+branch:2.3.3-dremio",
+      "parentUuid": "1d765b21_c3795bbb",
+      "revId": "d7fde69fec28f5badd36d0bffbfc101d458bcd8a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
   ]
 }
