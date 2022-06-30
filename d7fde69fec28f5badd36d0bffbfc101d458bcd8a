@@ -18,6 +18,23 @@
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be8576f5_5f1750f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2022-06-30T03:02:23Z",
+      "side": 1,
+      "message": "Please be mindful of your comments on both the code, the git commit message and the JIRA. I should not be forced to do my own research to understand what code is doing or not...",
+      "revId": "d7fde69fec28f5badd36d0bffbfc101d458bcd8a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a2de91f6_4c20089a",
@@ -84,6 +101,24 @@
       "side": 1,
       "message": "These are the cherry-pick we have to consider before upgrading to 2.3.9 \nhttps://gerrit.drem.io/gerrit/q/project:azure-data-lake-store-java+branch:2.3.3-dremio",
       "parentUuid": "1d765b21_c3795bbb",
+      "revId": "d7fde69fec28f5badd36d0bffbfc101d458bcd8a",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ea413a0_7eee1f36",
+        "filename": "hadoop-tools/hadoop-azure-datalake/src/main/java/org/apache/hadoop/fs/adl/AdlFileSystem.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2022-06-30T03:02:23Z",
+      "side": 1,
+      "message": "I guess I forget that we use a forked version of the azure library (so dremio version is not 2.3.3 but 2.3.3-xxxx). There was still no explanation about what the commented code does, what\u0027s the impact (and since it does mention SSL, one can thing this has something to do with security).\n\nLooks like this was added as part of https://issues.apache.org/jira/browse/HADOOP-16438 so doesn\u0027t look critical, but as part of the upgrade of datalake library I would expect to link a task to revert this change (and not sure we will remember about it since the ticket description is not really detailed...)",
+      "parentUuid": "82b7a3ac_9fcf8d78",
       "revId": "d7fde69fec28f5badd36d0bffbfc101d458bcd8a",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
