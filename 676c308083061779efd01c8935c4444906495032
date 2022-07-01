@@ -16,6 +16,24 @@
       "message": "Isn\u0027t it again 2 unrelated changes merged into one? I\u0027m not even sure why the change to the AWS version if no code change (and it isn\u0027t mentioned in the ticket either)\n\nCan you clarify please?",
       "revId": "676c308083061779efd01c8935c4444906495032",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b7da6f2_cf144bc7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2022-07-01T15:39:21Z",
+      "side": 1,
+      "message": "yes, changing aws-sdk is irrelevant. Removed it.",
+      "parentUuid": "880b1780_67817fa8",
+      "revId": "676c308083061779efd01c8935c4444906495032",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
   ]
 }
