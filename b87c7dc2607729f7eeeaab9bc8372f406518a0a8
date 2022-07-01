@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e7df4c8_570f50c9",
+        "filename": "hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/Constants.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000057
+      },
+      "writtenOn": "2022-07-01T10:27:53Z",
+      "side": 1,
+      "message": "Please remove this line as well",
+      "revId": "b87c7dc2607729f7eeeaab9bc8372f406518a0a8",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
