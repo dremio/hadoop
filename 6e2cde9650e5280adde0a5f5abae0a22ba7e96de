@@ -71,6 +71,24 @@
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "058f33b4_5888a520",
+        "filename": "hadoop-project/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1000015
+      },
+      "writtenOn": "2022-07-01T15:41:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "594d33f8_6a0eeae8",
+      "revId": "6e2cde9650e5280adde0a5f5abae0a22ba7e96de",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8b8b113e_6979beb4",
