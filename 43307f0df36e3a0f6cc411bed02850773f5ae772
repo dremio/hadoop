@@ -1,0 +1,7 @@
+Code-Review+2: Vivekanand Vellanki <vivek@dremio.com>
+Verified+1: Vivekanand Vellanki <vivek@dremio.com>
+Submitted-by: Naveen Kumar <naveen.kumar@dremio.com>
+Submitted-at: Mon, 04 Jul 2022 17:39:14 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/36203
+Project: hadoop
+Branch: refs/heads/branch-3.3.2-dremio
