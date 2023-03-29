@@ -383,7 +383,7 @@ public class AbfsRestOperation {
         // sign the HTTP request
         LOG.debug("Signing request with shared key");
         // sign the HTTP request
-        client.getSharedKeyCredentials().signRequest(
+        client.getSharedKeySigner().signRequest(
             httpOperation.getConnection(),
             bytesToSign);
         break;

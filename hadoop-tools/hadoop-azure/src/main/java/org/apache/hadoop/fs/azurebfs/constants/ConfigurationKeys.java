@@ -254,6 +254,9 @@ public final class ConfigurationKeys {
   /** For performance, AbfsInputStream/AbfsOutputStream re-use SAS tokens until the expiry is within this number of seconds. **/
   public static final String FS_AZURE_SAS_TOKEN_RENEW_PERIOD_FOR_STREAMS = "fs.azure.sas.token.renew.period.for.streams";
 
+  /** Key for Shared Key signer type **/
+  public static final String FS_AZURE_SHARED_KEY_SIGNER_TYPE = "fs.azure.sharedkey.signer.type";
+
   /** Key to enable custom identity transformation. */
   public static final String FS_AZURE_IDENTITY_TRANSFORM_CLASS = "fs.azure.identity.transformer.class";
   /** Key for Local User to Service Principal file location. */
