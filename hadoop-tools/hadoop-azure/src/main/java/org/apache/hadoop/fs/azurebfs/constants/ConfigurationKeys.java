@@ -110,5 +110,27 @@ public final class ConfigurationKeys {
 
   public static final String ABFS_EXTERNAL_AUTHORIZATION_CLASS = "abfs.external.authorization.class";
 
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+  /** For performance, AbfsInputStream/AbfsOutputStream re-use SAS tokens until the expiry is within this number of seconds. **/
+  public static final String FS_AZURE_SAS_TOKEN_RENEW_PERIOD_FOR_STREAMS = "fs.azure.sas.token.renew.period.for.streams";
+
+  /** Key for Shared Key signer type **/
+  public static final String FS_AZURE_SHARED_KEY_SIGNER_TYPE = "fs.azure.sharedkey.signer.type";
+
+  /** Key to enable custom identity transformation. */
+  public static final String FS_AZURE_IDENTITY_TRANSFORM_CLASS = "fs.azure.identity.transformer.class";
+  /** Key for Local User to Service Principal file location. */
+  public static final String FS_AZURE_LOCAL_USER_SP_MAPPING_FILE_PATH = "fs.azure.identity.transformer.local.service.principal.mapping.file.path";
+  /** Key for Local Group to Service Group file location. */
+  public static final String FS_AZURE_LOCAL_GROUP_SG_MAPPING_FILE_PATH = "fs.azure.identity.transformer.local.service.group.mapping.file.path";
+  /**
+   * Optional config to enable a lock free pread which will bypass buffer in AbfsInputStream.
+   * This is not a config which can be set at cluster level. It can be used as
+   * an option on FutureDataInputStreamBuilder.
+   * @see FileSystem#openFile(org.apache.hadoop.fs.Path)
+   */
+  public static final String FS_AZURE_BUFFERED_PREAD_DISABLE = "fs.azure.buffered.pread.disable";
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
   private ConfigurationKeys() {}
 }

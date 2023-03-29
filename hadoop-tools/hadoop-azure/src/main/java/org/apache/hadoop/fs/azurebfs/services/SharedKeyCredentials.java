@@ -18,8 +18,6 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -39,15 +37,30 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the shared key credentials used to access an Azure Storage
  * account.
  */
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
 public class SharedKeyCredentials {
+=======
+public class SharedKeyCredentials implements SharedKeySigner {
+
+  private static final Logger LOG = LoggerFactory.getLogger(
+      SharedKeyCredentials.class);
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
   private static final int EXPECTED_BLOB_QUEUE_CANONICALIZED_STRING_LENGTH = 300;
   private static final Pattern CRLF = Pattern.compile("\r\n", Pattern.LITERAL);
   private static final String HMAC_SHA256 = "HmacSHA256";
@@ -74,6 +87,7 @@ public class SharedKeyCredentials {
     initializeMac();
   }
 
+  @Override
   public void signRequest(HttpURLConnection connection, final long contentLength) throws UnsupportedEncodingException {
 
     connection.setRequestProperty(HttpHeaderConfigurations.X_MS_DATE, getGMTTime());

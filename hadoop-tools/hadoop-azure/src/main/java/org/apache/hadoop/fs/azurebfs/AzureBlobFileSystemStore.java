@@ -17,9 +17,31 @@
  */
 package org.apache.hadoop.fs.azurebfs;
 
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_EQUALS;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_FORWARD_SLASH;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_HYPHEN;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_PLUS;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_STAR;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_UNDERSCORE;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.ROOT_PATH;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.SINGLE_WHITE_SPACE;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.TOKEN_VERSION;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.AZURE_ABFS_ENDPOINT;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_BUFFERED_PREAD_DISABLE;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_IDENTITY_TRANSFORM_CLASS;
+
+import java.io.Closeable;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -44,9 +66,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
+=======
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
@@ -55,6 +80,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.RemoteIterator;
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+import org.apache.hadoop.fs.azurebfs.constants.FileSystemConfigurations;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import org.apache.hadoop.fs.azurebfs.constants.FileSystemUriSchemes;
 import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AbfsRestOperationException;
@@ -64,22 +93,46 @@ import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidAbfsRestOperati
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidFileSystemPropertyException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriAuthorityException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TrileanConversionException;
 import org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultEntrySchema;
 import org.apache.hadoop.fs.azurebfs.contracts.services.ListResultSchema;
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+import org.apache.hadoop.fs.azurebfs.enums.Trilean;
+import org.apache.hadoop.fs.azurebfs.extensions.ExtensionHelper;
+import org.apache.hadoop.fs.azurebfs.extensions.SASTokenProvider;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import org.apache.hadoop.fs.azurebfs.oauth2.AccessTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.IdentityTransformer;
 import org.apache.hadoop.fs.azurebfs.services.AbfsAclHelper;
 import org.apache.hadoop.fs.azurebfs.services.AbfsClient;
 import org.apache.hadoop.fs.azurebfs.services.AbfsHttpOperation;
 import org.apache.hadoop.fs.azurebfs.services.AbfsInputStream;
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+import org.apache.hadoop.fs.azurebfs.services.AbfsInputStreamContext;
+import org.apache.hadoop.fs.azurebfs.services.AbfsInputStreamStatisticsImpl;
+import org.apache.hadoop.fs.azurebfs.services.AbfsLease;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
 import org.apache.hadoop.fs.azurebfs.services.AbfsOutputStream;
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+import org.apache.hadoop.fs.azurebfs.services.AbfsOutputStreamContext;
+import org.apache.hadoop.fs.azurebfs.services.AbfsOutputStreamStatisticsImpl;
+import org.apache.hadoop.fs.azurebfs.services.AbfsPerfInfo;
+import org.apache.hadoop.fs.azurebfs.services.AbfsPerfTracker;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import org.apache.hadoop.fs.azurebfs.services.AbfsPermission;
 import org.apache.hadoop.fs.azurebfs.services.AbfsRestOperation;
 import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
 import org.apache.hadoop.fs.azurebfs.services.SharedKeyCredentials;
+=======
+import org.apache.hadoop.fs.azurebfs.services.ListingSupport;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
 import org.apache.hadoop.fs.azurebfs.utils.UriUtils;
 import org.apache.hadoop.fs.permission.AclEntry;
@@ -87,11 +140,25 @@ import org.apache.hadoop.fs.permission.AclStatus;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.security.UserGroupInformation;
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
+=======
+import org.apache.hadoop.thirdparty.com.google.common.annotations.VisibleForTesting;
+import org.apache.hadoop.thirdparty.com.google.common.base.Preconditions;
+import org.apache.hadoop.thirdparty.com.google.common.base.Strings;
+import org.apache.hadoop.thirdparty.com.google.common.util.concurrent.Futures;
+import org.apache.hadoop.thirdparty.com.google.common.util.concurrent.ListenableFuture;
+import org.apache.hadoop.util.BlockingThreadPoolExecutorService;
+import org.apache.hadoop.util.SemaphoredDelegatingExecutor;
+import org.apache.hadoop.util.concurrent.HadoopExecutors;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.AZURE_ABFS_ENDPOINT;
+=======
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 /**
  * Provides the bridging logic between Hadoop's abstract filesystem and Azure Storage.
  */
@@ -863,8 +930,12 @@ public class AzureBlobFileSystemStore {
       throw new InvalidUriException(uri.toString());
     }
 
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
     SharedKeyCredentials creds = null;
     AccessTokenProvider tokenProvider = null;
+=======
+    LOG.trace("Initializing AbfsClient for {}", baseUrl);
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
 
     if (abfsConfiguration.getAuthType(accountName) == AuthType.SharedKey) {
       int dotIndex = accountName.indexOf(AbfsHttpConstants.DOT);
@@ -872,6 +943,7 @@ public class AzureBlobFileSystemStore {
         throw new InvalidUriException(
                 uri.toString() + " - account name is not fully qualified.");
       }
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
       creds = new SharedKeyCredentials(accountName.substring(0, dotIndex),
             abfsConfiguration.getStorageAccountKey());
     } else {
@@ -879,6 +951,42 @@ public class AzureBlobFileSystemStore {
     }
 
     this.client =  new AbfsClient(baseUrl, creds, abfsConfiguration, new ExponentialRetryPolicy(), tokenProvider);
+=======
+      this.client = new AbfsClient(baseUrl, abfsConfiguration.getSharedKeySigner(), abfsConfiguration,
+          populateAbfsClientContext());
+    } else if (authType == AuthType.SAS) {
+      LOG.trace("Fetching SAS token provider");
+      SASTokenProvider sasTokenProvider = abfsConfiguration.getSASTokenProvider();
+      this.client = new AbfsClient(baseUrl, null, abfsConfiguration,
+          sasTokenProvider,
+          populateAbfsClientContext());
+    } else {
+      // authType == OAUTH || authType == CUSTOM
+      LOG.trace("Fetching token provider");
+      AccessTokenProvider tokenProvider = abfsConfiguration.getTokenProvider();
+      ExtensionHelper.bind(tokenProvider, uri,
+            abfsConfiguration.getRawConfiguration());
+      this.client = new AbfsClient(baseUrl, null, abfsConfiguration,
+          tokenProvider,
+          populateAbfsClientContext());
+    }
+
+    LOG.trace("AbfsClient init complete");
+  }
+
+  /**
+   * Populate a new AbfsClientContext instance with the desired properties.
+   *
+   * @return an instance of AbfsClientContext.
+   */
+  private AbfsClientContext populateAbfsClientContext() {
+    return new AbfsClientContextBuilder()
+        .withExponentialRetryPolicy(
+            new ExponentialRetryPolicy(abfsConfiguration))
+        .withAbfsCounters(abfsCounters)
+        .withAbfsPerfTracker(abfsPerfTracker)
+        .build();
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
   }
 
   private String getOctalNotation(FsPermission fsPermission) {

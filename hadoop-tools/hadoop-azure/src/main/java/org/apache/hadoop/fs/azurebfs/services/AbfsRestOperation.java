@@ -147,6 +147,7 @@ public class AbfsRestOperation {
       // initialize the HTTP request and open the connection
       httpOperation = new AbfsHttpOperation(url, method, requestHeaders);
 
+<<<<<<< HEAD   (c107c4 DX-64051: Bump jettison from 1.1 to 1.5.4 in hadoop/2_8_5_az)
       // sign the HTTP request
       if (client.getAccessToken() == null) {
         // sign the HTTP request
@@ -156,6 +157,27 @@ public class AbfsRestOperation {
       } else {
         httpOperation.getConnection().setRequestProperty(HttpHeaderConfigurations.AUTHORIZATION,
                 client.getAccessToken());
+=======
+      switch(client.getAuthType()) {
+        case Custom:
+        case OAuth:
+          LOG.debug("Authenticating request with OAuth2 access token");
+          httpOperation.getConnection().setRequestProperty(HttpHeaderConfigurations.AUTHORIZATION,
+              client.getAccessToken());
+          break;
+        case SAS:
+          // do nothing; the SAS token should already be appended to the query string
+          httpOperation.setMaskForSAS(); //mask sig/oid from url for logs
+          break;
+        case SharedKey:
+          // sign the HTTP request
+          LOG.debug("Signing request with shared key");
+          // sign the HTTP request
+          client.getSharedKeySigner().signRequest(
+              httpOperation.getConnection(),
+              hasRequestBody ? bufferLength : 0);
+          break;
+>>>>>>> CHANGE (74cfc9 WIP: Allow for custom shared key signer for ABFS)
       }
 
       AbfsClientThrottlingIntercept.sendingRequest(operationType);
