@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89bf94fd_edcb5d14",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000122
+      },
+      "writtenOn": "2023-03-30T18:01:38Z",
+      "side": 1,
+      "message": "Looks ok to me so far, I assume we\u0027re leaning into a SharedKey specific signer to avoid too large a refactor considering the OAuth Token Provider already has a similar pattern?\n\nThat being said, for the OAuth route, it does look like during AbfsConfiguration#getTokenProvider, the client secret is frozen. The work around I see is we need to provide a AuthType CUSTOM token provider.",
+      "revId": "f7aa96afe0795fc3ba053877d17a26506fdac484",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
