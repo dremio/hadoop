@@ -1,0 +1,7 @@
+Verified+1: jenkins (via gerrit) <jenkins@dremio.com>
+Code-Review+2: Scott Cowell <scott.cowell@dremio.com>
+Submitted-by: Dmitry Chirkov <dmitry.chirkov@dremio.com>
+Submitted-at: Sun, 02 Apr 2023 21:26:30 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/49999
+Project: hadoop
+Branch: refs/heads/2_8_5_azure_dremio
