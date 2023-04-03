@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58f7e653_16ac215a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-04-03T13:39:17Z",
+      "side": 1,
+      "message": "Conditional +2 on the failures being within the expected set of failures you found in https://dremio.atlassian.net/browse/DX-63858",
+      "revId": "541181b140fb1741a770674cfbc90221b5caaf8f",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
