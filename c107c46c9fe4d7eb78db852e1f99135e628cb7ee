@@ -1,0 +1,7 @@
+Verified+1: jenkins (via gerrit) <jenkins@dremio.com>
+Code-Review+2: Dan Huff <dan.huff@dremio.com>
+Submitted-by: Dan Huff <dan.huff@dremio.com>
+Submitted-at: Tue, 09 May 2023 21:26:57 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/50001
+Project: hadoop
+Branch: refs/heads/2_8_5_azure_dremio
