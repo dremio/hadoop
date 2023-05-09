@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d59999e_0ae97bba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000482
+      },
+      "writtenOn": "2023-05-09T21:36:10Z",
+      "side": 1,
+      "message": "Overriding build status as across multiple runs there are:\n23 consistent test failures that are preexisting\nRemaining ~50 failures are sporadic - see https://dremio.atlassian.net/browse/DX-63858",
+      "revId": "7d8dbf3e3068b3543f95e1615beca1a8980c06a9",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
