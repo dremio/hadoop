@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d8ccdea_7b65aaa9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-05-11T18:00:01Z",
+      "side": 1,
+      "message": "This is an experiment to see if this helps solve a dependency issue in DX-64051. Just a backup plan in case existing changes are not sufficient.",
+      "revId": "d676940385f21d0446947b202f1f986a48b340e0",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
