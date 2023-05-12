@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7543365_ead30c2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-05-12T16:34:56Z",
+      "side": 1,
+      "message": "Discussion on why I think this is needed https://dremio.slack.com/archives/C011LRB43ML/p1683900296127969",
+      "revId": "942ab1c4341ac5b4deff89e4ecf51735e89dc0d7",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
