@@ -33,6 +33,23 @@
       "message": "Commit was verified with unit test job: https://jenkins.drem.io/job/hadoop-gerrit-patches/259/ where only the expected unit test failures are present (https://dremio.atlassian.net/wiki/spaces/eng/pages/2382856241/hadoop+Library#branch-3.3.2-dremio)",
       "revId": "4987a303280b937966b31c64b0c674c87c953d20",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62423c5e_e1b7fb32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-06-13T15:27:18Z",
+      "side": 1,
+      "message": "Cherry pick looks good. I assume the hadoop-mapreduce-project change is coming from the fact that you also brought in https://issues.apache.org/jira/browse/HADOOP-15327",
+      "revId": "4987a303280b937966b31c64b0c674c87c953d20",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
   ]
 }
