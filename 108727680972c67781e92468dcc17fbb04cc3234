@@ -33,6 +33,40 @@
       "message": "Commit was verified with unit test job: https://jenkins.drem.io/job/hadoop-gerrit-patches/259/ where only the expected unit test failures are present (https://dremio.atlassian.net/wiki/spaces/eng/pages/2382856241/hadoop+Library#branch-3.3.2-dremio)",
       "revId": "108727680972c67781e92468dcc17fbb04cc3234",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d37d112_1d763361",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-06-13T15:55:35Z",
+      "side": 1,
+      "message": "Same as the other change. Difference doesn\u0027t matter against original change.",
+      "revId": "108727680972c67781e92468dcc17fbb04cc3234",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89301b11_f1462e52",
+        "filename": "hadoop-mapreduce-project/hadoop-mapreduce-client/hadoop-mapreduce-client-shuffle/src/main/java/org/apache/hadoop/mapred/ShuffleHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-06-13T15:55:35Z",
+      "side": 1,
+      "message": "This is different from the main file but that is simply because we didn\u0027t bring in HADOOP-17959 which replaced the usage with hadoop\u0027s own",
+      "revId": "108727680972c67781e92468dcc17fbb04cc3234",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
   ]
 }
