@@ -16,6 +16,23 @@
       "message": "Tip commit in this changeset was verified with unit test job: https://jenkins.drem.io/job/hadoop-gerrit-patches/259/ where only the expected unit test failures are present (https://dremio.atlassian.net/wiki/spaces/eng/pages/2382856241/hadoop+Library#branch-3.3.2-dremio)",
       "revId": "0fe0948234062752a17bf9aed5f344257f3ccf71",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b303740f_40c4ca5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000482
+      },
+      "writtenOn": "2023-06-13T14:06:51Z",
+      "side": 1,
+      "message": "Commit was verified with unit test job: https://jenkins.drem.io/job/hadoop-gerrit-patches/259/ where only the expected unit test failures are present (https://dremio.atlassian.net/wiki/spaces/eng/pages/2382856241/hadoop+Library#branch-3.3.2-dremio)",
+      "revId": "0fe0948234062752a17bf9aed5f344257f3ccf71",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
   ]
 }
