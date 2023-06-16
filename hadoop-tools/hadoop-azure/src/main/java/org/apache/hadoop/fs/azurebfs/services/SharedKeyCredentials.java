@@ -47,7 +47,7 @@ import org.apache.hadoop.fs.azurebfs.utils.Base64;
  * Represents the shared key credentials used to access an Azure Storage
  * account.
  */
-public class SharedKeyCredentials {
+public class SharedKeyCredentials implements SharedKeySigner {
   private static final int EXPECTED_BLOB_QUEUE_CANONICALIZED_STRING_LENGTH = 300;
   private static final Pattern CRLF = Pattern.compile("\r\n", Pattern.LITERAL);
   private static final String HMAC_SHA256 = "HmacSHA256";
@@ -74,6 +74,7 @@ public class SharedKeyCredentials {
     initializeMac();
   }
 
+  @Override
   public void signRequest(HttpURLConnection connection, final long contentLength) throws UnsupportedEncodingException {
 
     connection.setRequestProperty(HttpHeaderConfigurations.X_MS_DATE, getGMTTime());
