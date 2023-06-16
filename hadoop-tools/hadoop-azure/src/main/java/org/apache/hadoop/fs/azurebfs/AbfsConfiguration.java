@@ -28,6 +28,7 @@ import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.classification.InterfaceStability;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.IntegerConfigurationValidatorAnnotation;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.LongConfigurationValidatorAnnotation;
 import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidationAnnotations.StringConfigurationValidatorAnnotation;
@@ -36,7 +37,9 @@ import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidati
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationValueException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.KeyProviderException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.SharedKeySignerException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TokenAccessProviderException;
 import org.apache.hadoop.fs.azurebfs.diagnostics.Base64StringConfigurationBasicValidator;
 import org.apache.hadoop.fs.azurebfs.diagnostics.BooleanConfigurationBasicValidator;
@@ -55,6 +58,8 @@ import org.apache.hadoop.fs.azurebfs.oauth2.UserPasswordTokenProvider;
 import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
 import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.apache.hadoop.fs.azurebfs.services.KeyProvider;
+import org.apache.hadoop.fs.azurebfs.services.SharedKeyCredentials;
+import org.apache.hadoop.fs.azurebfs.services.SharedKeySigner;
 import org.apache.hadoop.fs.azurebfs.services.SimpleKeyProvider;
 import org.apache.hadoop.fs.azurebfs.utils.SSLSocketFactoryEx;
 import org.apache.hadoop.security.ProviderUtils;
@@ -324,6 +329,32 @@ public class AbfsConfiguration{
 
   public boolean isSecureMode() {
     return isSecure;
+  }
+
+  public SharedKeySigner getSharedKeySigner() throws AzureBlobFileSystemException {
+    AuthType authType = getEnum(FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME, AuthType.SharedKey);
+    if (authType != AuthType.SharedKey) {
+      throw new SharedKeySignerException(String.format(
+              "Invalid auth type: %s is being used, expecting SharedKey", authType));
+    }
+    try {
+      Class<? extends SharedKeySigner> signerClass = rawConfig.getClass(FS_AZURE_SHARED_KEY_SIGNER_TYPE,
+              SharedKeyCredentials.class, SharedKeySigner.class);
+      SharedKeySigner sharedKeySigner;
+      if (signerClass == SharedKeyCredentials.class) {
+        int dotIndex = accountName.indexOf(AbfsHttpConstants.DOT);
+        if (dotIndex <= 0) {
+          throw new InvalidUriException("account name is not fully qualified.");
+        }
+        sharedKeySigner = new SharedKeyCredentials(accountName.substring(0, dotIndex),
+                this.getStorageAccountKey());
+      } else {
+        sharedKeySigner = ReflectionUtils.newInstance(signerClass, rawConfig);
+      }
+      return sharedKeySigner;
+    } catch (Exception e) {
+      throw new SharedKeySignerException("Unable to load Shared Key signer class: " + e, e);
+    }
   }
 
   public String getStorageAccountKey() throws AzureBlobFileSystemException {

@@ -51,7 +51,7 @@ import static org.apache.hadoop.fs.azurebfs.constants.HttpQueryParams.*;
 public class AbfsClient {
   public static final Logger LOG = LoggerFactory.getLogger(AbfsClient.class);
   private final URL baseUrl;
-  private final SharedKeyCredentials sharedKeyCredentials;
+  private final SharedKeySigner sharedKeySigner;
   private final String xMsVersion = "2018-11-09";
   private final ExponentialRetryPolicy retryPolicy;
   private final String filesystem;
@@ -61,12 +61,12 @@ public class AbfsClient {
   private final AccessTokenProvider tokenProvider;
 
 
-  public AbfsClient(final URL baseUrl, final SharedKeyCredentials sharedKeyCredentials,
+  public AbfsClient(final URL baseUrl, final SharedKeySigner sharedKeySigner,
                     final AbfsConfiguration abfsConfiguration,
                     final ExponentialRetryPolicy exponentialRetryPolicy,
                     final AccessTokenProvider tokenProvider) {
     this.baseUrl = baseUrl;
-    this.sharedKeyCredentials = sharedKeyCredentials;
+    this.sharedKeySigner = sharedKeySigner;
     String baseUrlString = baseUrl.toString();
     this.filesystem = baseUrlString.substring(baseUrlString.lastIndexOf(FORWARD_SLASH) + 1);
     this.abfsConfiguration = abfsConfiguration;
@@ -95,8 +95,8 @@ public class AbfsClient {
     return retryPolicy;
   }
 
-  SharedKeyCredentials getSharedKeyCredentials() {
-    return sharedKeyCredentials;
+  SharedKeySigner getSharedKeySigner() {
+    return sharedKeySigner;
   }
 
   List<AbfsHttpHeader> createDefaultHeaders() {

@@ -80,6 +80,7 @@ import org.apache.hadoop.fs.azurebfs.services.AbfsRestOperation;
 import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
 import org.apache.hadoop.fs.azurebfs.services.SharedKeyCredentials;
+import org.apache.hadoop.fs.azurebfs.services.SharedKeySigner;
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
 import org.apache.hadoop.fs.azurebfs.utils.UriUtils;
 import org.apache.hadoop.fs.permission.AclEntry;
@@ -863,7 +864,7 @@ public class AzureBlobFileSystemStore {
       throw new InvalidUriException(uri.toString());
     }
 
-    SharedKeyCredentials creds = null;
+    SharedKeySigner creds = null;
     AccessTokenProvider tokenProvider = null;
 
     if (abfsConfiguration.getAuthType(accountName) == AuthType.SharedKey) {
@@ -872,8 +873,7 @@ public class AzureBlobFileSystemStore {
         throw new InvalidUriException(
                 uri.toString() + " - account name is not fully qualified.");
       }
-      creds = new SharedKeyCredentials(accountName.substring(0, dotIndex),
-            abfsConfiguration.getStorageAccountKey());
+      creds = abfsConfiguration.getSharedKeySigner();
     } else {
       tokenProvider = abfsConfiguration.getTokenProvider();
     }
