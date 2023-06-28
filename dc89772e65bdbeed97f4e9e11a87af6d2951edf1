@@ -35,6 +35,24 @@
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d81e38a_9e61ec3f",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/contracts/exceptions/SharedKeySignerException.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1000122
+      },
+      "writtenOn": "2023-06-28T19:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24b87da4_7db6f8cf",
+      "revId": "dc89772e65bdbeed97f4e9e11a87af6d2951edf1",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1676c86_f919388b",
@@ -48,6 +66,24 @@
       "writtenOn": "2023-06-28T16:42:07Z",
       "side": 1,
       "message": "Same comment with SharedKeySignerException.java. Do we need the spacing here?",
+      "revId": "dc89772e65bdbeed97f4e9e11a87af6d2951edf1",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6011b5e0_3d479eeb",
+        "filename": "hadoop-tools/hadoop-azure/src/main/java/org/apache/hadoop/fs/azurebfs/services/SharedKeySigner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1000122
+      },
+      "writtenOn": "2023-06-28T19:07:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1676c86_f919388b",
       "revId": "dc89772e65bdbeed97f4e9e11a87af6d2951edf1",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
