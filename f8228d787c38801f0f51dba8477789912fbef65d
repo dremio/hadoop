@@ -33,6 +33,24 @@
       "message": "The test failures being hit seem to match https://dremio.atlassian.net/browse/DX-63858",
       "revId": "f8228d787c38801f0f51dba8477789912fbef65d",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ec9c0f0_50dbf70b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-06-28T19:00:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57496737_c8d6e708",
+      "revId": "f8228d787c38801f0f51dba8477789912fbef65d",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
   ]
 }
