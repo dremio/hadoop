@@ -1,0 +1,7 @@
+Code-Review+2: Dan Huff <dan.huff@dremio.com>
+Verified+1: Dmitry Chirkov <dmitry.chirkov@dremio.com>
+Submitted-by: Brandon Huang <brandon@dremio.com>
+Submitted-at: Wed, 28 Jun 2023 23:04:11 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/49902
+Project: hadoop
+Branch: refs/heads/branch-3.3.2-dremio
