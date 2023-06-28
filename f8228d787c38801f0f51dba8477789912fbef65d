@@ -51,6 +51,23 @@
       "parentUuid": "57496737_c8d6e708",
       "revId": "f8228d787c38801f0f51dba8477789912fbef65d",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b21b7ffb_ef3ff45c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000482
+      },
+      "writtenOn": "2023-06-28T19:51:39Z",
+      "side": 1,
+      "message": "Overriding as failures are known.\nhttps://dremio.atlassian.net/wiki/spaces/eng/pages/2382856241/hadoop+Library#Known-Issues-by-Branch",
+      "revId": "f8228d787c38801f0f51dba8477789912fbef65d",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
   ]
 }
