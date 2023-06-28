@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57496737_c8d6e708",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-06-28T16:42:44Z",
+      "side": 1,
+      "message": "Couple questions in Slack https://dremio.slack.com/archives/C051A4SBDDF/p1687969613778409?thread_ts\u003d1687540628.065129\u0026cid\u003dC051A4SBDDF. Once responded, will +2",
+      "revId": "f8228d787c38801f0f51dba8477789912fbef65d",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
