@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cab1058_df0bfe10",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000715
+      },
+      "writtenOn": "2023-09-04T12:35:52Z",
+      "side": 1,
+      "message": "Content looks good to me.\nTest result is also as per expectation.",
+      "revId": "21bed8f8baea3824c6fd75ae29a0b61bf2d54a58",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    }
+  ]
+}
