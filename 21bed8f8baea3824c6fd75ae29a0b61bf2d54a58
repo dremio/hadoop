@@ -1,0 +1,8 @@
+Code-Review+2: Adam Szita <adam.szita@dremio.com>
+Verified+1: Dmitry Chirkov <dmitry.chirkov@dremio.com>
+Submitted-by: Dmitry Chirkov <dmitry.chirkov@dremio.com>
+Submitted-at: Mon, 04 Sep 2023 19:58:24 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/55172
+Comments-Total: 2
+Project: hadoop
+Branch: refs/heads/branch-3.3.2-dremio
