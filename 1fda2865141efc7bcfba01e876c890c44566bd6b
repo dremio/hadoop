@@ -16,6 +16,23 @@
       "message": "Looks good. Matches the cherry-picked change.",
       "revId": "1fda2865141efc7bcfba01e876c890c44566bd6b",
       "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2dbc1a60_485f4c2e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000675
+      },
+      "writtenOn": "2023-09-06T00:45:09Z",
+      "side": 1,
+      "message": "Validated that the tests that failed are within the expected per https://dremio.atlassian.net/browse/DX-63858",
+      "revId": "1fda2865141efc7bcfba01e876c890c44566bd6b",
+      "serverId": "8ca9cf2d-83f4-421d-8552-b009c9e056de"
     }
   ]
 }
