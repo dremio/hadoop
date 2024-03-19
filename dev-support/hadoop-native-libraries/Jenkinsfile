@@ -1,0 +1,70 @@
+#!/usr/bin/env groovy
+import hudson.model.*
+def PROJECT_VERSION;
+def VERSION;
+pipeline {
+    agent none
+    stages {
+        stage('Build libz.so.1') {
+            parallel {
+                stage('x86') {
+                    agent {
+                        label 'ci-hadoop-v2'
+                    }
+                    steps {
+                        script {
+                            checkout scm
+                            withMaven(
+                                maven: 'Maven 3.3',
+                                mavenLocalRepo: '.repository',
+                            ) {
+                                sh "sleep 30"
+                                sh "wget http://www.zlib.net/fossils/zlib-1.2.7.tar.gz"
+                                sh "tar -xvf zlib-1.2.7.tar.gz"
+                                sh "cd zlib-1.2.7 && ./configure && make"
+                                sh "jar cvf hadoop-native-libraries-${LIB_VERSION}-linux.jar -C zlib-1.2.7 libz.so.1"
+                                sh "mvn -B -N install:install-file -Dfile='hadoop-native-libraries-${LIB_VERSION}-linux.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-native-libraries -Dversion=${LIB_VERSION} -Dclassifier=linux -Dpackaging=jar"
+                                if (env.DRY_RUN == 'false') {
+                                    sh "mvn -B -N deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-native-libraries-${LIB_VERSION}-linux.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-native-libraries -Dversion=${LIB_VERSION} -Dclassifier=linux -Dpackaging=jar"
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            archiveArtifacts artifacts: '.repository/org/apache/hadoop/hadoop-native-libraries/**/*.jar', fingerprint: true
+                        }
+                    }
+                }
+                stage('ARM') {
+                    agent {
+                        label 'ci-hadoop-v1_central1'
+                    }
+                    steps {
+                        script {
+                            checkout scm
+                            withMaven(
+                                maven: 'Maven 3.3',
+                                mavenLocalRepo: '.repository'
+                            ) {
+                                sh "wget http://www.zlib.net/fossils/zlib-1.2.7.tar.gz"
+                                sh "tar -xvf zlib-1.2.7.tar.gz"
+                                sh "cd zlib-1.2.7 && ./configure && make"
+                                sh "jar cvf hadoop-native-libraries-${LIB_VERSION}-linux-aarch64.jar -C zlib-1.2.7 libz.so.1"
+                                sh "mvn -B -N install:install-file -Dfile='hadoop-native-libraries-${LIB_VERSION}-linux-aarch64.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-native-libraries -Dversion=${LIB_VERSION} -Dclassifier=linux-aarch64 -Dpackaging=jar"
+                                if (env.DRY_RUN == 'false') {
+                                    sh "mvn -B -N deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-native-libraries-${LIB_VERSION}-linux-aarch64.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-native-libraries -Dversion=${LIB_VERSION} -Dclassifier=linux-aarch64 -Dpackaging=jar"
+                                }
+                            }
+                        }
+                    }
+                    post {
+                        always {
+                            archiveArtifacts artifacts: '.repository/org/apache/hadoop/hadoop-native-libraries/**/*.jar', fingerprint: true
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
