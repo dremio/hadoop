@@ -1,0 +1,9 @@
+Verified+1: Dmitry Chirkov <dmitry.chirkov@dremio.com>
+Code-Review+2: Dmitry Chirkov <dmitry.chirkov@dremio.com>
+Verified+1: Dan Huff <dan.huff@dremio.com>
+Submitted-by: Ivan Chesnov <ivan.chesnov@dremio.com>
+Submitted-at: Wed, 27 Mar 2024 16:08:40 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/61120
+Comments-Total: 8
+Project: hadoop
+Branch: refs/heads/branch-3.3.2-dremio
