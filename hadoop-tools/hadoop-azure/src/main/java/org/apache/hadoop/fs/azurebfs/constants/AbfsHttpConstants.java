@@ -28,7 +28,7 @@ import org.apache.hadoop.util.VersionInfo;
 @InterfaceAudience.Public
 @InterfaceStability.Evolving
 public final class AbfsHttpConstants {
-  // Abfs Http client constants
+  // Abfs Http client constants.
   public static final String FILESYSTEM = "filesystem";
   public static final String FILE = "file";
   public static final String DIRECTORY = "directory";

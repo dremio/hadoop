@@ -26,6 +26,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ import org.apache.hadoop.io.IOUtils;
 
 import static org.apache.hadoop.fs.azure.AzureBlobStorageTestAccount.WASB_ACCOUNT_NAME_DOMAIN_SUFFIX;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.*;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.accountProperty;
 import static org.apache.hadoop.fs.azurebfs.contracts.services.AzureServiceErrorCode.FILE_SYSTEM_NOT_FOUND;
 import static org.apache.hadoop.fs.azurebfs.constants.TestConfigurationKeys.*;
 import static org.apache.hadoop.test.LambdaTestUtils.intercept;
@@ -526,5 +528,29 @@ public abstract class AbstractAbfsIntegrationTest extends
     assertEquals("Mismatch in " + statistic.getStatName(), expectedValue,
         (long) metricMap.get(statistic.getStatName()));
     return expectedValue;
+  }
+
+  protected void assumeValidTestConfigPresent(final Configuration conf, final String key) {
+    String configuredValue = conf.get(accountProperty(key, accountName),
+        conf.get(key, ""));
+    Assume.assumeTrue(String.format("Missing Required Test Config: %s.", key),
+        !configuredValue.isEmpty());
+  }
+
+  protected void assumeValidAuthConfigsPresent() {
+    final AuthType currentAuthType = getAuthType();
+    Assume.assumeFalse(
+        "SAS Based Authentication Not Allowed For Integration Tests",
+        currentAuthType == AuthType.SAS);
+    if (currentAuthType == AuthType.SharedKey) {
+      assumeValidTestConfigPresent(getRawConfiguration(), FS_AZURE_ACCOUNT_KEY);
+    } else {
+      assumeValidTestConfigPresent(getRawConfiguration(),
+          FS_AZURE_ACCOUNT_TOKEN_PROVIDER_TYPE_PROPERTY_NAME);
+    }
+  }
+
+  protected boolean isAppendBlobEnabled() {
+    return getRawConfiguration().getBoolean(FS_AZURE_TEST_APPENDBLOB_ENABLED, false);
   }
 }

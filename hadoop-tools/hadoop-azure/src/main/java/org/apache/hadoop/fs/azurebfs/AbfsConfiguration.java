@@ -60,6 +60,7 @@ import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_MSI_TENANT;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_REFRESH_TOKEN;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_REFRESH_TOKEN_ENDPOINT;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_TOKEN_FILE;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_USER_NAME;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_OAUTH_USER_PASSWORD;
 import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_ACCOUNT_OPERATION_IDLE_TIMEOUT;
@@ -188,6 +189,7 @@ import org.apache.hadoop.fs.azurebfs.oauth2.CustomTokenProviderAdapter;
 import org.apache.hadoop.fs.azurebfs.oauth2.MsiTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.RefreshTokenBasedTokenProvider;
 import org.apache.hadoop.fs.azurebfs.oauth2.UserPasswordTokenProvider;
+import org.apache.hadoop.fs.azurebfs.oauth2.WorkloadIdentityTokenProvider;
 import org.apache.hadoop.fs.azurebfs.security.AbfsDelegationTokenManager;
 import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
@@ -1015,6 +1017,20 @@ public class AbfsConfiguration{
           tokenProvider = new RefreshTokenBasedTokenProvider(authEndpoint,
               clientId, refreshToken);
           LOG.trace("RefreshTokenBasedTokenProvider initialized");
+        } else if (tokenProviderClass == WorkloadIdentityTokenProvider.class) {
+          String authority = appendSlashIfNeeded(
+              getTrimmedPasswordString(FS_AZURE_ACCOUNT_OAUTH_MSI_AUTHORITY,
+              AuthConfigurations.DEFAULT_FS_AZURE_ACCOUNT_OAUTH_MSI_AUTHORITY));
+          String tenantGuid =
+              getMandatoryPasswordString(FS_AZURE_ACCOUNT_OAUTH_MSI_TENANT);
+          String clientId =
+              getMandatoryPasswordString(FS_AZURE_ACCOUNT_OAUTH_CLIENT_ID);
+          String tokenFile =
+              getTrimmedPasswordString(FS_AZURE_ACCOUNT_OAUTH_TOKEN_FILE,
+              AuthConfigurations.DEFAULT_FS_AZURE_ACCOUNT_OAUTH_TOKEN_FILE);
+          tokenProvider = new WorkloadIdentityTokenProvider(
+              authority, tenantGuid, clientId, tokenFile);
+          LOG.trace("WorkloadIdentityTokenProvider initialized");
         } else {
           throw new IllegalArgumentException("Failed to initialize " + tokenProviderClass);
         }
