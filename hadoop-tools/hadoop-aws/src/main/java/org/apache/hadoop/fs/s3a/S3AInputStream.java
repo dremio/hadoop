@@ -229,6 +229,7 @@ public class S3AInputStream extends ObjectInputStream implements CanSetReadahead
    */
   private void maybeSwitchToRandomIO() {
     if (getInputPolicy().isAdaptive()) {
+      LOG.debug("Switching to Random IO seek policy");
       setInputPolicy(S3AInputPolicy.Random);
     }
   }
