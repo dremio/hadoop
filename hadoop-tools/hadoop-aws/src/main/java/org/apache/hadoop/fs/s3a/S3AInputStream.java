@@ -391,7 +391,7 @@ public class S3AInputStream extends FSInputStream implements  CanSetReadahead,
       // if the stream is in "Normal" mode, switch to random IO at this
       // point, as it is indicative of columnar format IO
       if (inputPolicy.isAdaptive()) {
-        LOG.info("Switching to Random IO seek policy");
+        LOG.debug("Switching to Random IO seek policy");
         setInputPolicy(S3AInputPolicy.Random);
       }
     } else {
