@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             agent {
-                label 'ci-hadoop-v2'
+                label 'ci-hadoop-v3'
             }
             steps {
                script {
@@ -34,7 +34,7 @@ pipeline {
             parallel {
                 stage('x86') {
                     agent {
-                        label 'ci-hadoop-v2'
+                        label 'ci-hadoop-v3'
                     }
                     steps {
                        script {
