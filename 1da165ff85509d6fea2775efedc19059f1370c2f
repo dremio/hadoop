@@ -1,0 +1,7 @@
+Code-Review+2: Francisco Castanheira <francisco.castanheira@dremio.com>
+Verified+1: Icaro Seara <icaro.seara@dremio.com>
+Submitted-by: Laszlo Pinter <laszlo.pinter@dremio.com>
+Submitted-at: Thu, 17 Apr 2025 10:24:51 +0000
+Reviewed-on: https://gerrit.drem.io/gerrit/c/hadoop/+/63162
+Project: hadoop
+Branch: refs/heads/branch-3.3.6-dremio
