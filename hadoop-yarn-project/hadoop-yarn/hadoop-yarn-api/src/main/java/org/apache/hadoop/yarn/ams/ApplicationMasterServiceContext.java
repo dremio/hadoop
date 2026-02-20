@@ -24,6 +24,4 @@ package org.apache.hadoop.yarn.ams;
  * is free to type cast this based on the availability of the context's
  * implementation in the classpath.
  */
-public interface ApplicationMasterServiceContext {
-
-}
+public interface ApplicationMasterServiceContext {}
