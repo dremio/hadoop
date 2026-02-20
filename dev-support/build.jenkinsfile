@@ -36,7 +36,7 @@ pipeline {
 
 						mvn \
 							--batch-mode \
-							--thread 1C \
+							--T1C \
 							--global-settings "$MAVEN_GLOBAL_SETTINGS" \
 							clean install -Pnative -DskipShade -DskipNativeTests
             mvn -v
