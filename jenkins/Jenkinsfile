@@ -25,7 +25,6 @@ pipeline {
 
     stage('Build') {
       steps {
-        // Managed file: "Dremio Global Maven Settings (jenkins managed)"
         configFileProvider([
           configFile(
             fileId: 'a145b4ab-11a5-47dd-b873-9fde19886a7c',
@@ -38,7 +37,7 @@ pipeline {
             java -version
 
             mvn -B -e -V \
-              -s "$MAVEN_GLOBAL_SETTINGS" \
+              -gs "$MAVEN_GLOBAL_SETTINGS" \
               -f pom.xml \
               clean install -Pnative -DskipShade -DskipNativeTests
           '''
@@ -49,7 +48,7 @@ pipeline {
 
   post {
     always {
-      cleanWs(deleteDirs: true, disableDeferredWipeout: true)
+      deleteDir()
     }
   }
 }
