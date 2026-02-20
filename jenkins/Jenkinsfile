@@ -1,0 +1,14 @@
+pipeline {
+  agent { label 'ci-hadoop-v3' }
+
+  tools { jdk 'OpenJDK 8'; maven 'Maven 3.3' }
+
+  stages {
+    stage('Build') {
+      steps {
+        sh 'mvn -B -f pom.xml clean install -Pnative -DskipShade -DskipNativeTests'
+      }
+    }
+  }
+}
+
