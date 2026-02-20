@@ -33,13 +33,13 @@ pipeline {
         ]) {
           sh '''
             set -euo pipefail
-            mvn -v
-            java -version
 
-            mvn -B -e -V \
-              -s "$MAVEN_GLOBAL_SETTINGS" \
-              -f pom.xml \
-              clean install -Pnative -DskipShade -DskipNativeTests
+						mvn \
+							--batch-mode \
+							--thread 1C \
+							--global-settings "$MAVEN_GLOBAL_SETTINGS" \
+							clean install -Pnative -DskipShade -DskipNativeTests
+            mvn -v
           '''
         }
       }
