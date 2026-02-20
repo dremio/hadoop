@@ -1,13 +1,55 @@
 pipeline {
   agent { label 'ci-hadoop-v3' }
 
-  tools { jdk 'OpenJDK 8'; maven 'Maven 3.3' }
+  tools {
+    jdk 'OpenJDK 8'
+    maven 'Maven 3.3'
+  }
+
+  options {
+    timestamps()
+    buildDiscarder(logRotator(daysToKeepStr: '15'))
+  }
+
+  environment {
+    MAVEN_OPTS = '-Xmx4g -XX:MaxPermSize=512m'
+  }
 
   stages {
+    stage('Checkout') {
+      steps {
+        deleteDir()
+        checkout(scm)
+      }
+    }
+
     stage('Build') {
       steps {
-        sh 'mvn -B -f pom.xml clean install -Pnative -DskipShade -DskipNativeTests'
+        // Managed file: "Dremio Global Maven Settings (jenkins managed)"
+        configFileProvider([
+          configFile(
+            fileId: 'a145b4ab-11a5-47dd-b873-9fde19886a7c',
+            variable: 'MAVEN_GLOBAL_SETTINGS'
+          )
+        ]) {
+          sh '''
+            set -euo pipefail
+            mvn -v
+            java -version
+
+            mvn -B -e -V \
+              -s "$MAVEN_GLOBAL_SETTINGS" \
+              -f pom.xml \
+              clean install -Pnative -DskipShade -DskipNativeTests
+          '''
+        }
       }
+    }
+  }
+
+  post {
+    always {
+      cleanWs(deleteDirs: true, disableDeferredWipeout: true)
     }
   }
 }
