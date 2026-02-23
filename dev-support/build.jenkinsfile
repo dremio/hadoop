@@ -48,7 +48,8 @@ pipeline {
 
   post {
     always {
-      // Built-in equivalent cleanup (no plugin needed)
+      junit testResults: '**/target/surefire-reports/*.xml,**/target/failsafe-reports/*.xml', allowEmptyResults: true
+
       deleteDir()
     }
   }
