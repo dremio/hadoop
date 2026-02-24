@@ -12,13 +12,12 @@ pipeline {
   }
 
   environment {
-    MAVEN_OPTS = '-Xmx4g -XX:MaxPermSize=512m'
+    MAVEN_OPTS = '-Xmx4g'
   }
 
   stages {
     stage('Checkout') {
       steps {
-        deleteDir()
         checkout(scm)
       }
     }
@@ -31,17 +30,16 @@ pipeline {
             variable: 'MAVEN_GLOBAL_SETTINGS'
           )
         ]) {
-          sh '''
-            set -euo pipefail
+            sh '''
+              set -euo pipefail
 
-						mvn \
-							--batch-mode \
-							-T1C \
-							--global-settings "$MAVEN_GLOBAL_SETTINGS" \
-							clean install -Pnative -DskipShade -DskipNativeTests
-            mvn -v
-          '''
-        }
+              mvn \
+              --batch-mode \
+              -T1C \
+              --global-settings "$MAVEN_GLOBAL_SETTINGS" \
+              clean install -Pnative -DskipShade -DskipNativeTests
+              '''
+          }
       }
     }
   }
@@ -49,7 +47,6 @@ pipeline {
   post {
     always {
       junit testResults: '**/target/surefire-reports/*.xml,**/target/failsafe-reports/*.xml', allowEmptyResults: true
-
       deleteDir()
     }
   }
