@@ -1,0 +1,54 @@
+pipeline {
+  agent { label 'ci-hadoop-v3' }
+
+  tools {
+    jdk 'OpenJDK 8'
+    maven 'Maven 3.3'
+  }
+
+  options {
+    timestamps()
+    buildDiscarder(logRotator(daysToKeepStr: '15'))
+  }
+
+  environment {
+    MAVEN_OPTS = '-Xmx4g'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout(scm)
+      }
+    }
+
+    stage('Build') {
+      steps {
+        configFileProvider([
+          configFile(
+            fileId: 'a145b4ab-11a5-47dd-b873-9fde19886a7c',
+            variable: 'MAVEN_GLOBAL_SETTINGS'
+          )
+        ]) {
+            sh '''
+              set -euo pipefail
+
+              mvn \
+              --batch-mode \
+              -T1C \
+              --global-settings "$MAVEN_GLOBAL_SETTINGS" \
+              clean install -Pnative -DskipShade -DskipNativeTests
+              '''
+          }
+      }
+    }
+  }
+
+  post {
+    always {
+      junit testResults: '**/target/surefire-reports/*.xml,**/target/failsafe-reports/*.xml', allowEmptyResults: true
+      deleteDir()
+    }
+  }
+}
+
