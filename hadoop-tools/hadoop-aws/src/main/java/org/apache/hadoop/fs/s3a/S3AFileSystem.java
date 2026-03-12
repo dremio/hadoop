@@ -308,6 +308,8 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
    */
   public static final int DEFAULT_BLOCKSIZE = 32 * 1024 * 1024;
 
+  private boolean doCreateFileStatusCheck = CREATE_FILE_STATUS_CHECK_DEFAULT;
+
   private URI uri;
 
   private Path workingDir;
@@ -578,6 +580,7 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
    */
   public void initialize(URI name, Configuration originalConf)
       throws IOException {
+    doCreateFileStatusCheck = originalConf.getBoolean(CREATE_FILE_STATUS_CHECK, CREATE_FILE_STATUS_CHECK_DEFAULT);
     // get the host; this is guaranteed to be non-null, non-empty
     bucket = name.getHost();
     AuditSpan span = null;
@@ -2193,7 +2196,7 @@ public class S3AFileSystem extends FileSystem implements StreamCapabilities,
     }
 
     // if probes are required -request them and evaluate the result.
-    if (!probes.isEmpty()) {
+    if (!probes.isEmpty() && (!overwrite || doCreateFileStatusCheck)) {
       try {
 
         // get the status or throw an FNFE.
