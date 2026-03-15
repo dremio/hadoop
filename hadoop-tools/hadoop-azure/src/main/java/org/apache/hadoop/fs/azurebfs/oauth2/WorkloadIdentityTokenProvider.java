@@ -65,32 +65,6 @@ public class WorkloadIdentityTokenProvider extends AccessTokenProvider {
   }
 
   /**
-   * Checks if the token is about to expire as per base expiry logic.
-   * Otherwise, expire if there is a clock skew issue in the system.
-   *
-   * @return true if the token is expiring in next 1 hour or if a token has
-   * never been fetched
-   */
-  @Override
-  protected boolean isTokenAboutToExpire() {
-    if (tokenFetchTime == -1 || super.isTokenAboutToExpire()) {
-      return true;
-    }
-
-    // In case of, any clock skew issues, refresh token.
-    long elapsedTimeSinceLastTokenRefreshInMillis =
-        System.currentTimeMillis() - tokenFetchTime;
-    boolean expiring = elapsedTimeSinceLastTokenRefreshInMillis < 0;
-    if (expiring) {
-      // Clock Skew issue. Refresh token.
-      LOG.debug("JWTToken: token renewing. Time elapsed since last token fetch:"
-          + " {} milliseconds", elapsedTimeSinceLastTokenRefreshInMillis);
-    }
-
-    return expiring;
-  }
-
-  /**
    * Gets the client assertion from the token file.
    * The token file should contain the client assertion in JWT format.
    * It should be a String containing Base64Url encoded JSON Web Token (JWT).
