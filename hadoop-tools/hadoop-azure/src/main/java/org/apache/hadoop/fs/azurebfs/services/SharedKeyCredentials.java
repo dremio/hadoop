@@ -18,8 +18,6 @@
 
 package org.apache.hadoop.fs.azurebfs.services;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -38,18 +36,20 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants;
 import org.apache.hadoop.fs.azurebfs.constants.HttpHeaderConfigurations;
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the shared key credentials used to access an Azure Storage
  * account.
  */
-public class SharedKeyCredentials {
+public class SharedKeyCredentials implements SharedKeySigner {
 
   private static final Logger LOG = LoggerFactory.getLogger(
       SharedKeyCredentials.class);
@@ -79,6 +79,7 @@ public class SharedKeyCredentials {
     initializeMac();
   }
 
+  @Override
   public void signRequest(AbfsHttpOperation connection, final long contentLength) throws UnsupportedEncodingException {
 
     String gmtTime = getGMTTime();
