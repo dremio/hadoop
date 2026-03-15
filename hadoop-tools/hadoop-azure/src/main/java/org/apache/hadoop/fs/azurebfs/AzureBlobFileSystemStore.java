@@ -17,6 +17,19 @@
  */
 package org.apache.hadoop.fs.azurebfs;
 
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_EQUALS;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_FORWARD_SLASH;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_HYPHEN;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_PLUS;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_STAR;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.CHAR_UNDERSCORE;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.ROOT_PATH;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.SINGLE_WHITE_SPACE;
+import static org.apache.hadoop.fs.azurebfs.constants.AbfsHttpConstants.TOKEN_VERSION;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.AZURE_ABFS_ENDPOINT;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_BUFFERED_PREAD_DISABLE;
+import static org.apache.hadoop.fs.azurebfs.constants.ConfigurationKeys.FS_AZURE_IDENTITY_TRANSFORM_CLASS;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -112,6 +125,7 @@ import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
 import org.apache.hadoop.fs.azurebfs.services.ListingSupport;
 import org.apache.hadoop.fs.azurebfs.services.SharedKeyCredentials;
+import org.apache.hadoop.fs.azurebfs.services.SharedKeySigner;
 import org.apache.hadoop.fs.azurebfs.services.StaticRetryPolicy;
 import org.apache.hadoop.fs.azurebfs.services.VersionedFileStatus;
 import org.apache.hadoop.fs.azurebfs.utils.Base64;
@@ -137,6 +151,8 @@ import org.apache.hadoop.util.Preconditions;
 import org.apache.hadoop.util.SemaphoredDelegatingExecutor;
 import org.apache.hadoop.util.concurrent.HadoopExecutors;
 import org.apache.http.client.utils.URIBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.apache.hadoop.fs.azurebfs.AbfsStatistic.METADATA_INCOMPLETE_RENAME_FAILURES;
 import static org.apache.hadoop.fs.azurebfs.AbfsStatistic.RENAME_RECOVERY;
@@ -1303,49 +1319,20 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
   public AbfsListPathResponse batchListStatus(final Path path, boolean recursive, String continuation, TracingContext tracingContext) throws IOException {
     LOG.debug("BatchListStatus filesystem: {} path: {} max_results: {} recursive: {}", client.getFileSystem(), path, abfsConfiguration.getListMaxResults(), recursive);
     String relativePath = path.isRoot() ? AbfsHttpConstants.EMPTY_STRING : getRelativePath(path);
-    ArrayList<FileStatus> fileStatuses = new ArrayList<>(abfsConfiguration.getListMaxResults());
-    AbfsRestOperation op = client.listPath(relativePath, recursive, abfsConfiguration.getListMaxResults(), continuation, tracingContext);
-    continuation = op.getResult().getResponseHeader(HttpHeaderConfigurations.X_MS_CONTINUATION);
-    ListResultSchema retrievedSchema = op.getResult().getListResultSchema();
-    if (retrievedSchema == null) {
+    ListResponseData listResponseData = client.listPath(relativePath, recursive,
+        abfsConfiguration.getListMaxResults(), continuation, tracingContext, this.uri);
+    continuation = listResponseData.getContinuationToken();
+    List<VersionedFileStatus> fileStatusList = listResponseData.getFileStatusList();
+    if (fileStatusList == null) {
+      AbfsRestOperation op = listResponseData.getOp();
       throw new AbfsRestOperationException(
               AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
               AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
               "listStatusAsync path not found",
               null, op.getResult());
     }
-    long blockSize = abfsConfiguration.getAzureBlockSize();
-    for (ListResultEntrySchema entry : retrievedSchema.paths()) {
-      final String owner = identityTransformer.transformIdentityForGetRequest(entry.owner(), true, userName);
-      final String group = identityTransformer.transformIdentityForGetRequest(entry.group(), false, primaryUserGroup);
-
-      final FsPermission fsPermission = AbfsPermission.valueOf(entry.permissions());
-      final boolean hasAcl = AbfsPermission.isExtendedAcl(entry.permissions());
-      long lastModifiedMillis = 0;
-      long contentLength = entry.contentLength() == null ? 0 : entry.contentLength();
-      boolean isDirectory = entry.isDirectory() == null ? false : entry.isDirectory();
-      if (entry.lastModified() != null && !entry.lastModified().isEmpty()) {
-        lastModifiedMillis = DateTimeUtils.parseLastModifiedTime(entry.lastModified());
-      }
-      Path entryPath = new Path(File.separator + entry.name());
-      entryPath = entryPath.makeQualified(this.uri, entryPath);
-      fileStatuses.add(
-              new VersionedFileStatus(
-                      owner,
-                      group,
-                      fsPermission,
-                      hasAcl,
-                      contentLength,
-                      isDirectory,
-                      1,
-                      blockSize,
-                      lastModifiedMillis,
-                      entryPath,
-                      entry.eTag()));
-    }
+    ArrayList<FileStatus> fileStatuses = new ArrayList<>(fileStatusList);
     return new AbfsListPathResponse(path, fileStatuses, continuation);
-
-
   }
 
 
@@ -1771,7 +1758,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
       throw new InvalidUriException(uri.toString());
     }
 
-    SharedKeyCredentials creds = null;
+    SharedKeySigner sharedKeySigner = null;
     AccessTokenProvider tokenProvider = null;
     SASTokenProvider sasTokenProvider = null;
 
@@ -1786,8 +1773,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
         throw new InvalidUriException(
                 uri.toString() + " - account name is not fully qualified.");
       }
-      creds = new SharedKeyCredentials(accountName.substring(0, dotIndex),
-            abfsConfiguration.getStorageAccountKey());
+      sharedKeySigner = abfsConfiguration.getSharedKeySigner();
     } else if (authType == AuthType.SAS) {
       LOG.trace("Fetching SAS Token Provider");
       sasTokenProvider = abfsConfiguration.getSASTokenProvider();
@@ -1821,12 +1807,12 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
 
     LOG.trace("Initializing AbfsClient for {}", baseUrl);
     if (tokenProvider != null) {
-      this.clientHandler = new AbfsClientHandler(baseUrl, creds, abfsConfiguration,
-          tokenProvider, encryptionContextProvider,
+      this.clientHandler = new AbfsClientHandler(baseUrl, sharedKeySigner,
+          abfsConfiguration, tokenProvider, encryptionContextProvider,
           populateAbfsClientContext());
     } else {
-      this.clientHandler = new AbfsClientHandler(baseUrl, creds, abfsConfiguration,
-          sasTokenProvider, encryptionContextProvider,
+      this.clientHandler = new AbfsClientHandler(baseUrl, sharedKeySigner,
+          abfsConfiguration, sasTokenProvider, encryptionContextProvider,
           populateAbfsClientContext());
     }
 

@@ -46,7 +46,7 @@ public class AbfsClientHandler {
   private final AbfsBlobClient blobAbfsClient;
 
   public AbfsClientHandler(final URL baseUrl,
-      final SharedKeyCredentials sharedKeyCredentials,
+      final SharedKeySigner sharedKeyCredentials,
       final AbfsConfiguration abfsConfiguration,
       final AccessTokenProvider tokenProvider,
       final EncryptionContextProvider encryptionContextProvider,
@@ -61,7 +61,7 @@ public class AbfsClientHandler {
   }
 
   public AbfsClientHandler(final URL baseUrl,
-      final SharedKeyCredentials sharedKeyCredentials,
+      final SharedKeySigner sharedKeyCredentials,
       final AbfsConfiguration abfsConfiguration,
       final SASTokenProvider sasTokenProvider,
       final EncryptionContextProvider encryptionContextProvider,
@@ -132,7 +132,7 @@ public class AbfsClientHandler {
    * Create the AbfsDfsClient using the url used to configure file system.
    * If URL is for Blob endpoint, it will be converted to DFS endpoint.
    * @param baseUrl URL.
-   * @param creds SharedKeyCredentials.
+   * @param creds SharedKeySigner.
    * @param abfsConfiguration AbfsConfiguration.
    * @param tokenProvider AccessTokenProvider.
    * @param sasTokenProvider SASTokenProvider.
@@ -142,7 +142,7 @@ public class AbfsClientHandler {
    * @throws IOException if URL conversion fails.
    */
   private AbfsDfsClient createDfsClient(final URL baseUrl,
-      final SharedKeyCredentials creds,
+      final SharedKeySigner creds,
       final AbfsConfiguration abfsConfiguration,
       final AccessTokenProvider tokenProvider,
       final SASTokenProvider sasTokenProvider,
@@ -166,7 +166,7 @@ public class AbfsClientHandler {
    * Create the AbfsBlobClient using the url used to configure file system.
    * If URL is for DFS endpoint, it will be converted to Blob endpoint.
    * @param baseUrl URL.
-   * @param creds SharedKeyCredentials.
+   * @param creds SharedKeySigner.
    * @param abfsConfiguration AbfsConfiguration.
    * @param tokenProvider AccessTokenProvider.
    * @param sasTokenProvider SASTokenProvider.
@@ -176,7 +176,7 @@ public class AbfsClientHandler {
    * @throws IOException if URL conversion fails.
    */
   private AbfsBlobClient createBlobClient(final URL baseUrl,
-      final SharedKeyCredentials creds,
+      final SharedKeySigner creds,
       final AbfsConfiguration abfsConfiguration,
       final AccessTokenProvider tokenProvider,
       final SASTokenProvider sasTokenProvider,

@@ -154,7 +154,7 @@ import static org.apache.hadoop.fs.azurebfs.services.AbfsErrors.ERR_RENAME_RECOV
 public class AbfsDfsClient extends AbfsClient {
 
   public AbfsDfsClient(final URL baseUrl,
-      final SharedKeyCredentials sharedKeyCredentials,
+      final SharedKeySigner sharedKeyCredentials,
       final AbfsConfiguration abfsConfiguration,
       final AccessTokenProvider tokenProvider,
       final EncryptionContextProvider encryptionContextProvider,
@@ -164,7 +164,7 @@ public class AbfsDfsClient extends AbfsClient {
   }
 
   public AbfsDfsClient(final URL baseUrl,
-      final SharedKeyCredentials sharedKeyCredentials,
+      final SharedKeySigner sharedKeyCredentials,
       final AbfsConfiguration abfsConfiguration,
       final SASTokenProvider sasTokenProvider,
       final EncryptionContextProvider encryptionContextProvider,
