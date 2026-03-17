@@ -17,11 +17,16 @@ pipeline {
             steps {
                script {
                    checkout scm
-                   PROJECT_VERSION = readMavenPom().getVersion()
-                   VERSION="${PROJECT_VERSION}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
-                   MVN_SET_VERSION_CMD = "mvn -B -Dmaven.repo.local=.repository versions:set versions:set-property -Dproperty=hadoop.version -DnewVersion=${VERSION}"
-                   MVN_DEPLOY_CMD = "mvn -Dmaven.repo.local=.repository clean deploy -Pnative -Drequire.snappy -Drequire.openssl -Drequire.fuse -Pdist -Dtar -DskipTests -DaltDeploymentRepository=dremio.nexus::default::https://repository.drem.io/content/repositories/releases/"
-                   LIBHADOOP_SO_COPY_CMD = "cp hadoop-dist/target/hadoop-${VERSION}/lib/native/libhadoop.so.* libhadoop.so"
+                   withMaven(
+                       maven: 'Maven 3.9',
+                       mavenLocalRepo: '.repository',
+                   ) {
+                       PROJECT_VERSION = readMavenPom().getVersion()
+                       VERSION="${PROJECT_VERSION}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
+                       MVN_SET_VERSION_CMD = "mvn -B versions:set versions:set-property -Dproperty=hadoop.version -DnewVersion=${VERSION}"
+                       MVN_DEPLOY_CMD = "mvn clean deploy -Pnative -Drequire.snappy -Drequire.openssl -Drequire.fuse -Pdist -Dtar -DskipTests -DaltDeploymentRepository=dremio.nexus::default::https://repository.drem.io/content/repositories/releases/"
+                       LIBHADOOP_SO_COPY_CMD = "cp hadoop-dist/target/hadoop-${VERSION}/lib/native/libhadoop.so.* libhadoop.so"
+                   }
               }
             }
         }
@@ -34,11 +39,16 @@ pipeline {
                     steps {
                        script {
                            checkout scm
-                           sh "${MVN_SET_VERSION_CMD}"
-                           sh "${MVN_DEPLOY_CMD}"
-                           sh "${LIBHADOOP_SO_COPY_CMD}"
-                           sh "jar cvf hadoop-common-native-${PROJECT_VERSION}-linux.jar libhadoop.so"
-                           sh "mvn -B -N -Dmaven.repo.local=.repository deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-common-native-${PROJECT_VERSION}-linux.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-common-native -Dversion=${VERSION} -Dclassifier=linux -Dpackaging=jar"
+                           withMaven(
+                                maven: 'Maven 3.9',
+                                mavenLocalRepo: '.repository',
+                           ) {
+                                sh "${MVN_SET_VERSION_CMD}"
+                                sh "${MVN_DEPLOY_CMD}"
+                                sh "${LIBHADOOP_SO_COPY_CMD}"
+                                sh "jar cvf hadoop-common-native-${PROJECT_VERSION}-linux.jar libhadoop.so"
+                                sh "mvn -B -N deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-common-native-${PROJECT_VERSION}-linux.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-common-native -Dversion=${VERSION} -Dclassifier=linux -Dpackaging=jar"
+                           }
                       }
                     }
                 }
@@ -49,11 +59,16 @@ pipeline {
                     steps {
                         script {
                              checkout scm
-                             sh "${MVN_SET_VERSION_CMD}"
-                             sh "${MVN_DEPLOY_CMD}"
-                             sh "${LIBHADOOP_SO_COPY_CMD}"
-                             sh "jar cvf hadoop-common-native-${PROJECT_VERSION}-linux-aarch64.jar libhadoop.so"
-                             sh "mvn -B -N -Dmaven.repo.local=.repository deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-common-native-${PROJECT_VERSION}-linux-aarch64.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-common-native -Dversion=${VERSION} -Dclassifier=linux-aarch64 -Dpackaging=jar"
+                             withMaven(
+                                 maven: 'Maven 3.9',
+                                 mavenLocalRepo: '.repository'
+                             ) {
+                                sh "${MVN_SET_VERSION_CMD}"
+                                sh "${MVN_DEPLOY_CMD}"
+                                sh "${LIBHADOOP_SO_COPY_CMD}"
+                                sh "jar cvf hadoop-common-native-${PROJECT_VERSION}-linux-aarch64.jar libhadoop.so"
+                                sh "mvn -B -N deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-common-native-${PROJECT_VERSION}-linux-aarch64.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-common-native -Dversion=${VERSION} -Dclassifier=linux-aarch64 -Dpackaging=jar"
+                             }
                        	}
                     }
                 }

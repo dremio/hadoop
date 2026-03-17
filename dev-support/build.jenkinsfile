@@ -3,6 +3,7 @@ pipeline {
 
   tools {
     jdk 'OpenJDK 8'
+    maven 'Maven 3.9'
   }
 
   options {
