@@ -192,7 +192,14 @@ check_cxx_source_compiles(
     }"
     THREAD_LOCAL_SUPPORTED)
 if (THREAD_LOCAL_SUPPORTED)
-    add_subdirectory(main/native/libhdfspp)
+    find_package(Boost 1.72.0 QUIET COMPONENTS date_time)
+    if (Boost_FOUND)
+        add_subdirectory(main/native/libhdfspp)
+    else()
+        message(WARNING
+        "WARNING: Libhdfs++ library was not built because Boost >= 1.72.0 with date_time component \
+        was not found. Please install Boost development libraries if you need libhdfs++.")
+    endif()
 else()
     message(WARNING
     "WARNING: Libhdfs++ library was not built because the required feature thread_local storage \
