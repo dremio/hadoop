@@ -1,9 +1,9 @@
 pipeline {
-  agent { label 'ci-hadoop-v3' }
-
-  tools {
-    jdk 'OpenJDK 8'
-    maven 'Maven 3.9'
+  agent {
+    dockerfile {
+      dir 'dev-support/docker'
+      label 'ci-hadoop-v3'
+    }
   }
 
   options {

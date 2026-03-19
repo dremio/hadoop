@@ -34,13 +34,16 @@ pipeline {
             parallel {
                 stage('x86') {
                     agent {
-                        label 'ci-hadoop-v3'
+                        dockerfile {
+                            dir 'dev-support/docker'
+                            filename 'Dockerfile'
+                            label 'ci-hadoop-v3'
+                        }
                     }
                     steps {
                        script {
                            checkout scm
                            withMaven(
-                                maven: 'Maven 3.9',
                                 mavenLocalRepo: '.repository',
                            ) {
                                 sh "${MVN_SET_VERSION_CMD}"
@@ -54,13 +57,16 @@ pipeline {
                 }
                 stage('ARM') {
                     agent {
-                        label 'ci-hadoop-v1_central1'
+                        dockerfile {
+                            dir 'dev-support/docker'
+                            filename 'Dockerfile_aarch64'
+                            label 'ci-hadoop-v1_central1'
+                        }
                     }
                     steps {
                         script {
                              checkout scm
                              withMaven(
-                                 maven: 'Maven 3.9',
                                  mavenLocalRepo: '.repository'
                              ) {
                                 sh "${MVN_SET_VERSION_CMD}"
