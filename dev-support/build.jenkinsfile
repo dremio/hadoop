@@ -70,16 +70,27 @@ node(POD_LABEL) {
       ]) {
         sh '''
           set -euo pipefail
-          # Run as non-root (uid 1000) so file permission tests work correctly.
-          # Root bypasses all permission checks, causing tests like TestFileUtil
-          # and TestLocalDirAllocator to fail.
+          # Create a passwd entry for uid 1000 so Java's UnixLoginModule can
+          # resolve the username. Then run as non-root so file permission tests
+          # work correctly (root bypasses all permission checks).
+          PASSWD_FILE=$(mktemp)
+          cp /etc/passwd "$PASSWD_FILE"
+          echo "builder:x:1000:1000:Builder:/tmp:/bin/bash" >> "$PASSWD_FILE"
+
+          GROUP_FILE=$(mktemp)
+          cp /etc/group "$GROUP_FILE"
+          echo "builder:x:1000:" >> "$GROUP_FILE"
+
           docker run --rm \
             --user 1000:1000 \
+            -v "$PASSWD_FILE":/etc/passwd:ro \
+            -v "$GROUP_FILE":/etc/group:ro \
             -v "$(pwd)":/build \
             -v "${MAVEN_GLOBAL_SETTINGS}":"${MAVEN_GLOBAL_SETTINGS}":ro \
             -w /build \
             -e MAVEN_OPTS="-Xmx4g" \
             -e HOME=/tmp \
+            -e USER=builder \
             hadoop-build:latest \
             mvn \
               --batch-mode \
