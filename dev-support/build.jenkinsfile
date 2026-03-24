@@ -52,12 +52,19 @@ node(POD_LABEL) {
     }
 
     stage('Build Docker Image') {
+      // Create a non-root user (uid 1000) in the image so that:
+      // 1. File permission tests work (root bypasses all permission checks)
+      // 2. Java's UnixLoginModule can resolve the UID to a username
       sh '''
         set -euo pipefail
         docker build \
-          -t hadoop-build:latest \
+          -t hadoop-build-base:latest \
           -f dev-support/docker/Dockerfile \
           dev-support/docker/
+
+        echo 'FROM hadoop-build-base:latest
+RUN groupadd -g 1000 builder && useradd -u 1000 -g 1000 -m builder
+USER builder' | docker build -t hadoop-build:latest -
       '''
     }
 
@@ -70,27 +77,11 @@ node(POD_LABEL) {
       ]) {
         sh '''
           set -euo pipefail
-          # Create a passwd entry for uid 1000 so Java's UnixLoginModule can
-          # resolve the username. Then run as non-root so file permission tests
-          # work correctly (root bypasses all permission checks).
-          PASSWD_FILE=$(mktemp)
-          cp /etc/passwd "$PASSWD_FILE"
-          echo "builder:x:1000:1000:Builder:/tmp:/bin/bash" >> "$PASSWD_FILE"
-
-          GROUP_FILE=$(mktemp)
-          cp /etc/group "$GROUP_FILE"
-          echo "builder:x:1000:" >> "$GROUP_FILE"
-
           docker run --rm \
-            --user 1000:1000 \
-            -v "$PASSWD_FILE":/etc/passwd:ro \
-            -v "$GROUP_FILE":/etc/group:ro \
             -v "$(pwd)":/build \
             -v "${MAVEN_GLOBAL_SETTINGS}":"${MAVEN_GLOBAL_SETTINGS}":ro \
             -w /build \
             -e MAVEN_OPTS="-Xmx4g" \
-            -e HOME=/tmp \
-            -e USER=builder \
             hadoop-build:latest \
             mvn \
               --batch-mode \
