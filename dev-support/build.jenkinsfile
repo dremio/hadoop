@@ -77,7 +77,7 @@ USER builder' | docker build -t hadoop-build:latest -
       ]) {
         sh '''
           set -euo pipefail
-          docker run --rm \
+          docker run --rm --init \
             -v "$(pwd)":/build \
             -v "${MAVEN_GLOBAL_SETTINGS}":"${MAVEN_GLOBAL_SETTINGS}":ro \
             -w /build \
