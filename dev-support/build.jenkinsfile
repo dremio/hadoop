@@ -70,11 +70,16 @@ node(POD_LABEL) {
       ]) {
         sh '''
           set -euo pipefail
+          # Run as non-root (uid 1000) so file permission tests work correctly.
+          # Root bypasses all permission checks, causing tests like TestFileUtil
+          # and TestLocalDirAllocator to fail.
           docker run --rm \
+            --user 1000:1000 \
             -v "$(pwd)":/build \
             -v "${MAVEN_GLOBAL_SETTINGS}":"${MAVEN_GLOBAL_SETTINGS}":ro \
             -w /build \
             -e MAVEN_OPTS="-Xmx4g" \
+            -e HOME=/tmp \
             hadoop-build:latest \
             mvn \
               --batch-mode \
