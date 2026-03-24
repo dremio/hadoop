@@ -80,7 +80,7 @@ node(POD_LABEL) {
               --batch-mode \
               -T1C \
               --global-settings "${MAVEN_GLOBAL_SETTINGS}" \
-              clean install -Pnative -DskipShade -DskipNativeTests
+              clean install -Pnative -DskipShade -DskipTests
         '''
       }
     }
