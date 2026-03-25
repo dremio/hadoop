@@ -84,9 +84,8 @@ USER builder' | docker build -t hadoop-build:latest -
             hadoop-build:latest \
             mvn \
               --batch-mode \
-              -T1C \
               --global-settings "${MAVEN_GLOBAL_SETTINGS}" \
-              clean install -Pnative -DskipShade -DskipNativeTests -pl !hadoop-yarn-project/hadoop-yarn/hadoop-yarn-server/hadoop-yarn-server-timelineservice-hbase-tests
+              clean install -Pnative -DskipShade -DskipNativeTests
         '''
       }
     }
