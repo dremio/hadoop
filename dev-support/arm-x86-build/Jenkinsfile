@@ -18,13 +18,13 @@ pipeline {
                script {
                    checkout scm
                    withMaven(
-                       maven: 'Maven 3.9',
+                       maven: 'Maven 3.3',
                        mavenLocalRepo: '.repository',
                    ) {
                        PROJECT_VERSION = readMavenPom().getVersion()
                        VERSION="${PROJECT_VERSION}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
                        MVN_SET_VERSION_CMD = "mvn -B versions:set versions:set-property -Dproperty=hadoop.version -DnewVersion=${VERSION}"
-                       MVN_DEPLOY_CMD = "mvn clean deploy -Pnative -Drequire.snappy -Drequire.openssl -Drequire.fuse -Pdist -Dtar -DskipTests -DaltDeploymentRepository=dremio.nexus::default::https://repository.drem.io/content/repositories/releases/"
+                       MVN_DEPLOY_CMD = "mvn clean deploy -Pnative -Drequire.snappy -Drequire.openssl -Drequire.fuse -Pdist -Dtar -DskipTests -DskipTests -DaltDeploymentRepository=dremio.nexus::default::https://repository.drem.io/content/repositories/releases/"
                        LIBHADOOP_SO_COPY_CMD = "cp hadoop-dist/target/hadoop-${VERSION}/lib/native/libhadoop.so.* libhadoop.so"
                    }
               }
@@ -34,16 +34,13 @@ pipeline {
             parallel {
                 stage('x86') {
                     agent {
-                        dockerfile {
-                            dir 'dev-support/docker'
-                            filename 'Dockerfile'
-                            label 'ci-hadoop-v3'
-                        }
+                        label 'ci-hadoop-v3'
                     }
                     steps {
                        script {
                            checkout scm
                            withMaven(
+                                maven: 'Maven 3.3',
                                 mavenLocalRepo: '.repository',
                            ) {
                                 sh "${MVN_SET_VERSION_CMD}"
@@ -57,16 +54,13 @@ pipeline {
                 }
                 stage('ARM') {
                     agent {
-                        dockerfile {
-                            dir 'dev-support/docker'
-                            filename 'Dockerfile_aarch64'
-                            label 'ci-hadoop-v1_central1'
-                        }
+                        label 'ci-hadoop-v1_central1'
                     }
                     steps {
                         script {
                              checkout scm
                              withMaven(
+                                 maven: 'Maven 3.3',
                                  mavenLocalRepo: '.repository'
                              ) {
                                 sh "${MVN_SET_VERSION_CMD}"
