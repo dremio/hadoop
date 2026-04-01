@@ -11,6 +11,7 @@
 import hudson.model.*
 
 def jenkinsAgentImage = 'us-west1-docker.pkg.dev/dremio-1093/jenkins/jenkins-agent:v43'
+def cloud = 'jenkins1'
 
 def PROJECT_VERSION
 def VERSION
@@ -88,7 +89,7 @@ pipeline {
         stage('x86') {
           agent {
             kubernetes {
-              cloud 'jenkins1'
+              cloud cloud
               nodeSelector 'cloud.google.com/gke-nodepool=c4d-standard-64'
               yaml """
 apiVersion: v1
@@ -143,7 +144,7 @@ spec:
         stage('ARM') {
           agent {
             kubernetes {
-              cloud 'jenkins1'
+              cloud cloud
               inheritFrom 'ci-hadoop-v1_central1'
               yaml """
 apiVersion: v1
