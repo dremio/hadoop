@@ -1,84 +1,200 @@
 #!/usr/bin/env groovy
 
+/*
+ * Hadoop Fork Deploy Pipeline (x86 + ARM)
+ *
+ * Publishes Hadoop artifacts + native libraries to Dremio's Nexus repository.
+ * Uses DinD (Docker-in-Docker) sidecar to build inside the Hadoop Docker image,
+ * since Jenkins agents don't have a Docker daemon.
+ */
+
 import hudson.model.*
 
-def PROJECT_VERSION;
-def VERSION;
-def MVN_VERSION_CMD;
-def MVN_DEPLOY_CMD;
-def LIBHADOOP_SO_COPY_CMD;
+def jenkinsAgentImage = 'us-west1-docker.pkg.dev/dremio-1093/jenkins/jenkins-agent:v43'
+def cloud = 'jenkins1'
+
+def PROJECT_VERSION
+def VERSION
+def MVN_SET_VERSION_CMD
+def MVN_DEPLOY_CMD
+def LIBHADOOP_SO_COPY_CMD
+
+def NEXUS_URL = 'https://repository.drem.io/content/repositories/releases/'
+def NEXUS_REPO_ID = 'dremio.nexus'
+
+// Shared function: build Docker image, run deploy inside it, publish native JAR
+def deployArchitecture(String dockerfile, String classifier, String settingsFile) {
+  sh """
+    set -euo pipefail
+    docker build \
+      -t hadoop-build-base:latest \
+      -f dev-support/docker/${dockerfile} \
+      dev-support/docker/
+
+    echo 'FROM hadoop-build-base:latest
+RUN groupadd -g 1000 builder && useradd -u 1000 -g 1000 -m builder
+USER builder' | docker build -t hadoop-build:latest -
+  """
+
+  sh """
+    set -euo pipefail
+    docker run --rm --init \
+      -v "\$(pwd)":/build \
+      -v "${settingsFile}":"${settingsFile}":ro \
+      -w /build \
+      -e MAVEN_OPTS="-Xmx4g" \
+      hadoop-build:latest \
+      bash -c '
+        ${MVN_SET_VERSION_CMD} && \
+        ${MVN_DEPLOY_CMD} --global-settings ${settingsFile} && \
+        ${LIBHADOOP_SO_COPY_CMD} && \
+        jar cvf hadoop-common-native-${PROJECT_VERSION}-${classifier}.jar libhadoop.so && \
+        mvn -B -N deploy:deploy-file \
+          --global-settings ${settingsFile} \
+          -Durl=${NEXUS_URL} \
+          -DrepositoryId=${NEXUS_REPO_ID} \
+          -Dfile=hadoop-common-native-${PROJECT_VERSION}-${classifier}.jar \
+          -DgroupId=org.apache.hadoop \
+          -DartifactId=hadoop-common-native \
+          -Dversion=${VERSION} \
+          -Dclassifier=${classifier} \
+          -Dpackaging=jar
+      '
+  """
+}
+
+// DinD sidecar container spec, reused across stages
+def dindContainerYaml = '''
+  - name: dind
+    image: mirror.gcr.io/docker:28-dind
+    args: ["--registry-mirror", "https://mirror.gcr.io"]
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: certs
+      mountPath: /certs
+    - name: docker-storage
+      mountPath: /var/lib/docker
+'''
+
+def dindVolumesYaml = '''
+  - name: certs
+    emptyDir: {}
+  - name: docker-storage
+    emptyDir: {}
+'''
+
+def dindEnvVars = [
+  envVar(key: 'DOCKER_HOST', value: 'tcp://localhost:2376'),
+  envVar(key: 'DOCKER_TLS_VERIFY', value: '1'),
+  envVar(key: 'DOCKER_CERT_PATH', value: '/certs/client'),
+]
+
 pipeline {
-    agent none
-    stages {
-        stage('Checkout') {
-            agent {
-                label 'ci-hadoop-v3'
+  agent none
+
+  stages {
+    stage('Compute Version') {
+      agent {
+        label 'ci-hadoop-v3'
+      }
+      steps {
+        script {
+          checkout scm
+          PROJECT_VERSION = readMavenPom().getVersion()
+          VERSION = "${PROJECT_VERSION}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
+          MVN_SET_VERSION_CMD = "mvn -B versions:set versions:set-property -Dproperty=hadoop.version -DnewVersion=${VERSION}"
+          MVN_DEPLOY_CMD = "mvn clean deploy -Pnative -Drequire.snappy -Drequire.openssl -Drequire.fuse -Pdist -Dtar -DskipTests -DaltDeploymentRepository=${NEXUS_REPO_ID}::default::${NEXUS_URL}"
+          LIBHADOOP_SO_COPY_CMD = "cp hadoop-dist/target/hadoop-${VERSION}/lib/native/libhadoop.so.* libhadoop.so"
+          echo "Publishing version: ${VERSION}"
+        }
+      }
+    }
+
+    stage('Build & Deploy') {
+      parallel {
+        stage('x86') {
+          agent {
+            kubernetes {
+              cloud cloud
+              nodeSelector 'cloud.google.com/gke-nodepool=c4d-standard-64'
+              containerTemplate {
+                name 'jnlp'
+                image jenkinsAgentImage
+                resourceRequestMemory '32Gi'
+                resourceLimitMemory '33Gi'
+                resourceRequestCpu '8'
+                resourceLimitCpu '9'
+                envVars dindEnvVars
+              }
+              yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+${dindContainerYaml}
+  volumes:
+${dindVolumesYaml}
+"""
             }
-            steps {
-               script {
-                   checkout scm
-                   withMaven(
-                       maven: 'Maven 3.9',
-                       mavenLocalRepo: '.repository',
-                   ) {
-                       PROJECT_VERSION = readMavenPom().getVersion()
-                       VERSION="${PROJECT_VERSION}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
-                       MVN_SET_VERSION_CMD = "mvn -B versions:set versions:set-property -Dproperty=hadoop.version -DnewVersion=${VERSION}"
-                       MVN_DEPLOY_CMD = "mvn clean deploy -Pnative -Drequire.snappy -Drequire.openssl -Drequire.fuse -Pdist -Dtar -DskipTests -DaltDeploymentRepository=dremio.nexus::default::https://repository.drem.io/content/repositories/releases/"
-                       LIBHADOOP_SO_COPY_CMD = "cp hadoop-dist/target/hadoop-${VERSION}/lib/native/libhadoop.so.* libhadoop.so"
-                   }
+          }
+          steps {
+            script {
+              checkout scm
+              configFileProvider([
+                configFile(
+                  fileId: 'a145b4ab-11a5-47dd-b873-9fde19886a7c',
+                  variable: 'MAVEN_GLOBAL_SETTINGS'
+                )
+              ]) {
+                deployArchitecture('Dockerfile', 'linux', MAVEN_GLOBAL_SETTINGS)
               }
             }
+          }
         }
-        stage('Build libhadoop.so') {
-            parallel {
-                stage('x86') {
-                    agent {
-                        dockerfile {
-                            dir 'dev-support/docker'
-                            filename 'Dockerfile'
-                            label 'ci-hadoop-v3'
-                        }
-                    }
-                    steps {
-                       script {
-                           checkout scm
-                           withMaven(
-                                mavenLocalRepo: '.repository',
-                           ) {
-                                sh "${MVN_SET_VERSION_CMD}"
-                                sh "${MVN_DEPLOY_CMD}"
-                                sh "${LIBHADOOP_SO_COPY_CMD}"
-                                sh "jar cvf hadoop-common-native-${PROJECT_VERSION}-linux.jar libhadoop.so"
-                                sh "mvn -B -N deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-common-native-${PROJECT_VERSION}-linux.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-common-native -Dversion=${VERSION} -Dclassifier=linux -Dpackaging=jar"
-                           }
-                      }
-                    }
-                }
-                stage('ARM') {
-                    agent {
-                        dockerfile {
-                            dir 'dev-support/docker'
-                            filename 'Dockerfile_aarch64'
-                            label 'ci-hadoop-v1_central1'
-                        }
-                    }
-                    steps {
-                        script {
-                             checkout scm
-                             withMaven(
-                                 mavenLocalRepo: '.repository'
-                             ) {
-                                sh "${MVN_SET_VERSION_CMD}"
-                                sh "${MVN_DEPLOY_CMD}"
-                                sh "${LIBHADOOP_SO_COPY_CMD}"
-                                sh "jar cvf hadoop-common-native-${PROJECT_VERSION}-linux-aarch64.jar libhadoop.so"
-                                sh "mvn -B -N deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-common-native-${PROJECT_VERSION}-linux-aarch64.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-common-native -Dversion=${VERSION} -Dclassifier=linux-aarch64 -Dpackaging=jar"
-                             }
-                       	}
-                    }
-                }
+
+        stage('ARM') {
+          agent {
+            kubernetes {
+              cloud cloud
+              // Inherit node placement from the server-side ci-hadoop-v1_central1
+              // pod template which targets the ARM node pool.
+              inheritFrom 'ci-hadoop-v1_central1'
+              containerTemplate {
+                name 'jnlp'
+                image jenkinsAgentImage
+                resourceRequestMemory '32Gi'
+                resourceLimitMemory '33Gi'
+                resourceRequestCpu '8'
+                resourceLimitCpu '9'
+                envVars dindEnvVars
+              }
+              yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+${dindContainerYaml}
+  volumes:
+${dindVolumesYaml}
+"""
             }
+          }
+          steps {
+            script {
+              checkout scm
+              configFileProvider([
+                configFile(
+                  fileId: 'a145b4ab-11a5-47dd-b873-9fde19886a7c',
+                  variable: 'MAVEN_GLOBAL_SETTINGS'
+                )
+              ]) {
+                deployArchitecture('Dockerfile_aarch64', 'linux-aarch64', MAVEN_GLOBAL_SETTINGS)
+              }
+            }
+          }
         }
+      }
     }
+  }
 }
