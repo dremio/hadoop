@@ -123,6 +123,9 @@ spec:
       value: "1"
     - name: DOCKER_CERT_PATH
       value: /certs/client
+    volumeMounts:
+    - name: certs
+      mountPath: /certs
   - name: dind
     image: mirror.gcr.io/docker:28-dind
     args: ["--registry-mirror", "https://mirror.gcr.io"]
@@ -178,6 +181,9 @@ spec:
       value: "1"
     - name: DOCKER_CERT_PATH
       value: /certs/client
+    volumeMounts:
+    - name: certs
+      mountPath: /certs
   - name: dind
     image: mirror.gcr.io/docker:28-dind
     args: ["--registry-mirror", "https://mirror.gcr.io"]
