@@ -112,8 +112,7 @@ spec:
           agent {
             kubernetes {
               cloud 'jenkins1'
-              inheritFrom 'ci-hadoop-v1_central1'
-              yamlMergeStrategy merge()
+              nodeSelector 'kubernetes.io/arch=arm64'
               yaml """
 apiVersion: v1
 kind: Pod
