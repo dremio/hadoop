@@ -63,33 +63,6 @@ USER builder' | docker build -t hadoop-build:latest -
   """
 }
 
-// DinD sidecar container spec, reused across stages
-def dindContainerYaml = '''
-  - name: dind
-    image: mirror.gcr.io/docker:28-dind
-    args: ["--registry-mirror", "https://mirror.gcr.io"]
-    securityContext:
-      privileged: true
-    volumeMounts:
-    - name: certs
-      mountPath: /certs
-    - name: docker-storage
-      mountPath: /var/lib/docker
-'''
-
-def dindVolumesYaml = '''
-  - name: certs
-    emptyDir: {}
-  - name: docker-storage
-    emptyDir: {}
-'''
-
-def dindEnvVars = [
-  envVar(key: 'DOCKER_HOST', value: 'tcp://localhost:2376'),
-  envVar(key: 'DOCKER_TLS_VERIFY', value: '1'),
-  envVar(key: 'DOCKER_CERT_PATH', value: '/certs/client'),
-]
-
 pipeline {
   agent none
 
@@ -118,23 +91,38 @@ pipeline {
             kubernetes {
               cloud cloud
               nodeSelector 'cloud.google.com/gke-nodepool=c4d-standard-64'
-              containerTemplate {
-                name 'jnlp'
-                image jenkinsAgentImage
-                resourceRequestMemory '32Gi'
-                resourceLimitMemory '33Gi'
-                resourceRequestCpu '8'
-                resourceLimitCpu '9'
-                envVars dindEnvVars
-              }
               yaml """
 apiVersion: v1
 kind: Pod
 spec:
   containers:
-${dindContainerYaml}
+  - name: jnlp
+    image: ${jenkinsAgentImage}
+    resources:
+      requests: { memory: 32Gi, cpu: 8 }
+      limits:   { memory: 33Gi, cpu: 9 }
+    env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2376
+    - name: DOCKER_TLS_VERIFY
+      value: "1"
+    - name: DOCKER_CERT_PATH
+      value: /certs/client
+  - name: dind
+    image: mirror.gcr.io/docker:28-dind
+    args: ["--registry-mirror", "https://mirror.gcr.io"]
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: certs
+      mountPath: /certs
+    - name: docker-storage
+      mountPath: /var/lib/docker
   volumes:
-${dindVolumesYaml}
+  - name: certs
+    emptyDir: {}
+  - name: docker-storage
+    emptyDir: {}
 """
             }
           }
@@ -157,26 +145,39 @@ ${dindVolumesYaml}
           agent {
             kubernetes {
               cloud cloud
-              // Inherit node placement from the server-side ci-hadoop-v1_central1
-              // pod template which targets the ARM node pool.
               inheritFrom 'ci-hadoop-v1_central1'
-              containerTemplate {
-                name 'jnlp'
-                image jenkinsAgentImage
-                resourceRequestMemory '32Gi'
-                resourceLimitMemory '33Gi'
-                resourceRequestCpu '8'
-                resourceLimitCpu '9'
-                envVars dindEnvVars
-              }
               yaml """
 apiVersion: v1
 kind: Pod
 spec:
   containers:
-${dindContainerYaml}
+  - name: jnlp
+    image: ${jenkinsAgentImage}
+    resources:
+      requests: { memory: 32Gi, cpu: 8 }
+      limits:   { memory: 33Gi, cpu: 9 }
+    env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2376
+    - name: DOCKER_TLS_VERIFY
+      value: "1"
+    - name: DOCKER_CERT_PATH
+      value: /certs/client
+  - name: dind
+    image: mirror.gcr.io/docker:28-dind
+    args: ["--registry-mirror", "https://mirror.gcr.io"]
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: certs
+      mountPath: /certs
+    - name: docker-storage
+      mountPath: /var/lib/docker
   volumes:
-${dindVolumesYaml}
+  - name: certs
+    emptyDir: {}
+  - name: docker-storage
+    emptyDir: {}
 """
             }
           }
