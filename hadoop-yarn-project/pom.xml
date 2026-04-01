@@ -85,12 +85,6 @@
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-yarn-services-core</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-yarn-applications-catalog-webapp</artifactId>
-      <version>${project.version}</version>
-      <type>war</type>
-    </dependency>
   </dependencies>
 
   <build>
