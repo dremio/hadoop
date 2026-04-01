@@ -23,22 +23,6 @@ def NEXUS_REPO_ID = 'dremio.nexus'
 
 // Shared function: build Docker image, run deploy inside it, publish native JAR
 def deployArchitecture(String dockerfile, String classifier, String settingsFile) {
-  // Wait for DinD sidecar to generate TLS certs and become ready
-  sh '''
-    set -euo pipefail
-    for i in $(seq 1 30); do
-      if docker info >/dev/null 2>&1; then
-        echo "Docker daemon ready after ${i}s"
-        break
-      fi
-      if [ "$i" -eq 30 ]; then
-        echo "Docker daemon not ready after 30s"
-        exit 1
-      fi
-      sleep 1
-    done
-  '''
-
   sh """
     set -euo pipefail
     docker build \
