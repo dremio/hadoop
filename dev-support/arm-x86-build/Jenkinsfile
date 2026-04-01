@@ -113,6 +113,7 @@ spec:
             kubernetes {
               cloud 'jenkins1'
               inheritFrom 'ci-hadoop-v1_central1'
+              yamlMergeStrategy merge()
               yaml """
 apiVersion: v1
 kind: Pod
