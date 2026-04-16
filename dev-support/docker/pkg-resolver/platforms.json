@@ -1,6 +1,7 @@
 [
   "ubuntu:focal",
   "ubuntu:focal::arch64",
+  "ubuntu:jammy",
   "ubuntu:noble",
   "rockylinux:8",
   "debian:11"

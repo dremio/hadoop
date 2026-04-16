@@ -17,7 +17,7 @@
 # Dockerfile for installing the necessary dependencies for building Hadoop.
 # See BUILDING.txt.
 
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 WORKDIR /root
 
@@ -49,7 +49,7 @@ RUN apt-get -q update \
     && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" > /etc/apt/sources.list.d/adoptium.list \
     && wget -q -O - https://packages.adoptium.net/artifactory/api/gpg/key/public > /etc/apt/trusted.gpg.d/adoptium.asc  \
     && apt-get -q update \
-    && apt-get -q install -y --no-install-recommends $(pkg-resolver/resolve.py ubuntu:focal) \
+    && apt-get -q install -y --no-install-recommends $(pkg-resolver/resolve.py ubuntu:jammy) \
     && apt-get clean \
     && update-java-alternatives -s java-1.8.0-openjdk-amd64 \
     && rm -rf /var/lib/apt/lists/*
@@ -88,11 +88,11 @@ ENV HADOOP_SKIP_YETUS_VERIFICATION true
 # Install packages
 ####
 RUN pkg-resolver/install-common-pkgs.sh
-RUN pkg-resolver/install-spotbugs.sh ubuntu:focal
-RUN pkg-resolver/install-boost.sh ubuntu:focal
-RUN pkg-resolver/install-protobuf.sh ubuntu:focal
-RUN pkg-resolver/install-hadolint.sh ubuntu:focal
-RUN pkg-resolver/install-intel-isa-l.sh ubuntu:focal
+RUN pkg-resolver/install-spotbugs.sh ubuntu:jammy
+RUN pkg-resolver/install-boost.sh ubuntu:jammy
+RUN pkg-resolver/install-protobuf.sh ubuntu:jammy
+RUN pkg-resolver/install-hadolint.sh ubuntu:jammy
+RUN pkg-resolver/install-intel-isa-l.sh ubuntu:jammy
 
 ###
 # Everything past this point is either not needed for testing or breaks Yetus.
