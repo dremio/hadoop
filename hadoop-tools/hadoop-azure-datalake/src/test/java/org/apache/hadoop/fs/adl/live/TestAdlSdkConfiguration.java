@@ -76,8 +76,8 @@ public class TestAdlSdkConfiguration {
 
     // The default value may vary by SDK, so that value is not tested here.
   }
-  //Fix with DX-52847
-  /*@Test
+
+  @Test
   public void testSSLChannelModeConfig()
       throws IOException, URISyntaxException {
     testSSLChannelMode(SSLChannelMode.OpenSSL, "OpenSSL");
@@ -104,5 +104,5 @@ public class TestAdlSdkConfiguration {
     Assert.assertEquals(
         "Unexpected SSL Channel Mode for adl.ssl.channel.mode config value : "
             + sslChannelModeConfigValue, expectedMode, sslChannelMode);
-  }*/
+  }
 }
