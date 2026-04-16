@@ -40,6 +40,12 @@ RUN chmod a+x pkg-resolver/*.sh pkg-resolver/*.py \
     && chmod a+r pkg-resolver/*.json
 
 ######
+# Ubuntu 20.04 (Focal) standard support ended May 2025.
+# Redirect apt to old-releases.ubuntu.com so packages remain available.
+######
+RUN sed -i -re 's/([a-z]{2}\.)?archive\.ubuntu\.com|security\.ubuntu\.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+
+######
 # Install packages from apt
 ######
 # hadolint ignore=DL3008,SC2046
