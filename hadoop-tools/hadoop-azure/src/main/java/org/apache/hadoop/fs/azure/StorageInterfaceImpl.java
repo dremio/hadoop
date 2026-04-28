@@ -34,6 +34,7 @@ import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.RetryPolicyFactory;
+import com.microsoft.azure.storage.ServiceClient;
 import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.StorageUri;
@@ -59,7 +60,7 @@ import com.microsoft.azure.storage.blob.PageRange;
  */
 @InterfaceAudience.Private
 class StorageInterfaceImpl extends StorageInterface {
-  private CloudBlobClient serviceClient;
+  protected CloudBlobClient serviceClient;
   private RetryPolicyFactory retryPolicyFactory;
   private int timeoutIntervalInMs;
 
@@ -73,6 +74,11 @@ class StorageInterfaceImpl extends StorageInterface {
     if (serviceClient != null && timeoutIntervalInMs > 0) {
       serviceClient.getDefaultRequestOptions().setTimeoutIntervalInMs(timeoutIntervalInMs);
     }
+  }
+
+  @Override
+  public ServiceClient getClient(){
+    return this.serviceClient;
   }
 
   @Override

@@ -28,10 +28,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.classification.VisibleForTesting;
 import org.apache.hadoop.util.Preconditions;
-
+import org.apache.hadoop.fs.azure.AzureADCredentials;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -63,6 +64,8 @@ public final class AzureADAuthenticator {
   private static final String OAUTH_VERSION_2_0 = "/oauth2/v2.0/";
   private static final int CONNECT_TIMEOUT = 30 * 1000;
   private static final int READ_TIMEOUT = 30 * 1000;
+  // 5 minutes in milliseconds
+  private static final long FIVE_MINUTES = TimeUnit.MILLISECONDS.convert(5, TimeUnit.MINUTES);
 
   private static ExponentialRetryPolicy tokenFetchRetryPolicy;
 
@@ -77,6 +80,19 @@ public final class AzureADAuthenticator {
   @VisibleForTesting
   public static void setTokenFetchRetryPolicy(ExponentialRetryPolicy retryPolicy) {
     tokenFetchRetryPolicy = retryPolicy;
+  }
+
+  /**
+   * Wrapper method to call getTokenUsingClientCreds with AzureADCredentials object
+   *
+   * @param adCredentials Azure Active Directory credentials object that contain clientId,
+   *                      token endpoint and client secret
+   * @return {@link AzureADToken} obtained by calling getTokenUsingClientCreds
+   * @throws IOException throws IOException if there is a failure in getTokenUsingClientCreds
+   */
+  public static AzureADToken getTokenUsingADCreds(AzureADCredentials adCredentials) throws IOException {
+    return getTokenUsingClientCreds(adCredentials.getTokenEndpoint(), adCredentials.getClientId(),
+            adCredentials.getClientSecret());
   }
 
   /**
@@ -227,6 +243,33 @@ public final class AzureADAuthenticator {
     return getTokenCall(authEndpoint, qp.serialize(), null, null);
   }
 
+  /**
+   * Checks if the token is about to expire in the next 5 minutes.
+   * The 5 minute allowance is to allow for clock skew and also to
+   * allow for token to be refreshed in that much time.
+   *
+   * @return true if the token is expiring in next 5 minutes
+   */
+  public static boolean isTokenAboutToExpire(AzureADToken token) {
+    if (token == null) {
+      LOG.debug("AADToken: no token. Returning expiring=true");
+      return true;   // no token should have same response as expired token
+    }
+    boolean expiring = false;
+    // allow 5 minutes for clock skew
+    long approximatelyNow = System.currentTimeMillis() + FIVE_MINUTES;
+    if (token.getExpiry().getTime() < approximatelyNow) {
+      expiring = true;
+    }
+    if (expiring) {
+      LOG.debug("AADToken: token expiring: "
+              + token.getExpiry().toString()
+              + " : Five-minute window: "
+              + new Date(approximatelyNow).toString());
+    }
+
+    return expiring;
+  }
 
   /**
    * This exception class contains the http error code,
