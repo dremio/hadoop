@@ -62,7 +62,8 @@ public class OAuthStorageInterfaceImpl extends StorageInterfaceImpl {
     }
 
     public synchronized void updateToken() throws IOException {
-        this.token = AzureADAuthenticator.getTokenUsingADCreds(adCredentials);
+        this.token = AzureADAuthenticator.getTokenUsingClientCreds(adCredentials.getClientId(),
+                adCredentials.getTokenEndpoint(), adCredentials.getClientSecret());
 
         ((StorageCredentialsToken) this.serviceClient.getCredentials()).updateToken(token.getAccessToken());
     }
