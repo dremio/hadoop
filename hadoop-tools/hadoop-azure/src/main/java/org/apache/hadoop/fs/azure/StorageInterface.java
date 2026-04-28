@@ -34,7 +34,6 @@ import com.microsoft.azure.storage.AccessCondition;
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.OperationContext;
 import com.microsoft.azure.storage.RetryPolicyFactory;
-import com.microsoft.azure.storage.ServiceClient;
 import com.microsoft.azure.storage.StorageCredentials;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobListingDetails;
@@ -150,11 +149,6 @@ abstract class StorageInterface {
    */
   public abstract CloudBlobContainerWrapper getContainerReference(String name)
       throws URISyntaxException, StorageException;
-
-  /**
-   * Returns service client
-   */
-  public abstract ServiceClient getClient();
 
   /**
    * A thin wrapper over the
