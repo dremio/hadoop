@@ -58,9 +58,9 @@ public class TestWorkloadIdentityTokenProvider extends AbstractAbfsTestWithTimeo
     WorkloadIdentityTokenProvider provider = new WorkloadIdentityTokenProvider(
         AUTHORITY, TENANT_ID, CLIENT_ID, TOKEN_FILE);
 
-    Assertions.assertThat(provider.getTokenFetchTime())
-        .describedAs("Token should start as unfetched")
-        .isEqualTo(-1);
+    Assertions.assertThat(provider.isTokenAboutToExpire())
+        .describedAs("Token should start as expired")
+        .isTrue();
   }
 
   @Test
@@ -79,9 +79,9 @@ public class TestWorkloadIdentityTokenProvider extends AbstractAbfsTestWithTimeo
     Mockito.doReturn(adToken).when(mockedTokenProvider).getTokenUsingJWTAssertion(CLIENT_ASSERTION);
 
     // Token should be expired first and fetched
-    Assertions.assertThat(mockedTokenProvider.getTokenFetchTime())
-        .describedAs("Token should not be fetched yet")
-        .isEqualTo(-1);
+    Assertions.assertThat(mockedTokenProvider.isTokenAboutToExpire())
+        .describedAs("Token should not be expired")
+        .isTrue();
     Assertions.assertThat(mockedTokenProvider.getToken().getAccessToken())
         .describedAs("Token should be fetched")
         .isEqualTo(TOKEN);
@@ -90,14 +90,13 @@ public class TestWorkloadIdentityTokenProvider extends AbstractAbfsTestWithTimeo
         .isGreaterThan(startTime);
 
     // Token should be valid for few seconds.
-    AzureADToken fetchedToken = mockedTokenProvider.getToken();
-    Assertions.assertThat(AzureADAuthenticator.isTokenAboutToExpire(fetchedToken))
+    Assertions.assertThat(mockedTokenProvider.isTokenAboutToExpire())
         .describedAs("Token should not be expired")
         .isFalse();
 
     // Token should be expired after few seconds.
     Thread.sleep(FEW_SECONDS);
-    Assertions.assertThat(AzureADAuthenticator.isTokenAboutToExpire(fetchedToken))
+    Assertions.assertThat(mockedTokenProvider.isTokenAboutToExpire())
         .describedAs("Token should be expired")
         .isTrue();
   }
