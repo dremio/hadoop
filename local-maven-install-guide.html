@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hadoop Fork &rarr; Dremio: Local Maven Install Guide</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --cyan: #39d2c0;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height:1.6; padding: 2rem; }
+  h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--accent); }
+  h2 { font-size: 1.3rem; margin: 2rem 0 0.8rem; color: var(--green); border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
+  h3 { font-size: 1.1rem; margin: 1.2rem 0 0.5rem; color: var(--cyan); }
+  p, li { color: var(--text); margin-bottom: 0.4rem; }
+  .container { max-width: 1200px; margin: 0 auto; }
+  code { background: #1c2128; padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; color: var(--orange); font-family: 'SF Mono', 'Fira Code', monospace; }
+  pre { background: #1c2128; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 0.8rem 0; font-size: 0.85rem; line-height: 1.5; }
+  pre code { background: none; padding: 0; color: var(--text); }
+  .cmd { color: var(--green); }
+  .comment { color: var(--muted); }
+  .flag { color: var(--orange); }
+  .path { color: var(--purple); }
+  .warn { color: var(--red); }
+
+  /* Diagram styles */
+  .diagram { margin: 1.5rem 0; overflow-x: auto; }
+  svg { display: block; margin: 0 auto; }
+  .box { fill: var(--surface); stroke: var(--border); stroke-width: 1.5; rx: 6; }
+  .box-pom { fill: #1a2332; stroke: var(--accent); stroke-width: 1.5; rx: 6; }
+  .box-module { fill: #1a2b1a; stroke: var(--green); stroke-width: 1.5; rx: 6; }
+  .box-placeholder { fill: #2b2a1a; stroke: var(--orange); stroke-width: 1.5; rx: 6; stroke-dasharray: 5,3; }
+  .box-dremio { fill: #2b1a2b; stroke: var(--purple); stroke-width: 1.5; rx: 6; }
+  .label { fill: var(--text); font-family: -apple-system, sans-serif; font-size: 11px; text-anchor: middle; dominant-baseline: middle; }
+  .label-small { fill: var(--muted); font-family: -apple-system, sans-serif; font-size: 9px; text-anchor: middle; dominant-baseline: middle; }
+  .arrow { stroke: var(--muted); stroke-width: 1; fill: none; marker-end: url(#arrowhead); }
+  .arrow-dep { stroke: var(--accent); stroke-width: 1; fill: none; marker-end: url(#arrowhead-blue); stroke-dasharray: 4,2; }
+  .phase-label { fill: var(--accent); font-family: -apple-system, sans-serif; font-size: 13px; font-weight: bold; }
+  .step-num { fill: var(--bg); font-family: -apple-system, sans-serif; font-size: 9px; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
+
+  .info-box { background: #1a2332; border: 1px solid var(--accent); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .warn-box { background: #2b2a1a; border: 1px solid var(--orange); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .error-box { background: #2b1a1a; border: 1px solid var(--red); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .success-box { background: #1a2b1a; border: 1px solid var(--green); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.8rem; text-align: left; font-size: 0.9rem; }
+  th { background: var(--surface); color: var(--accent); }
+  td { background: #1c2128; }
+  .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 0.8rem 0; }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--muted); }
+  .legend-swatch { width: 16px; height: 16px; border-radius: 3px; }
+  ol { padding-left: 1.5rem; }
+  ol li { margin-bottom: 0.6rem; }
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.5rem; margin: 1rem 0; }
+  .toc a { color: var(--accent); text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  .toc ol { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Hadoop Fork &rarr; Dremio: Local Maven Install Guide</h1>
+<p style="color:var(--muted)">How to build a modified Hadoop fork and link it locally with Dremio for testing</p>
+
+<div class="toc">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#concepts">Key Concepts</a></li>
+    <li><a href="#overview-diagram">Overview Diagram</a></li>
+    <li><a href="#dep-tree">Hadoop Module Dependency Tree</a></li>
+    <li><a href="#build-order">Build Order Diagram</a></li>
+    <li><a href="#phase1">Phase 1: Install Parent/Aggregator POMs</a></li>
+    <li><a href="#phase2">Phase 2: Build &amp; Install Module JARs</a></li>
+    <li><a href="#phase3">Phase 3: Placeholder Artifacts</a></li>
+    <li><a href="#phase4">Phase 4: Update Dremio Version Properties</a></li>
+    <li><a href="#phase5">Phase 5: Compile &amp; Test Dremio</a></li>
+    <li><a href="#maven-repo">Maven Local Repo Structure</a></li>
+    <li><a href="#gotchas">Gotchas &amp; Pitfalls</a></li>
+    <li><a href="#quick-ref">Quick Reference: Single Module Update</a></li>
+  </ol>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="concepts">1. Key Concepts</h2>
+
+<div class="info-box">
+<strong><code>mvn install</code></strong> compiles, packages, and copies the artifact (JAR + POM) into your local Maven repository at <code>~/.m2/repository/</code>.
+Once there, any project on your machine can depend on that artifact by its GAV (groupId:artifactId:version) coordinates.
+</div>
+
+<h3>Maven Coordinates (GAV)</h3>
+<pre><code><span class="comment">&lt;!-- How Maven identifies every artifact --&gt;</span>
+<span class="cmd">&lt;groupId&gt;</span>org.apache.hadoop<span class="cmd">&lt;/groupId&gt;</span>
+<span class="cmd">&lt;artifactId&gt;</span>hadoop-azure<span class="cmd">&lt;/artifactId&gt;</span>
+<span class="cmd">&lt;version&gt;</span>3.4.3<span class="cmd">&lt;/version&gt;</span>
+
+<span class="comment">&lt;!-- Maps to file path: --&gt;</span>
+<span class="path">~/.m2/repository/org/apache/hadoop/hadoop-azure/3.4.3/hadoop-azure-3.4.3.jar</span>
+<span class="comment">             ^groupId (dots→dirs)  ^artifactId   ^ver  ^artifactId-version.jar</span>
+</code></pre>
+
+<h3>POM-only vs JAR modules</h3>
+<p><strong>Aggregator/parent POMs</strong> (packaging=pom) define shared config, dependency versions, and module lists. They produce no JAR &mdash; just a POM file in the repo. Use <code>mvn install -N</code> (non-recursive) to install only the POM itself.</p>
+<p><strong>JAR modules</strong> contain actual compiled code. Use <code>mvn install</code> to compile, package, and install the JAR.</p>
+
+<!-- ============================================================ -->
+<h2 id="overview-diagram">2. Overview Diagram</h2>
+
+<div class="diagram">
+<svg width="900" height="340" viewBox="0 0 900 340">
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#8b949e"/>
+    </marker>
+    <marker id="arrowhead-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#58a6ff"/>
+    </marker>
+  </defs>
+
+  <!-- Hadoop Fork box -->
+  <rect x="30" y="30" width="250" height="100" class="box-module"/>
+  <text x="155" y="55" class="label" style="font-size:13px; fill:#3fb950">Hadoop Fork</text>
+  <text x="155" y="75" class="label-small">branch-3.4.3-dremio</text>
+  <text x="155" y="95" class="label-small" style="fill:#d29922">Modified source code</text>
+  <text x="155" y="115" class="label-small">(SharedKeySigner, etc.)</text>
+
+  <!-- Arrow 1 -->
+  <line x1="280" y1="80" x2="350" y2="80" class="arrow"/>
+  <text x="315" y="70" class="label-small" style="fill:#3fb950">mvn install</text>
+
+  <!-- Local Maven Repo box -->
+  <rect x="350" y="20" width="220" height="120" class="box"/>
+  <text x="460" y="45" class="label" style="font-size:13px; fill:#58a6ff">~/.m2/repository/</text>
+  <text x="460" y="65" class="label-small">org/apache/hadoop/</text>
+  <text x="460" y="82" class="label-small" style="fill:#d29922">hadoop-azure/3.4.3/</text>
+  <text x="460" y="96" class="label-small" style="fill:#d29922">hadoop-common/3.4.3/</text>
+  <text x="460" y="110" class="label-small" style="fill:#d29922">hadoop-hdfs/3.4.3/</text>
+  <text x="460" y="124" class="label-small" style="fill:#8b949e">... (14 modules total)</text>
+
+  <!-- Arrow 2 -->
+  <line x1="570" y1="80" x2="640" y2="80" class="arrow"/>
+  <text x="605" y="70" class="label-small" style="fill:#bc8cff">resolves from</text>
+
+  <!-- Dremio box -->
+  <rect x="640" y="30" width="230" height="100" class="box-dremio"/>
+  <text x="755" y="55" class="label" style="font-size:13px; fill:#bc8cff">Dremio Codebase</text>
+  <text x="755" y="75" class="label-small">oss/pom.xml</text>
+  <text x="755" y="95" class="label-small" style="fill:#d29922">hadoop.version=3.4.3</text>
+  <text x="755" y="115" class="label-small">./mvnw compile / test</text>
+
+  <!-- Version update arrow -->
+  <rect x="30" y="180" width="250" height="50" class="box-pom"/>
+  <text x="155" y="200" class="label" style="font-size:11px">Version from pom.xml</text>
+  <text x="155" y="216" class="label-small" style="fill:#d29922">&lt;version&gt;3.4.3&lt;/version&gt;</text>
+
+  <line x1="155" y1="130" x2="155" y2="180" class="arrow"/>
+  <text x="175" y="155" class="label-small">determines</text>
+
+  <!-- Dremio update -->
+  <rect x="640" y="180" width="230" height="50" class="box-dremio"/>
+  <text x="755" y="200" class="label" style="font-size:11px">Must match!</text>
+  <text x="755" y="216" class="label-small" style="fill:#d29922">&lt;hadoop.version&gt;3.4.3&lt;/hadoop.version&gt;</text>
+
+  <line x1="755" y1="130" x2="755" y2="180" class="arrow"/>
+  <text x="775" y="155" class="label-small">update</text>
+  <line x1="280" y1="205" x2="640" y2="205" class="arrow-dep"/>
+
+  <!-- Java target warning -->
+  <rect x="200" y="270" width="500" height="50" rx="6" fill="#2b2a1a" stroke="#d29922" stroke-width="1.5"/>
+  <text x="450" y="290" class="label" style="fill:#d29922; font-size:11px">CRITICAL: Build Hadoop with -Dmaven.compiler.release=11</text>
+  <text x="450" y="306" class="label-small" style="fill:#d29922">Hadoop 3.4.3 auto-activates JDK17 profile; Dremio runs on JDK 11</text>
+</svg>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="dep-tree">3. Hadoop Module Dependency Tree (Dremio-relevant)</h2>
+<p>Only modules that Dremio depends on are shown. Arrows indicate "depends on".</p>
+
+<div class="diagram">
+<svg width="900" height="480" viewBox="0 0 900 480">
+  <defs>
+    <marker id="ah2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#58a6ff"/>
+    </marker>
+  </defs>
+
+  <!-- Level 0: Root POMs -->
+  <text x="20" y="25" class="phase-label">Parent POMs</text>
+  <rect x="120" y="10" width="120" height="30" class="box-pom"/>
+  <text x="180" y="25" class="label" style="font-size:10px">hadoop-main</text>
+
+  <rect x="260" y="10" width="120" height="30" class="box-pom"/>
+  <text x="320" y="25" class="label" style="font-size:10px">hadoop-project</text>
+
+  <rect x="400" y="10" width="130" height="30" class="box-pom"/>
+  <text x="465" y="25" class="label" style="font-size:10px">hadoop-project-dist</text>
+
+  <!-- Level 1: Aggregator POMs -->
+  <text x="20" y="75" class="phase-label">Aggregators</text>
+  <rect x="80" y="60" width="140" height="30" class="box-pom"/>
+  <text x="150" y="75" class="label" style="font-size:10px">hadoop-common-project</text>
+
+  <rect x="240" y="60" width="130" height="30" class="box-pom"/>
+  <text x="305" y="75" class="label" style="font-size:10px">hadoop-hdfs-project</text>
+
+  <rect x="390" y="60" width="110" height="30" class="box-pom"/>
+  <text x="445" y="75" class="label" style="font-size:10px">hadoop-tools</text>
+
+  <rect x="520" y="60" width="130" height="30" class="box-pom"/>
+  <text x="585" y="75" class="label" style="font-size:10px">hadoop-yarn-project</text>
+
+  <rect x="670" y="60" width="100" height="30" class="box-pom"/>
+  <text x="720" y="75" class="label" style="font-size:10px">hadoop-yarn</text>
+
+  <rect x="790" y="60" width="100" height="30" class="box-pom"/>
+  <text x="840" y="75" class="label" style="font-size:9px">client-modules</text>
+
+  <!-- Level 2: Foundation -->
+  <text x="20" y="145" class="phase-label">Foundation</text>
+  <rect x="100" y="130" width="130" height="34" class="box-module"/>
+  <text x="165" y="147" class="label" style="font-size:11px; fill:#3fb950">hadoop-common</text>
+  <text x="165" y="157" class="label-small" style="fill:#3fb950">*core dependency*</text>
+
+  <rect x="260" y="130" width="110" height="34" class="box-module"/>
+  <text x="315" y="150" class="label" style="font-size:10px">hadoop-auth</text>
+
+  <rect x="400" y="130" width="100" height="34" class="box-module"/>
+  <text x="450" y="150" class="label" style="font-size:10px">hadoop-nfs</text>
+
+  <rect x="530" y="130" width="110" height="34" class="box-module"/>
+  <text x="585" y="150" class="label" style="font-size:10px">hadoop-registry</text>
+
+  <!-- Level 3: HDFS -->
+  <text x="20" y="215" class="phase-label">HDFS</text>
+  <rect x="100" y="200" width="130" height="34" class="box-module"/>
+  <text x="165" y="220" class="label" style="font-size:10px">hadoop-hdfs-client</text>
+  <line x1="165" y1="164" x2="165" y2="200" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)"/>
+
+  <rect x="280" y="200" width="110" height="34" class="box-module"/>
+  <text x="335" y="220" class="label" style="font-size:10px">hadoop-hdfs</text>
+  <line x1="165" y1="220" x2="280" y2="220" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)"/>
+  <line x1="315" y1="164" x2="335" y2="200" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)"/>
+  <line x1="450" y1="164" x2="370" y2="200" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)" stroke-dasharray="3,2"/>
+
+  <!-- Level 3: Tools (parallel) -->
+  <text x="20" y="285" class="phase-label">Tools</text>
+  <rect x="80" y="270" width="110" height="34" class="box-module"/>
+  <text x="135" y="290" class="label" style="font-size:10px">hadoop-aws</text>
+  <line x1="165" y1="164" x2="135" y2="270" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)" stroke-dasharray="3,2"/>
+
+  <rect x="210" y="270" width="120" height="34" class="box-module"/>
+  <text x="270" y="290" class="label" style="font-size:10px; fill:#3fb950">hadoop-azure</text>
+  <line x1="165" y1="164" x2="270" y2="270" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)" stroke-dasharray="3,2"/>
+
+  <rect x="350" y="270" width="160" height="34" class="box-module"/>
+  <text x="430" y="290" class="label" style="font-size:10px">hadoop-azure-datalake</text>
+  <line x1="165" y1="164" x2="430" y2="270" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)" stroke-dasharray="3,2"/>
+
+  <!-- Level 3: Yarn -->
+  <text x="20" y="355" class="phase-label">YARN</text>
+  <rect x="100" y="340" width="120" height="34" class="box-module"/>
+  <text x="160" y="360" class="label" style="font-size:10px">hadoop-yarn-api</text>
+  <line x1="165" y1="164" x2="160" y2="340" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)" stroke-dasharray="3,2"/>
+
+  <rect x="250" y="340" width="140" height="34" class="box-module"/>
+  <text x="320" y="360" class="label" style="font-size:10px">hadoop-yarn-common</text>
+  <line x1="160" y1="360" x2="250" y2="360" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)"/>
+
+  <rect x="420" y="340" width="140" height="34" class="box-module"/>
+  <text x="490" y="360" class="label" style="font-size:10px">hadoop-yarn-client</text>
+  <line x1="390" y1="360" x2="420" y2="360" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)"/>
+
+  <!-- Level 4: Client (shaded) -->
+  <text x="20" y="425" class="phase-label">Client</text>
+  <rect x="100" y="410" width="140" height="34" class="box-module"/>
+  <text x="170" y="430" class="label" style="font-size:10px">hadoop-client-api</text>
+  <line x1="165" y1="234" x2="170" y2="410" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)" stroke-dasharray="3,2"/>
+
+  <rect x="270" y="410" width="120" height="34" class="box-module"/>
+  <text x="330" y="430" class="label" style="font-size:10px">hadoop-client</text>
+  <line x1="240" y1="430" x2="270" y2="430" stroke="#58a6ff" stroke-width="1" marker-end="url(#ah2)"/>
+
+  <!-- Placeholders -->
+  <text x="550" y="425" class="phase-label">Placeholders</text>
+  <rect x="550" y="410" width="170" height="34" class="box-placeholder"/>
+  <text x="635" y="425" class="label" style="font-size:9px; fill:#d29922">hadoop-common-native</text>
+  <text x="635" y="437" class="label-small" style="fill:#d29922">(linux, linux-aarch64)</text>
+
+  <!-- Legend -->
+  <rect x="600" y="130" width="12" height="12" fill="#1a2332" stroke="#58a6ff" stroke-width="1.5" rx="2"/>
+  <text x="620" y="140" class="label-small" style="text-anchor:start">POM-only (install -N)</text>
+  <rect x="600" y="150" width="12" height="12" fill="#1a2b1a" stroke="#3fb950" stroke-width="1.5" rx="2"/>
+  <text x="620" y="160" class="label-small" style="text-anchor:start">JAR module (install)</text>
+  <rect x="600" y="170" width="12" height="12" fill="#2b2a1a" stroke="#d29922" stroke-width="1.5" rx="2" stroke-dasharray="3,2"/>
+  <text x="620" y="180" class="label-small" style="text-anchor:start">Placeholder (empty jar)</text>
+</svg>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="build-order">4. Build Order Diagram</h2>
+<p>Steps must be executed in this order. Steps at the same level can run in parallel.</p>
+
+<div class="diagram">
+<svg width="900" height="600" viewBox="0 0 900 600">
+  <defs>
+    <marker id="ah3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#8b949e"/>
+    </marker>
+  </defs>
+
+  <!-- Phase 1 Header -->
+  <rect x="10" y="10" width="880" height="130" rx="8" fill="none" stroke="#58a6ff" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="30" y="30" class="phase-label">Phase 1: Parent POMs  (mvn install -N)</text>
+
+  <!-- Step boxes - Row 1 -->
+  <rect x="30" y="45" width="90" height="35" class="box-pom"/>
+  <circle cx="35" cy="48" r="7" fill="#58a6ff"/><text x="35" y="49" class="step-num">1</text>
+  <text x="75" y="65" class="label" style="font-size:9px">hadoop-main</text>
+
+  <rect x="135" y="45" width="100" height="35" class="box-pom"/>
+  <circle cx="140" cy="48" r="7" fill="#58a6ff"/><text x="140" y="49" class="step-num">2</text>
+  <text x="185" y="65" class="label" style="font-size:9px">hadoop-project</text>
+
+  <rect x="250" y="45" width="110" height="35" class="box-pom"/>
+  <circle cx="255" cy="48" r="7" fill="#58a6ff"/><text x="255" y="49" class="step-num">3</text>
+  <text x="305" y="65" class="label" style="font-size:9px">hadoop-proj-dist</text>
+
+  <line x1="120" y1="62" x2="135" y2="62" class="arrow"/>
+  <line x1="235" y1="62" x2="250" y2="62" class="arrow"/>
+
+  <!-- Step boxes - Row 2 -->
+  <rect x="30" y="95" width="120" height="35" class="box-pom"/>
+  <circle cx="35" cy="98" r="7" fill="#58a6ff"/><text x="35" y="99" class="step-num">4</text>
+  <text x="90" y="115" class="label" style="font-size:9px">common-project</text>
+
+  <rect x="165" y="95" width="110" height="35" class="box-pom"/>
+  <circle cx="170" cy="98" r="7" fill="#58a6ff"/><text x="170" y="99" class="step-num">5</text>
+  <text x="220" y="115" class="label" style="font-size:9px">hdfs-project</text>
+
+  <rect x="290" y="95" width="100" height="35" class="box-pom"/>
+  <circle cx="295" cy="98" r="7" fill="#58a6ff"/><text x="295" y="99" class="step-num">6</text>
+  <text x="340" y="115" class="label" style="font-size:9px">hadoop-tools</text>
+
+  <rect x="405" y="95" width="110" height="35" class="box-pom"/>
+  <circle cx="410" cy="98" r="7" fill="#58a6ff"/><text x="410" y="99" class="step-num">7</text>
+  <text x="460" y="115" class="label" style="font-size:9px">yarn-project</text>
+
+  <rect x="530" y="95" width="100" height="35" class="box-pom"/>
+  <circle cx="535" cy="98" r="7" fill="#58a6ff"/><text x="535" y="99" class="step-num">8</text>
+  <text x="580" y="115" class="label" style="font-size:9px">hadoop-yarn</text>
+
+  <rect x="645" y="95" width="110" height="35" class="box-pom"/>
+  <circle cx="650" cy="98" r="7" fill="#58a6ff"/><text x="650" y="99" class="step-num">9</text>
+  <text x="700" y="115" class="label" style="font-size:9px">client-modules</text>
+
+  <!-- Phase 2 Header -->
+  <rect x="10" y="155" width="880" height="260" rx="8" fill="none" stroke="#3fb950" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="30" y="175" class="phase-label" style="fill:#3fb950">Phase 2: Module JARs  (mvn clean install -DskipTests -Djavac.version=11 -Dmaven.compiler.release=11)</text>
+
+  <!-- Row 1: Foundation -->
+  <rect x="30" y="195" width="120" height="35" class="box-module"/>
+  <circle cx="35" cy="198" r="7" fill="#3fb950"/><text x="35" y="199" class="step-num">10</text>
+  <text x="90" y="215" class="label" style="font-size:9px">hadoop-common</text>
+
+  <rect x="170" y="195" width="100" height="35" class="box-module"/>
+  <circle cx="175" cy="198" r="7" fill="#3fb950"/><text x="175" y="199" class="step-num">11</text>
+  <text x="220" y="215" class="label" style="font-size:9px">hadoop-auth</text>
+
+  <rect x="290" y="195" width="100" height="35" class="box-module"/>
+  <circle cx="295" cy="198" r="7" fill="#3fb950"/><text x="295" y="199" class="step-num">12</text>
+  <text x="340" y="215" class="label" style="font-size:9px">hadoop-nfs</text>
+
+  <rect x="410" y="195" width="110" height="35" class="box-module"/>
+  <circle cx="415" cy="198" r="7" fill="#3fb950"/><text x="415" y="199" class="step-num">13</text>
+  <text x="465" y="215" class="label" style="font-size:9px">hadoop-registry</text>
+
+  <!-- Row 2: HDFS -->
+  <rect x="30" y="250" width="130" height="35" class="box-module"/>
+  <circle cx="35" cy="253" r="7" fill="#3fb950"/><text x="35" y="254" class="step-num">14</text>
+  <text x="95" y="270" class="label" style="font-size:9px">hadoop-hdfs-client</text>
+  <line x1="90" y1="230" x2="90" y2="250" class="arrow"/>
+
+  <rect x="190" y="250" width="110" height="35" class="box-module"/>
+  <circle cx="195" cy="253" r="7" fill="#3fb950"/><text x="195" y="254" class="step-num">15</text>
+  <text x="245" y="270" class="label" style="font-size:9px">hadoop-hdfs</text>
+  <line x1="160" y1="270" x2="190" y2="270" class="arrow"/>
+
+  <!-- Row 3: Tools (parallel) -->
+  <rect x="30" y="305" width="110" height="35" class="box-module"/>
+  <circle cx="35" cy="308" r="7" fill="#3fb950"/><text x="35" y="309" class="step-num">16</text>
+  <text x="85" y="325" class="label" style="font-size:9px">hadoop-aws</text>
+
+  <rect x="160" y="305" width="120" height="35" class="box-module"/>
+  <circle cx="165" cy="308" r="7" fill="#3fb950"/><text x="165" y="309" class="step-num">17</text>
+  <text x="220" y="325" class="label" style="font-size:9px; fill:#3fb950">hadoop-azure</text>
+
+  <rect x="300" y="305" width="150" height="35" class="box-module"/>
+  <circle cx="305" cy="308" r="7" fill="#3fb950"/><text x="305" y="309" class="step-num">18</text>
+  <text x="375" y="325" class="label" style="font-size:9px">hadoop-azure-datalake</text>
+
+  <!-- Parallel indicator -->
+  <text x="470" y="328" class="label-small" style="text-anchor:start; fill:#3fb950">&larr; these 3 can run in parallel</text>
+
+  <!-- Row 4: Yarn (sequential) -->
+  <rect x="30" y="355" width="120" height="35" class="box-module"/>
+  <circle cx="35" cy="358" r="7" fill="#3fb950"/><text x="35" y="359" class="step-num">19</text>
+  <text x="90" y="375" class="label" style="font-size:9px">hadoop-yarn-api</text>
+
+  <rect x="170" y="355" width="140" height="35" class="box-module"/>
+  <circle cx="175" cy="358" r="7" fill="#3fb950"/><text x="175" y="359" class="step-num">20</text>
+  <text x="240" y="375" class="label" style="font-size:9px">hadoop-yarn-common</text>
+  <line x1="150" y1="372" x2="170" y2="372" class="arrow"/>
+
+  <rect x="330" y="355" width="130" height="35" class="box-module"/>
+  <circle cx="335" cy="358" r="7" fill="#3fb950"/><text x="335" y="359" class="step-num">21</text>
+  <text x="395" y="375" class="label" style="font-size:9px">hadoop-yarn-client</text>
+  <line x1="310" y1="372" x2="330" y2="372" class="arrow"/>
+
+  <!-- Row 5: Client (shaded) -->
+  <rect x="530" y="355" width="140" height="35" class="box-module"/>
+  <circle cx="535" cy="358" r="7" fill="#3fb950"/><text x="535" y="359" class="step-num">22</text>
+  <text x="600" y="375" class="label" style="font-size:9px">hadoop-client-api</text>
+
+  <rect x="690" y="355" width="120" height="35" class="box-module"/>
+  <circle cx="695" cy="358" r="7" fill="#3fb950"/><text x="695" y="359" class="step-num">23</text>
+  <text x="750" y="375" class="label" style="font-size:9px">hadoop-client</text>
+  <line x1="670" y1="372" x2="690" y2="372" class="arrow"/>
+
+  <!-- Phase 3 -->
+  <rect x="10" y="425" width="400" height="60" rx="8" fill="none" stroke="#d29922" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="30" y="445" class="phase-label" style="fill:#d29922">Phase 3: Placeholders</text>
+
+  <rect x="30" y="455" width="170" height="25" class="box-placeholder"/>
+  <circle cx="35" cy="459" r="7" fill="#d29922"/><text x="35" y="460" class="step-num">24</text>
+  <text x="115" y="470" class="label" style="font-size:9px; fill:#d29922">common-native:linux</text>
+
+  <rect x="215" y="455" width="180" height="25" class="box-placeholder"/>
+  <circle cx="220" cy="459" r="7" fill="#d29922"/><text x="220" y="460" class="step-num">25</text>
+  <text x="305" y="470" class="label" style="font-size:9px; fill:#d29922">common-native:linux-aarch64</text>
+
+  <!-- Phase 4 -->
+  <rect x="430" y="425" width="460" height="60" rx="8" fill="none" stroke="#bc8cff" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="450" y="445" class="phase-label" style="fill:#bc8cff">Phase 4: Update Dremio &amp; Build</text>
+
+  <rect x="450" y="455" width="190" height="25" class="box-dremio"/>
+  <circle cx="455" cy="459" r="7" fill="#bc8cff"/><text x="455" y="460" class="step-num">26</text>
+  <text x="545" y="470" class="label" style="font-size:9px; fill:#bc8cff">Update oss/pom.xml version</text>
+
+  <rect x="660" y="455" width="210" height="25" class="box-dremio"/>
+  <circle cx="665" cy="459" r="7" fill="#bc8cff"/><text x="665" y="460" class="step-num">27</text>
+  <text x="765" y="470" class="label" style="font-size:9px; fill:#bc8cff">./mvnw clean compile / test</text>
+  <line x1="640" y1="467" x2="660" y2="467" class="arrow"/>
+
+  <!-- Timing annotations -->
+  <text x="450" y="540" class="label" style="font-size:12px; fill:#8b949e; text-anchor:middle">Total time: ~5-8 minutes (with parallel builds)</text>
+</svg>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="phase1">5. Phase 1: Install Parent/Aggregator POMs</h2>
+<p>These have <code>&lt;packaging&gt;pom&lt;/packaging&gt;</code> and define shared config. Use <code>-N</code> (non-recursive) to install just the POM.</p>
+
+<pre><code><span class="comment"># All commands run from hadoop fork root: ~/Workspaces/hadoop</span>
+<span class="comment"># Step 1: Root POM</span>
+<span class="cmd">mvn install -N</span> <span class="flag">-pl .</span>
+
+<span class="comment"># Steps 2-3: Project POMs</span>
+<span class="cmd">cd</span> <span class="path">hadoop-project</span>  <span class="cmd">&& mvn install -N && cd ..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-project-dist</span> <span class="cmd">&& mvn install -N && cd ..</span>
+
+<span class="comment"># Steps 4-9: Aggregator POMs (can run in parallel)</span>
+<span class="cmd">cd</span> <span class="path">hadoop-common-project</span> <span class="cmd">&& mvn install -N && cd ..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-hdfs-project</span>   <span class="cmd">&& mvn install -N && cd ..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-tools</span>           <span class="cmd">&& mvn install -N && cd ..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-yarn-project</span>    <span class="cmd">&& mvn install -N && cd ..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-yarn-project/hadoop-yarn</span> <span class="cmd">&& mvn install -N && cd ../..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-client-modules</span> <span class="cmd">&& mvn install -N && cd ..</span>
+</code></pre>
+
+<div class="warn-box">
+<strong>Known Issue:</strong> <code>hadoop-yarn-project/pom.xml</code> has a missing <code>&lt;version&gt;</code> for
+<code>hadoop-yarn-applications-catalog-webapp:war</code>. Fix by adding <code>&lt;version&gt;${project.version}&lt;/version&gt;</code> to that dependency.
+</div>
+
+<!-- ============================================================ -->
+<h2 id="phase2">6. Phase 2: Build &amp; Install Module JARs</h2>
+
+<div class="error-box">
+<strong>CRITICAL:</strong> Hadoop 3.4.3 has a <code>jdk17+</code> Maven profile that auto-activates on JDK &ge;17 and sets
+<code>javac.version=17</code>. Since Dremio targets JDK 11, you <strong>must</strong> override:
+<pre><code><span class="flag">-Djavac.version=11 -Dmaven.compiler.release=11</span></code></pre>
+Without this, you'll get <code>UnsupportedClassVersionError: class file version 61.0</code> at runtime.
+</div>
+
+<pre><code><span class="comment"># Common flags for all module builds</span>
+<span class="flag">FLAGS="-DskipTests -Dmaven.javadoc.skip=true -Dpmd.skip=true -Dcheckstyle.skip=true \
+       -Dfindbugs.skip=true -Dspotbugs.skip=true \
+       -Djavac.version=11 -Dmaven.compiler.release=11"</span>
+
+<span class="comment"># Step 10: hadoop-common (must be first - everything depends on it)</span>
+<span class="cmd">cd</span> <span class="path">hadoop-common-project/hadoop-common</span> <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+
+<span class="comment"># Steps 11-13: Can run in parallel (all depend only on hadoop-common)</span>
+<span class="cmd">cd</span> <span class="path">hadoop-common-project/hadoop-auth</span>     <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-common-project/hadoop-nfs</span>      <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-common-project/hadoop-registry</span> <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+
+<span class="comment"># Step 14: hadoop-hdfs-client (depends on hadoop-common)</span>
+<span class="cmd">cd</span> <span class="path">hadoop-hdfs-project/hadoop-hdfs-client</span> <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+
+<span class="comment"># Step 15: hadoop-hdfs (depends on common, auth, nfs, hdfs-client)</span>
+<span class="cmd">cd</span> <span class="path">hadoop-hdfs-project/hadoop-hdfs</span> <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+
+<span class="comment"># Steps 16-18: Tools (can run in parallel, depend only on common)</span>
+<span class="cmd">cd</span> <span class="path">hadoop-tools/hadoop-aws</span>             <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-tools/hadoop-azure</span>           <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-tools/hadoop-azure-datalake</span>  <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+
+<span class="comment"># Steps 19-21: YARN (sequential chain)</span>
+<span class="cmd">cd</span> <span class="path">hadoop-yarn-project/hadoop-yarn/hadoop-yarn-api</span>    <span class="cmd">&& mvn clean install $FLAGS && cd ../../..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-yarn-project/hadoop-yarn/hadoop-yarn-common</span> <span class="cmd">&& mvn clean install $FLAGS && cd ../../..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-yarn-project/hadoop-yarn/hadoop-yarn-client</span> <span class="cmd">&& mvn clean install $FLAGS && cd ../../..</span>
+
+<span class="comment"># Steps 22-23: Client (shaded jar - takes ~1min)</span>
+<span class="cmd">cd</span> <span class="path">hadoop-client-modules/hadoop-client-api</span> <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+<span class="cmd">cd</span> <span class="path">hadoop-client-modules/hadoop-client</span>     <span class="cmd">&& mvn clean install $FLAGS && cd ../..</span>
+</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="phase3">7. Phase 3: Placeholder Artifacts</h2>
+<p><code>hadoop-common-native</code> is a platform-specific native library built in CI. For local testing on macOS, create empty placeholder JARs.</p>
+
+<pre><code><span class="comment"># Create placeholder jar</span>
+<span class="cmd">mkdir -p /tmp/placeholder && echo "placeholder" > /tmp/placeholder/p.txt</span>
+<span class="cmd">jar cf /tmp/placeholder/empty.jar -C /tmp/placeholder p.txt</span>
+
+<span class="comment"># Install with classifiers</span>
+<span class="cmd">mvn install:install-file</span> \
+  <span class="flag">-DgroupId=org.apache.hadoop</span> \
+  <span class="flag">-DartifactId=hadoop-common-native</span> \
+  <span class="flag">-Dversion=3.4.3</span> \
+  <span class="flag">-Dclassifier=linux</span> \
+  <span class="flag">-Dpackaging=jar</span> \
+  <span class="flag">-Dfile=/tmp/placeholder/empty.jar</span>
+
+<span class="cmd">mvn install:install-file</span> \
+  <span class="flag">-DgroupId=org.apache.hadoop</span> \
+  <span class="flag">-DartifactId=hadoop-common-native</span> \
+  <span class="flag">-Dversion=3.4.3</span> \
+  <span class="flag">-Dclassifier=linux-aarch64</span> \
+  <span class="flag">-Dpackaging=jar</span> \
+  <span class="flag">-Dfile=/tmp/placeholder/empty.jar</span>
+</code></pre>
+
+<div class="info-box">
+<strong>How positioning is determined:</strong> <code>mvn install:install-file</code> uses the GAV + classifier to compute the path:
+<pre><code><span class="path">~/.m2/repository/<span class="flag">{groupId with . &rarr; /}</span>/<span class="flag">{artifactId}</span>/<span class="flag">{version}</span>/<span class="flag">{artifactId}-{version}-{classifier}.jar</span></span>
+
+Example:
+<span class="path">~/.m2/repository/org/apache/hadoop/hadoop-common-native/3.4.3/hadoop-common-native-3.4.3-linux.jar</span></code></pre>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="phase4">8. Phase 4: Update Dremio Version Properties</h2>
+
+<p>Edit <code>oss/pom.xml</code> and update <strong>two</strong> properties:</p>
+
+<pre><code><span class="comment">&lt;!-- Line ~82: Main hadoop version --&gt;</span>
+&lt;hadoop.version&gt;<span class="warn">3.3.6-dremio-...</span>&lt;/hadoop.version&gt;
+                 &darr; change to &darr;
+&lt;hadoop.version&gt;<span class="cmd">3.4.3</span>&lt;/hadoop.version&gt;
+
+<span class="comment">&lt;!-- Line ~110: Hive3 plugin hadoop version --&gt;</span>
+&lt;plugin.hive3.hadoop.version&gt;<span class="warn">3.3.6-dremio-...</span>&lt;/plugin.hive3.hadoop.version&gt;
+                               &darr; change to &darr;
+&lt;plugin.hive3.hadoop.version&gt;<span class="cmd">3.4.3</span>&lt;/plugin.hive3.hadoop.version&gt;
+</code></pre>
+
+<div class="info-box">
+<strong>Version property chain:</strong> These two properties drive everything else:
+<pre><code>hadoop.version = 3.4.3
+  &rarr; used by hadoop-common, hadoop-hdfs, hadoop-client, hadoop-yarn-api, hadoop-yarn-client
+
+plugin.hive3.hadoop.version = 3.4.3
+  &rarr; plugin.hive3.hadoop-azure.version = ${plugin.hive3.hadoop.version}
+  &rarr; plugin.hive3.hadoop-azure-datalake.version = ${plugin.hive3.hadoop.version}
+  &rarr; plugin.hive3.aws-hadoop.version = ${plugin.hive3.hadoop.version}
+  &rarr; hadoop-azure.version = ${plugin.hive3.hadoop-azure.version}
+</code></pre>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="phase5">9. Phase 5: Compile &amp; Test Dremio</h2>
+
+<pre><code><span class="comment"># From dremio root</span>
+
+<span class="comment"># Compile key modules</span>
+<span class="cmd">./mvnw clean compile</span> <span class="flag">-pl oss/plugins/azure</span> -DskipTests
+<span class="cmd">./mvnw clean compile</span> <span class="flag">-pl oss/sabot/kernel</span> -DskipTests
+<span class="cmd">./mvnw clean compile</span> <span class="flag">-pl oss/plugins/hive3/plugin</span> -DskipTests
+
+<span class="comment"># Run tests</span>
+<span class="cmd">./mvnw clean test</span> <span class="flag">-pl oss/plugins/azure</span>
+<span class="cmd">./mvnw clean test</span> <span class="flag">-pl oss/plugins/azure -Dtest=TestAzureSharedKeyCredentials</span>
+</code></pre>
+
+<!-- ============================================================ -->
+<h2 id="maven-repo">10. Maven Local Repository Structure</h2>
+
+<pre><code><span class="path">~/.m2/repository/org/apache/hadoop/</span>
+<span class="path">  hadoop-azure/</span>
+<span class="path">    3.4.3/</span>
+      hadoop-azure-3.4.3.jar          <span class="comment">&larr; compiled module JAR</span>
+      hadoop-azure-3.4.3-tests.jar    <span class="comment">&larr; test JAR (for test deps)</span>
+      hadoop-azure-3.4.3.pom          <span class="comment">&larr; module POM (dependencies)</span>
+      _remote.repositories             <span class="comment">&larr; Maven metadata</span>
+<span class="path">  hadoop-common/</span>
+<span class="path">    3.4.3/</span>
+      hadoop-common-3.4.3.jar
+      hadoop-common-3.4.3-tests.jar
+      hadoop-common-3.4.3.pom
+      *.sha1, *.lastUpdated            <span class="comment">&larr; checksum/cache metadata</span>
+<span class="path">  hadoop-common-native/</span>
+<span class="path">    3.4.3/</span>
+      hadoop-common-native-3.4.3-<span class="flag">linux</span>.jar         <span class="comment">&larr; classifier in filename</span>
+      hadoop-common-native-3.4.3-<span class="flag">linux-aarch64</span>.jar
+      hadoop-common-native-3.4.3.pom
+<span class="path">  hadoop-project/</span>
+<span class="path">    3.4.3/</span>
+      hadoop-project-3.4.3.pom        <span class="comment">&larr; POM-only, no JAR</span>
+</code></pre>
+
+<div class="info-box">
+<strong>Path formula:</strong>
+<pre><code>~/.m2/repository/{groupId.replace('.','/')}/{artifactId}/{version}/{artifactId}-{version}[-{classifier}].{packaging}</code></pre>
+<ul>
+  <li><code>groupId</code> <code>org.apache.hadoop</code> &rarr; <code>org/apache/hadoop/</code></li>
+  <li><code>classifier</code> (optional) appears between version and extension: <code>-linux</code>, <code>-tests</code></li>
+  <li><code>packaging</code> is usually <code>jar</code> or <code>pom</code></li>
+</ul>
+</div>
+
+<!-- ============================================================ -->
+<h2 id="gotchas">11. Gotchas &amp; Pitfalls</h2>
+
+<table>
+<tr><th>Pitfall</th><th>Symptom</th><th>Fix</th></tr>
+<tr>
+  <td>JDK 17 auto-profile</td>
+  <td><code>UnsupportedClassVersionError: class file version 61.0</code></td>
+  <td>Add <code>-Djavac.version=11 -Dmaven.compiler.release=11</code> to all builds</td>
+</tr>
+<tr>
+  <td>Missing parent POM</td>
+  <td><code>Non-resolvable parent POM</code></td>
+  <td>Install parent POMs first with <code>mvn install -N</code></td>
+</tr>
+<tr>
+  <td>Stale cache in <code>.m2</code></td>
+  <td><code>was not found in ... during a previous attempt</code></td>
+  <td>Delete the <code>.lastUpdated</code> files or add <code>-U</code> flag</td>
+</tr>
+<tr>
+  <td>hadoop-common-native missing</td>
+  <td><code>DependencyResolutionException</code> for native classifiers</td>
+  <td>Create placeholder JARs with <code>mvn install:install-file</code></td>
+</tr>
+<tr>
+  <td>hadoop-yarn-project POM broken</td>
+  <td><code>version for catalog-webapp:war is missing</code></td>
+  <td>Add <code>&lt;version&gt;${project.version}&lt;/version&gt;</code> to the dependency</td>
+</tr>
+<tr>
+  <td>"Nothing to compile"</td>
+  <td>Maven skips compilation after version change</td>
+  <td>Use <code>mvn <strong>clean</strong> compile</code> to force recompilation</td>
+</tr>
+<tr>
+  <td>Don't use <code>-am</code> flag</td>
+  <td>Builds unrelated modules, hits broken POMs</td>
+  <td>Build each module individually in dependency order</td>
+</tr>
+</table>
+
+<!-- ============================================================ -->
+<h2 id="quick-ref">12. Quick Reference: Updating a Single Module</h2>
+
+<p>If you only changed one module (e.g., <code>hadoop-azure</code>), you don't need to rebuild everything:</p>
+
+<div class="success-box">
+<h3>Minimal Steps to Update hadoop-azure</h3>
+<pre><code><span class="comment"># 1. Rebuild just the changed module</span>
+<span class="cmd">cd</span> <span class="path">~/Workspaces/hadoop/hadoop-tools/hadoop-azure</span>
+<span class="cmd">mvn clean install -DskipTests -Djavac.version=11 -Dmaven.compiler.release=11</span>
+
+<span class="comment"># 2. Recompile affected Dremio module</span>
+<span class="cmd">cd</span> <span class="path">~/Workspaces/dremio</span>
+<span class="cmd">./mvnw clean compile -pl oss/plugins/azure -DskipTests</span>
+
+<span class="comment"># 3. Run tests</span>
+<span class="cmd">./mvnw test -pl oss/plugins/azure</span>
+</code></pre>
+</div>
+
+<p>If your change affects <code>hadoop-common</code> (a foundational module), you must rebuild all downstream modules that depend on it.</p>
+
+<div class="diagram">
+<svg width="700" height="150" viewBox="0 0 700 150">
+  <defs>
+    <marker id="ah4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#f85149"/>
+    </marker>
+  </defs>
+
+  <rect x="20" y="50" width="130" height="40" class="box-module" style="stroke:#f85149"/>
+  <text x="85" y="73" class="label" style="font-size:11px; fill:#f85149">hadoop-common</text>
+  <text x="85" y="40" class="label-small" style="fill:#f85149">If you change this...</text>
+
+  <line x1="150" y1="70" x2="195" y2="55" stroke="#f85149" stroke-width="1" marker-end="url(#ah4)"/>
+  <line x1="150" y1="70" x2="195" y2="70" stroke="#f85149" stroke-width="1" marker-end="url(#ah4)"/>
+  <line x1="150" y1="70" x2="195" y2="85" stroke="#f85149" stroke-width="1" marker-end="url(#ah4)"/>
+  <line x1="150" y1="70" x2="195" y2="100" stroke="#f85149" stroke-width="1" marker-end="url(#ah4)"/>
+
+  <rect x="195" y="38" width="120" height="25" class="box-module"/>
+  <text x="255" y="54" class="label" style="font-size:9px">hadoop-hdfs-client</text>
+
+  <rect x="195" y="65" width="100" height="25" class="box-module"/>
+  <text x="245" y="80" class="label" style="font-size:9px">hadoop-azure</text>
+
+  <rect x="195" y="92" width="100" height="25" class="box-module"/>
+  <text x="245" y="107" class="label" style="font-size:9px">hadoop-aws</text>
+
+  <rect x="195" y="119" width="120" height="25" class="box-module"/>
+  <text x="255" y="134" class="label" style="font-size:9px">hadoop-yarn-api</text>
+
+  <text x="340" y="80" class="label-small" style="text-anchor:start; fill:#f85149">...must rebuild ALL of these</text>
+
+  <line x1="315" y1="50" x2="430" y2="50" stroke="#f85149" stroke-width="1" marker-end="url(#ah4)"/>
+  <rect x="430" y="38" width="100" height="25" class="box-module"/>
+  <text x="480" y="54" class="label" style="font-size:9px">hadoop-hdfs</text>
+
+  <line x1="315" y1="105" x2="430" y2="105" stroke="#f85149" stroke-width="1" marker-end="url(#ah4)"/>
+  <rect x="430" y="93" width="120" height="25" class="box-module"/>
+  <text x="490" y="108" class="label" style="font-size:9px">hadoop-yarn-common</text>
+
+  <line x1="550" y1="105" x2="580" y2="105" stroke="#f85149" stroke-width="1" marker-end="url(#ah4)"/>
+  <rect x="580" y="93" width="110" height="25" class="box-module"/>
+  <text x="635" y="108" class="label" style="font-size:9px">hadoop-yarn-client</text>
+</svg>
+</div>
+
+<p style="margin-top:2rem; color:var(--muted); font-size:0.85rem; text-align:center">
+  Generated for Dremio Hadoop 3.3.6 &rarr; 3.4.3 upgrade &bull; March 2026
+</p>
+
+</div>
+</body>
+</html>
