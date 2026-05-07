@@ -41,7 +41,10 @@ RUN chmod a+x pkg-resolver/*.sh pkg-resolver/*.py \
 
 ######
 # Install packages from apt
+# Retry apt operations — CI network to archive.ubuntu.com can be flaky.
 ######
+RUN echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/80-retries
+
 # hadolint ignore=DL3008,SC2046
 RUN apt-get -q update \
     && apt-get -q install -y --no-install-recommends wget apt-transport-https gpg gpg-agent gawk ca-certificates \
