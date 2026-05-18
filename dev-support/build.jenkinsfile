@@ -1,0 +1,94 @@
+/*
+ * Hadoop Fork PR Build Pipeline
+ *
+ * Uses the Dremio Jenkins infrastructure (GKE + DinD sidecar) to:
+ *   1. Build the Docker image from dev-support/docker/Dockerfile_ubuntu_24
+ *   2. Run the Hadoop build + tests inside that image
+ *
+ * The Dockerfile defines the complete build environment (GCC, Boost,
+ * Protobuf 3.25.5, CMake, JDK 17, Maven) required for Hadoop 3.5.0 native builds.
+ */
+
+def jenkinsAgentImage = 'us-west1-docker.pkg.dev/dremio-1093/jenkins/jenkins-agent:v43'
+def cloud = 'jenkins1'
+def nodeSelector = 'cloud.google.com/gke-nodepool=c4d-standard-64'
+
+podTemplate(
+  cloud: cloud,
+  inheritFrom: '',
+  nodeSelector: nodeSelector,
+  containers: [
+    containerTemplate(
+      name: 'jnlp',
+      image: "${jenkinsAgentImage}",
+      resourceRequestMemory: '32G',
+      resourceLimitMemory: '33G',
+      resourceRequestCpu: '8',
+      resourceLimitCpu: '9',
+      workingDir: '/jenkins',
+      envVars: [
+        envVar(key: 'DOCKER_HOST', value: 'tcp://localhost:2376'),
+        envVar(key: 'DOCKER_TLS_VERIFY', value: '1'),
+        envVar(key: 'DOCKER_CERT_PATH', value: '/certs/client'),
+      ],
+    ),
+    containerTemplate(
+      name: 'dind',
+      image: 'mirror.gcr.io/docker:28-dind',
+      args: '--registry-mirror https://mirror.gcr.io',
+      privileged: true,
+    )
+  ],
+  volumes: [
+    emptyDirVolume(mountPath: '/certs'),
+    emptyDirVolume(mountPath: '/var/lib/docker'),
+  ]
+) {
+node(POD_LABEL) {
+
+    stage('Checkout') {
+      checkout(scm)
+    }
+
+    stage('Build Docker Image') {
+      // Create a non-root user (uid 1000) in the image so that:
+      // 1. File permission tests work (root bypasses all permission checks)
+      // 2. Java's UnixLoginModule can resolve the UID to a username
+      sh '''
+        set -euo pipefail
+        docker build \
+          -t hadoop-build-base:latest \
+          -f dev-support/docker/Dockerfile_ubuntu_24 \
+          dev-support/docker/
+
+        # ubuntu:noble ships with an 'ubuntu' user at uid/gid 1000 — reuse it
+        # rather than creating a new user (groupadd -g 1000 fails with GID exists)
+        echo 'FROM hadoop-build-base:latest
+USER ubuntu' | docker build -t hadoop-build:latest -
+      '''
+    }
+
+    stage('Build & Test') {
+      configFileProvider([
+        configFile(
+          fileId: 'a145b4ab-11a5-47dd-b873-9fde19886a7c',
+          variable: 'MAVEN_GLOBAL_SETTINGS'
+        )
+      ]) {
+        sh '''
+          set -euo pipefail
+          docker run --rm --init \
+            -v "$(pwd)":/build \
+            -v "${MAVEN_GLOBAL_SETTINGS}":"${MAVEN_GLOBAL_SETTINGS}":ro \
+            -w /build \
+            -e MAVEN_OPTS="-Xmx4g" \
+            hadoop-build:latest \
+            mvn \
+              --batch-mode \
+              --global-settings "${MAVEN_GLOBAL_SETTINGS}" \
+              clean install -Pnative -DskipShade -DskipNativeTests
+        '''
+      }
+    }
+}
+}
