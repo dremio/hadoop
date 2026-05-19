@@ -114,7 +114,7 @@ import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
 import org.apache.hadoop.fs.azurebfs.services.ListingSupport;
 import org.apache.hadoop.fs.azurebfs.services.ListResponseData;
-import org.apache.hadoop.fs.azurebfs.services.SharedKeyCredentials;
+import org.apache.hadoop.fs.azurebfs.services.SharedKeySigner;
 import org.apache.hadoop.fs.azurebfs.services.StaticRetryPolicy;
 import org.apache.hadoop.fs.azurebfs.services.TailLatencyRequestTimeoutRetryPolicy;
 import org.apache.hadoop.fs.azurebfs.services.VersionedFileStatus;
@@ -1759,7 +1759,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
       throw new InvalidUriException(uri.toString());
     }
 
-    SharedKeyCredentials creds = null;
+    SharedKeySigner sharedKeySigner = null;
     AccessTokenProvider tokenProvider = null;
     SASTokenProvider sasTokenProvider = null;
 
@@ -1769,13 +1769,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
 
     if (authType == AuthType.SharedKey) {
       LOG.trace("Fetching SharedKey credentials");
-      int dotIndex = accountName.indexOf(AbfsHttpConstants.DOT);
-      if (dotIndex <= 0) {
-        throw new InvalidUriException(
-                uri.toString() + " - account name is not fully qualified.");
-      }
-      creds = new SharedKeyCredentials(accountName.substring(0, dotIndex),
-            abfsConfiguration.getStorageAccountKey());
+      sharedKeySigner = abfsConfiguration.getSharedKeySigner();
     } else if (authType == AuthType.SAS) {
       LOG.trace("Fetching SAS Token Provider");
       sasTokenProvider = abfsConfiguration.getSASTokenProvider();
@@ -1817,7 +1811,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
     }
 
     LOG.trace("Initializing AbfsClientHandler for {}", baseUrl);
-    this.clientHandler = new AbfsClientHandler(baseUrl, creds,
+    this.clientHandler = new AbfsClientHandler(baseUrl, sharedKeySigner,
         abfsConfiguration,
         tokenProvider, sasTokenProvider, encryptionContextProvider,
         populateAbfsClientContext());

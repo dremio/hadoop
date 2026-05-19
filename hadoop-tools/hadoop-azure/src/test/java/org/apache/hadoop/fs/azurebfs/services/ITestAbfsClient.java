@@ -529,7 +529,7 @@ public final class ITestAbfsClient extends AbstractAbfsIntegrationTest {
     when(client.createRequestUrl(any(), any())).thenCallRealMethod();
     when(client.createRequestUrl(any(), any(), any())).thenCallRealMethod();
     when(client.getAccessToken()).thenCallRealMethod();
-    when(client.getSharedKeyCredentials()).thenCallRealMethod();
+    when(client.getSharedKeySigner()).thenCallRealMethod();
     when(client.createDefaultHeaders()).thenCallRealMethod();
     when(client.getAbfsConfiguration()).thenReturn(abfsConfig);
 
@@ -551,7 +551,7 @@ public final class ITestAbfsClient extends AbstractAbfsIntegrationTest {
 
     // override auth provider
     if (currentAuthType == SharedKey) {
-      ReflectionUtils.setFinalField(AbfsClient.class, client, "sharedKeyCredentials", new SharedKeyCredentials(
+      ReflectionUtils.setFinalField(AbfsClient.class, client, "sharedKeySigner", new SharedKeyCredentials(
               abfsConfig.getAccountName().substring(0,
                   abfsConfig.getAccountName().indexOf(DOT)),
               abfsConfig.getStorageAccountKey()));

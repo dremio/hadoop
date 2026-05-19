@@ -158,7 +158,7 @@ public class AbfsDfsClient extends AbfsClient {
    * Creates an {@code AbfsDfsClient} instance.
    *
    * @param baseUrl the base URL of the DFS endpoint
-   * @param sharedKeyCredentials the shared key credentials
+   * @param sharedKeyCredentials the shared key signer
    * @param abfsConfiguration the ABFS configuration
    * @param tokenProvider the OAuth access token provider
    * @param sasTokenProvider the SAS token provider
@@ -167,7 +167,7 @@ public class AbfsDfsClient extends AbfsClient {
    * @throws IOException if client initialization fails
    */
   public AbfsDfsClient(final URL baseUrl,
-      final SharedKeyCredentials sharedKeyCredentials,
+      final SharedKeySigner sharedKeyCredentials,
       final AbfsConfiguration abfsConfiguration,
       final AccessTokenProvider tokenProvider,
       final SASTokenProvider sasTokenProvider,

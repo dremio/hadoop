@@ -183,7 +183,7 @@ public class AbfsBlobClient extends AbfsClient {
   private final HashSet<String> azureAtomicRenameDirSet;
 
   public AbfsBlobClient(final URL baseUrl,
-      final SharedKeyCredentials sharedKeyCredentials,
+      final SharedKeySigner sharedKeyCredentials,
       final AbfsConfiguration abfsConfiguration,
       final AccessTokenProvider tokenProvider,
       final SASTokenProvider sasTokenProvider,
