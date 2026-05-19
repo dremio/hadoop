@@ -42,7 +42,9 @@ import org.apache.hadoop.fs.azurebfs.contracts.annotations.ConfigurationValidati
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.AzureBlobFileSystemException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidConfigurationValueException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.InvalidUriException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.KeyProviderException;
+import org.apache.hadoop.fs.azurebfs.contracts.exceptions.SharedKeySignerException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.SASTokenProviderException;
 import org.apache.hadoop.fs.azurebfs.contracts.exceptions.TokenAccessProviderException;
 import org.apache.hadoop.fs.azurebfs.diagnostics.Base64StringConfigurationBasicValidator;
@@ -67,6 +69,8 @@ import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
 import org.apache.hadoop.fs.azurebfs.services.FixedSASTokenProvider;
 import org.apache.hadoop.fs.azurebfs.services.KeyProvider;
+import org.apache.hadoop.fs.azurebfs.services.SharedKeyCredentials;
+import org.apache.hadoop.fs.azurebfs.services.SharedKeySigner;
 import org.apache.hadoop.fs.azurebfs.services.SimpleKeyProvider;
 import org.apache.hadoop.fs.azurebfs.utils.MetricFormat;
 import org.apache.hadoop.fs.azurebfs.utils.TracingHeaderFormat;
@@ -1817,6 +1821,37 @@ public class AbfsConfiguration{
 
   public int getReadAheadRange() {
     return this.readAheadRange;
+  }
+
+  public SharedKeySigner getSharedKeySigner() throws AzureBlobFileSystemException {
+    AuthType authType = getEnum(FS_AZURE_ACCOUNT_AUTH_TYPE_PROPERTY_NAME, AuthType.SharedKey);
+    if (authType != AuthType.SharedKey) {
+      throw new SharedKeySignerException(String.format(
+        "Invalid auth type: %s is being used, expecting SharedKey", authType));
+    }
+
+    try {
+      Class<? extends SharedKeySigner> signerClass = rawConfig.getClass(FS_AZURE_SHARED_KEY_SIGNER_TYPE,
+        SharedKeyCredentials.class, SharedKeySigner.class);
+
+      LOG.trace("Initializing {}", signerClass.getName());
+      SharedKeySigner sharedKeySigner;
+      if (signerClass == SharedKeyCredentials.class) {
+        int dotIndex = accountName.indexOf(AbfsHttpConstants.DOT);
+        if (dotIndex <= 0) {
+          throw new InvalidUriException("account name is not fully qualified.");
+        }
+        sharedKeySigner = new SharedKeyCredentials(accountName.substring(0, dotIndex),
+              this.getStorageAccountKey());
+      } else {
+        sharedKeySigner = ReflectionUtils.newInstance(signerClass, rawConfig);
+      }
+      LOG.trace("{} init complete", signerClass.getName());
+
+      return sharedKeySigner;
+    } catch (Exception e) {
+      throw new SharedKeySignerException("Unable to load Shared Key signer class: " + e, e);
+    }
   }
 
   int validateInt(Field field) throws IllegalAccessException, InvalidConfigurationValueException {

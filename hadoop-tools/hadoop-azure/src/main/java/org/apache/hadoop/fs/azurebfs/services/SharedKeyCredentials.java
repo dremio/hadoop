@@ -50,7 +50,7 @@ import org.apache.hadoop.fs.azurebfs.utils.Base64;
  * Represents the shared key credentials used to access an Azure Storage
  * account.
  */
-public class SharedKeyCredentials {
+public class SharedKeyCredentials implements SharedKeySigner {
 
   private static final Logger LOG = LoggerFactory.getLogger(
       SharedKeyCredentials.class);
@@ -80,6 +80,7 @@ public class SharedKeyCredentials {
     initializeMac();
   }
 
+  @Override
   public void signRequest(AbfsHttpOperation connection, final long contentLength) throws UnsupportedEncodingException {
 
     String gmtTime = getGMTTime();

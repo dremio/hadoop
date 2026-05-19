@@ -155,7 +155,7 @@ public abstract class AbfsClient implements Closeable {
   public static final String FNS_BLOB_USER_AGENT_IDENTIFIER = "FNS";
 
   private final URL baseUrl;
-  private final SharedKeyCredentials sharedKeyCredentials;
+  private final SharedKeySigner sharedKeySigner;
   private ApiVersion xMsVersion = ApiVersion.getCurrentVersion();
   private final ExponentialRetryPolicy exponentialRetryPolicy;
   private final StaticRetryPolicy staticRetryPolicy;
@@ -200,13 +200,13 @@ public abstract class AbfsClient implements Closeable {
   protected static final LogExactlyOnce ABFS_METADATA_INCOMPLETE_RENAME_FAILURE = new LogExactlyOnce(LOG);
 
   private AbfsClient(final URL baseUrl,
-      final SharedKeyCredentials sharedKeyCredentials,
+      final SharedKeySigner sharedKeySigner,
       final AbfsConfiguration abfsConfiguration,
       final EncryptionContextProvider encryptionContextProvider,
       final AbfsClientContext abfsClientContext,
       final AbfsServiceType abfsServiceType) throws IOException {
     this.baseUrl = baseUrl;
-    this.sharedKeyCredentials = sharedKeyCredentials;
+    this.sharedKeySigner = sharedKeySigner;
     String baseUrlString = baseUrl.toString();
     int indexLastForwardSlash = baseUrlString.lastIndexOf(FORWARD_SLASH);
     this.filesystem = baseUrlString.substring(indexLastForwardSlash + 1);
@@ -315,7 +315,7 @@ public abstract class AbfsClient implements Closeable {
    * Constructs an AbfsClient instance with all authentication and configuration options.
    *
    * @param baseUrl The base URL for the ABFS endpoint.
-   * @param sharedKeyCredentials Shared key credentials for authentication.
+   * @param sharedKeySigner Shared key signer for authentication.
    * @param abfsConfiguration The ABFS configuration.
    * @param tokenProvider The access token provider for OAuth authentication.
    * @param sasTokenProvider The SAS token provider for SAS authentication.
@@ -325,7 +325,7 @@ public abstract class AbfsClient implements Closeable {
    * @throws IOException if initialization fails.
    */
   public AbfsClient(final URL baseUrl,
-      final SharedKeyCredentials sharedKeyCredentials,
+      final SharedKeySigner sharedKeySigner,
       final AbfsConfiguration abfsConfiguration,
       final AccessTokenProvider tokenProvider,
       final SASTokenProvider sasTokenProvider,
@@ -333,7 +333,7 @@ public abstract class AbfsClient implements Closeable {
       final AbfsClientContext abfsClientContext,
       final AbfsServiceType abfsServiceType)
       throws IOException {
-    this(baseUrl, sharedKeyCredentials, abfsConfiguration,
+    this(baseUrl, sharedKeySigner, abfsConfiguration,
         encryptionContextProvider, abfsClientContext, abfsServiceType);
     this.sasTokenProvider = sasTokenProvider;
     this.tokenProvider = tokenProvider;
@@ -397,8 +397,8 @@ public abstract class AbfsClient implements Closeable {
     return getExponentialRetryPolicy();
   }
 
-  SharedKeyCredentials getSharedKeyCredentials() {
-    return sharedKeyCredentials;
+  SharedKeySigner getSharedKeySigner() {
+    return sharedKeySigner;
   }
 
   public void setEncryptionType(EncryptionType encryptionType) {
