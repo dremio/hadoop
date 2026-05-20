@@ -265,8 +265,14 @@
     "debian:12": "libssl-dev",
     "debian:13": "libssl-dev",
     "ubuntu:focal": "libssl-dev",
-    "ubuntu:noble": "libssl-dev",
-    "ubuntu:noble::arch64": "libssl-dev",
+    "ubuntu:noble": [
+      "libssl-dev",
+      "libssl3t64"
+    ],
+    "ubuntu:noble::arch64": [
+      "libssl-dev",
+      "libssl3t64"
+    ],
     "ubuntu:focal::arch64": "libssl-dev",
     "rockylinux:8": "openssl-devel"
   },
