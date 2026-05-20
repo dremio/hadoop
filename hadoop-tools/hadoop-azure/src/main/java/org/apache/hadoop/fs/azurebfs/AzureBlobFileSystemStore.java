@@ -109,6 +109,7 @@ import org.apache.hadoop.fs.azurebfs.services.AbfsPerfTracker;
 import org.apache.hadoop.fs.azurebfs.services.AbfsPermission;
 import org.apache.hadoop.fs.azurebfs.services.AbfsPrefetchInputStream;
 import org.apache.hadoop.fs.azurebfs.services.AbfsRandomInputStream;
+import org.apache.hadoop.fs.azurebfs.services.AbfsListPathResponse;
 import org.apache.hadoop.fs.azurebfs.services.AbfsRestOperation;
 import org.apache.hadoop.fs.azurebfs.services.AuthType;
 import org.apache.hadoop.fs.azurebfs.services.ExponentialRetryPolicy;
@@ -1335,6 +1336,27 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
         relativePath, fileStatusList, tracingContext, uri));
 
     return continuation;
+  }
+
+  public AbfsListPathResponse batchListStatus(final Path path, boolean recursive,
+      String continuation, TracingContext tracingContext) throws IOException {
+    LOG.debug("BatchListStatus filesystem: {} path: {} max_results: {} recursive: {}",
+        getClient().getFileSystem(), path, abfsConfiguration.getListMaxResults(), recursive);
+    String relativePath = path.isRoot() ? AbfsHttpConstants.EMPTY_STRING : getRelativePath(path);
+    ListResponseData listResponseData = getClient().listPath(relativePath, recursive,
+        abfsConfiguration.getListMaxResults(), continuation, tracingContext, this.uri);
+    continuation = listResponseData.getContinuationToken();
+    List<VersionedFileStatus> fileStatusList = listResponseData.getFileStatusList();
+    if (fileStatusList == null) {
+      AbfsRestOperation op = listResponseData.getOp();
+      throw new AbfsRestOperationException(
+          AzureServiceErrorCode.PATH_NOT_FOUND.getStatusCode(),
+          AzureServiceErrorCode.PATH_NOT_FOUND.getErrorCode(),
+          "listStatusAsync path not found",
+          null, op.getResult());
+    }
+    ArrayList<FileStatus> fileStatuses = new ArrayList<>(fileStatusList);
+    return new AbfsListPathResponse(path, fileStatuses, continuation);
   }
 
   // generate continuation token for xns account
