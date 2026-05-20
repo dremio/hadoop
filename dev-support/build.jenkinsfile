@@ -2,11 +2,16 @@
  * Hadoop Fork PR Build Pipeline
  *
  * Uses the Dremio Jenkins infrastructure (GKE + DinD sidecar) to:
- *   1. Build the Docker image from dev-support/docker/Dockerfile_ubuntu_24
+ *   1. Build the Docker image from dev-support/docker/Dockerfile_ubuntu_20
  *   2. Run the Hadoop build + tests inside that image
  *
  * The Dockerfile defines the complete build environment (GCC, Boost,
  * Protobuf 3.25.5, CMake, JDK 17, Maven) required for Hadoop 3.5.0 native builds.
+ *
+ * ubuntu:focal (20.04) is used rather than ubuntu:noble (24.04) because
+ * PhantomJS 2.1.1 (used by hadoop-yarn-applications-catalog-webapp jasmine
+ * tests) is incompatible with OpenSSL 3.0's provider architecture on noble.
+ * focal ships OpenSSL 1.x; the JDK 17 toolchain is identical between the two.
  */
 
 def jenkinsAgentImage = 'us-west1-docker.pkg.dev/dremio-1093/jenkins/jenkins-agent:v43'
@@ -58,13 +63,12 @@ node(POD_LABEL) {
         set -euo pipefail
         docker build \
           -t hadoop-build-base:latest \
-          -f dev-support/docker/Dockerfile_ubuntu_24 \
+          -f dev-support/docker/Dockerfile_ubuntu_20 \
           dev-support/docker/
 
-        # ubuntu:noble ships with an 'ubuntu' user at uid/gid 1000 — reuse it
-        # rather than creating a new user (groupadd -g 1000 fails with GID exists)
         echo 'FROM hadoop-build-base:latest
-USER ubuntu' | docker build -t hadoop-build:latest -
+RUN groupadd -g 1000 builder && useradd -u 1000 -g 1000 -m builder
+USER builder' | docker build -t hadoop-build:latest -
       '''
     }
 
