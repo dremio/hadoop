@@ -742,7 +742,7 @@ public class AbfsConfiguration{
    * @return the service type.
    */
   public AbfsServiceType getConfiguredServiceTypeForFNSAccounts() {
-    return getCaseInsensitiveEnum(FS_AZURE_FNS_ACCOUNT_SERVICE_TYPE, null);
+    return getCaseInsensitiveEnum(FS_AZURE_FNS_ACCOUNT_SERVICE_TYPE, getFsConfiguredServiceType());
   }
 
   /**
