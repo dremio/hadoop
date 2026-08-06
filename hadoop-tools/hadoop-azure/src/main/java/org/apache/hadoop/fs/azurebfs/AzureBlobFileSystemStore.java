@@ -710,7 +710,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
       if (triggerConditionalCreateOverwrite) {
         op = conditionalCreateOverwriteFile(relativePath,
             statistics,
-            new Permissions(isNamespaceEnabled, permission, umask),
+            new Permissions(isNamespaceEnabled && abfsConfiguration.isPosixAclSupported(), permission, umask),
             isAppendBlob,
             contextEncryptionAdapter,
             tracingContext
@@ -719,7 +719,7 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
       } else {
         op = createClient.createPath(relativePath, true,
             overwrite,
-            new Permissions(isNamespaceEnabled, permission, umask),
+            new Permissions(isNamespaceEnabled && abfsConfiguration.isPosixAclSupported(), permission, umask),
             isAppendBlob,
             null,
             contextEncryptionAdapter,
@@ -852,8 +852,8 @@ public class AzureBlobFileSystemStore implements Closeable, ListingSupport {
 
       boolean overwrite =
           !isNamespaceEnabled || abfsConfiguration.isEnabledMkdirOverwrite();
-      Permissions permissions = new Permissions(isNamespaceEnabled,
-          permission, umask);
+      Permissions permissions = new Permissions(
+          isNamespaceEnabled && abfsConfiguration.isPosixAclSupported(), permission, umask);
       final AbfsRestOperation op = createClient.createPath(getRelativePath(path),
           false, overwrite, permissions, false, null, null, tracingContext);
       perfInfo.registerResult(op.getResult()).registerSuccess(true);

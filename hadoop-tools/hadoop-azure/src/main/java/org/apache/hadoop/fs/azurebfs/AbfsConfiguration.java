@@ -105,6 +105,10 @@ public class AbfsConfiguration{
       DefaultValue = DEFAULT_FS_AZURE_ACCOUNT_IS_HNS_ENABLED)
   private String isNamespaceEnabledAccount;
 
+  @BooleanConfigurationValidatorAnnotation(ConfigurationKey = FS_AZURE_ACCOUNT_IS_POSIX_ACL_SUPPORTED,
+      DefaultValue = true)
+  private boolean isPosixAclSupported;
+
   @BooleanConfigurationValidatorAnnotation(ConfigurationKey = FS_AZURE_ENABLE_DFSTOBLOB_FALLBACK,
       DefaultValue = DEFAULT_FS_AZURE_ENABLE_DFSTOBLOB_FALLBACK)
   private boolean isDfsToBlobFallbackEnabled;
@@ -742,7 +746,7 @@ public class AbfsConfiguration{
    * @return the service type.
    */
   public AbfsServiceType getConfiguredServiceTypeForFNSAccounts() {
-    return getCaseInsensitiveEnum(FS_AZURE_FNS_ACCOUNT_SERVICE_TYPE, null);
+    return getCaseInsensitiveEnum(FS_AZURE_FNS_ACCOUNT_SERVICE_TYPE, getFsConfiguredServiceType());
   }
 
   /**
@@ -761,6 +765,10 @@ public class AbfsConfiguration{
    */
   public boolean isDfsToBlobFallbackEnabled() {
     return isDfsToBlobFallbackEnabled;
+  }
+
+  public boolean isPosixAclSupported() {
+    return isPosixAclSupported;
   }
 
   /**
