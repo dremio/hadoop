@@ -106,7 +106,7 @@ public class AbfsConfiguration{
   private String isNamespaceEnabledAccount;
 
   @BooleanConfigurationValidatorAnnotation(ConfigurationKey = FS_AZURE_ACCOUNT_IS_POSIX_ACL_SUPPORTED,
-      DefaultValue = "true")
+      DefaultValue = true)
   private boolean isPosixAclSupported;
 
   @BooleanConfigurationValidatorAnnotation(ConfigurationKey = FS_AZURE_ENABLE_DFSTOBLOB_FALLBACK,
