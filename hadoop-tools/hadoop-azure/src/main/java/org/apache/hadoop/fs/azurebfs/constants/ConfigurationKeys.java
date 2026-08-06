@@ -41,6 +41,14 @@ public final class ConfigurationKeys {
   public static final String FS_AZURE_ACCOUNT_IS_HNS_ENABLED = "fs.azure.account.hns.enabled";
 
   /**
+   * Config to indicate whether the account supports POSIX ACLs (x-ms-permissions, x-ms-umask).
+   * Defaults to true. Set to false for HNS accounts that have POSIX ACL support disabled —
+   * suppresses POSIX headers without changing the service endpoint routing.
+   */
+  public static final String FS_AZURE_ACCOUNT_IS_POSIX_ACL_SUPPORTED =
+      "fs.azure.account.posix.acls.supported";
+
+  /**
    * Config to specify which {@link  AbfsServiceType} to use with HNS-Disabled Account type.
    * Default value will be identified from URL used to initialize filesystem.
    * This will allow an override to choose service endpoint in cases where any
