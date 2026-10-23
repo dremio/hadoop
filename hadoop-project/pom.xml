@@ -41,7 +41,7 @@
       during 2026 in favour of 12.1, and both carry the ee8 environment this
       tree depends on.
     -->
-    <jetty.version>12.1.12</jetty.version>
+    <jetty.version>12.1.10</jetty.version>
     <!--
       Jetty's own build of the Servlet 4.0 API. Jetty 12's ee8 environment
       resolves the web.xml schemas out of whatever archive javax.servlet.Servlet

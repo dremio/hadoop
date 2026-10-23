@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.server.handler.StatisticsHandler;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -50,8 +49,7 @@ public class TestHttpServer2Metrics {
     when(handler.getHandleTimeMean()).thenReturn(mean);
     when(handler.getHandleTimeStdDev()).thenReturn(stdDev);
 
-    HttpServer2Metrics metrics = new HttpServer2Metrics(handler, 0,
-        mock(QueuedThreadPool.class), 1, 1);
+    HttpServer2Metrics metrics = new HttpServer2Metrics(handler, 0);
 
     assertEquals(1500, metrics.requestTimeMax());
     assertEquals(4000, metrics.requestTimeTotal());
@@ -71,7 +69,7 @@ public class TestHttpServer2Metrics {
   @Test
   public void testAsyncMetricsAreStillPublished() {
     HttpServer2Metrics metrics = new HttpServer2Metrics(
-        mock(StatisticsHandler.class), 0, mock(QueuedThreadPool.class), 1, 1);
+        mock(StatisticsHandler.class), 0);
     assertEquals(0, metrics.asyncDispatches());
     assertEquals(0, metrics.asyncRequests());
     assertEquals(0, metrics.asyncRequestsWaiting());
