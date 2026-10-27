@@ -27,7 +27,7 @@ if [ $? -eq 1 ]; then
   exit 1
 fi
 
-curl -L -s -S \
+pkg-resolver/curl-retry.sh \
   https://github.com/hadolint/hadolint/releases/download/v1.11.1/hadolint-Linux-x86_64 \
   -o /bin/hadolint &&
   chmod a+rx /bin/hadolint &&

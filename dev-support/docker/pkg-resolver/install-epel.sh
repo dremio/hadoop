@@ -40,7 +40,7 @@ fi
 
 if [ "$version_to_install" == "8" ]; then
   mkdir -p /tmp/epel &&
-    curl -L -s -S https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
+    pkg-resolver/curl-retry.sh https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm \
       -o /tmp/epel/epel-release-latest-8.noarch.rpm &&
     rpm -Uvh /tmp/epel/epel-release-latest-8.noarch.rpm
 else

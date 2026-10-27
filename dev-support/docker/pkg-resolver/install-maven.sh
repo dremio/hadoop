@@ -40,7 +40,7 @@ fi
 
 if [ "$version_to_install" == "3.9.11" ]; then
   mkdir -p /opt/maven /tmp/maven &&
-    curl -L -s -S https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.tar.gz \
+    pkg-resolver/curl-retry.sh https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.tar.gz \
       -o /tmp/maven/apache-maven-3.9.11-bin.tar.gz &&
     tar xzf /tmp/maven/apache-maven-3.9.11-bin.tar.gz --strip-components 1 -C /opt/maven
 else

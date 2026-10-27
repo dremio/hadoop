@@ -41,7 +41,7 @@ fi
 if [ "$version_to_install" == "3.19.0" ]; then
   # hadolint ignore=DL3003
   mkdir -p /tmp/cmake /opt/cmake &&
-    curl -L -s -S https://cmake.org/files/v3.19/cmake-3.19.0.tar.gz -o /tmp/cmake/cmake-3.19.0.tar.gz &&
+    pkg-resolver/curl-retry.sh https://cmake.org/files/v3.19/cmake-3.19.0.tar.gz -o /tmp/cmake/cmake-3.19.0.tar.gz &&
     tar xzf /tmp/cmake/cmake-3.19.0.tar.gz --strip-components 1 -C /opt/cmake &&
     cd /opt/cmake || exit && ./bootstrap &&
     make "-j$(nproc)" &&

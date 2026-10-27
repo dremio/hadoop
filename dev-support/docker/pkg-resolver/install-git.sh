@@ -41,7 +41,7 @@ fi
 if [ "$version_to_install" == "2.9.5" ]; then
   # hadolint ignore=DL3003
   mkdir -p /tmp/git /opt/git &&
-    curl -L -s -S https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.9.5.tar.gz >/tmp/git/git-2.9.5.tar.gz &&
+    pkg-resolver/curl-retry.sh https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.9.5.tar.gz -o /tmp/git/git-2.9.5.tar.gz &&
     tar xzf /tmp/git/git-2.9.5.tar.gz --strip-components 1 -C /opt/git &&
     cd /opt/git || exit &&
     make configure &&
