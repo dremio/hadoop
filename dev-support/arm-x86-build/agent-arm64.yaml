@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+    - name: agent
+      image: us-west1-docker.pkg.dev/dremio-1093/jenkins/jenkins-hadoop-slave:v8
+      command: [tail, -f]
+      resources:
+        requests:
+          cpu: "4"
+          memory: 8Gi
+        limits:
+          cpu: "4"
+          memory: 8Gi
+      workingDir: /home/jenkins/agent
+      volumeMounts:
+        - name: workspace-volume
+          mountPath: /home/jenkins/agent
+  nodeSelector:
+    kubernetes.io/arch: arm64
+    kubernetes.io/os: linux
+  restartPolicy: Never
+  serviceAccountName: default
+  volumes:
+    - name: workspace-volume
+      emptyDir: {}
