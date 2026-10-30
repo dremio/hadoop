@@ -1,9 +1,5 @@
 #!/usr/bin/env groovy
 
-def checkoutHadoop() {
-    checkout scm
-}
-
 def writeMavenSettings() {
     withVault(
         vaultSecrets: [[
@@ -29,7 +25,7 @@ def writeMavenSettings() {
 }
 
 def buildAndDeployNative(String classifier, boolean deployMavenArtifacts) {
-    checkoutHadoop()
+    checkout scm
     writeMavenSettings()
 
     def mavenGoal = deployMavenArtifacts ? 'deploy' : 'package'
@@ -102,7 +98,7 @@ pipeline {
 
             steps {
                 script {
-                    def scmVars = checkoutHadoop()
+                    def scmVars = checkout scm
                     env.HADOOP_COMMIT = scmVars.GIT_COMMIT
                     env.BUILD_TIMESTAMP = new Date().format('yyyyMMddHHmmssSSSS')
                     env.PROJECT_VERSION = sh(
