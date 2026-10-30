@@ -1,157 +1,75 @@
 #!/usr/bin/env groovy
 
-def checkoutHadoop() {
-    checkout scm
-}
+import hudson.model.*
 
-def writeMavenSettings() {
-    withVault(
-        vaultSecrets: [[
-            path: 'secret/datalake/private/hadoop/hadoop-dremio-deploy-new',
-            secretValues: [
-                [envVar: 'NEXUS_USERNAME', vaultKey: 'nexus-username'],
-                [envVar: 'NEXUS_PASSWORD', vaultKey: 'nexus-password']
-            ]
-        ]]
-    ) {
-        writeFile file: 'settings.xml', text: """\
-            <settings>
-              <servers>
-                <server>
-                  <id>dremio.nexus</id>
-                  <username>${env.NEXUS_USERNAME}</username>
-                  <password>${env.NEXUS_PASSWORD}</password>
-                </server>
-              </servers>
-            </settings>
-        """.stripIndent()
-    }
-}
-
-def buildAndDeployNative(String classifier, boolean deployMavenArtifacts) {
-    checkoutHadoop()
-    writeMavenSettings()
-
-    def mavenGoal = deployMavenArtifacts ? 'deploy' : 'package'
-    def deployRepository = deployMavenArtifacts ?
-        "-DaltDeploymentRepository=dremio.nexus::default::${env.NEXUS_REPO_URL}" :
-        ''
-    def nativeJar = "hadoop-common-native-${env.DREMIO_VERSION}-${classifier}.jar"
-
-    sh """
-        export MAVEN_CONFIG=''
-
-        uname -m
-        java -version
-        mvn -version
-        cmake --version
-        protoc --version
-
-        mvn -B versions:set versions:set-property \\
-            -Dproperty=hadoop.version \\
-            -DnewVersion=${env.DREMIO_VERSION}
-
-        mvn -B -s settings.xml clean ${mavenGoal} \\
-            -Pnative \\
-            -Drequire.snappy \\
-            -Drequire.openssl \\
-            -Drequire.fuse \\
-            -Pdist \\
-            -Dtar \\
-            -DskipTests \\
-            ${deployRepository}
-
-        cp hadoop-dist/target/hadoop-${env.DREMIO_VERSION}/lib/native/libhadoop.so.* libhadoop.so
-        jar cvf ${nativeJar} libhadoop.so
-
-        mvn -B -N -s settings.xml deploy:deploy-file \\
-            -Durl=${env.NEXUS_REPO_URL} \\
-            -DrepositoryId=dremio.nexus \\
-            -Dfile=${nativeJar} \\
-            -DgroupId=org.apache.hadoop \\
-            -DartifactId=hadoop-common-native \\
-            -Dversion=${env.DREMIO_VERSION} \\
-            -Dclassifier=${classifier} \\
-            -Dpackaging=jar
-    """
-}
-
+def PROJECT_VERSION;
+def VERSION;
+def MVN_VERSION_CMD;
+def MVN_DEPLOY_CMD;
+def LIBHADOOP_SO_COPY_CMD;
 pipeline {
     agent none
-
-    environment {
-        NEXUS_REPO_URL = 'https://repository.drem.io/content/repositories/releases/'
-    }
-
-    options {
-        disableConcurrentBuilds()
-        skipDefaultCheckout(true)
-        timeout(time: 2, unit: 'HOURS')
-    }
-
     stages {
-        stage('Compute Version') {
+        stage('Checkout') {
             agent {
-                kubernetes {
-                    agentInjection true
-                    defaultContainer 'agent'
-                    cloud 'kubernetes'
-                    yamlFile 'dev-support/arm-x86-build/agent-amd64.yaml'
-                }
+                label 'ci-hadoop-v3'
             }
-
             steps {
-                script {
-                    def scmVars = checkoutHadoop()
-                    env.HADOOP_COMMIT = scmVars.GIT_COMMIT
-                    env.BUILD_TIMESTAMP = new Date().format('yyyyMMddHHmmssSSSS')
-                    env.PROJECT_VERSION = sh(
-                        script: '''
-                            export MAVEN_CONFIG=''
-                            mvn -B -q -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive org.codehaus.mojo:exec-maven-plugin:1.3.1:exec
-                        ''',
-                        returnStdout: true
-                    ).trim()
-
-                    def baseVersion = env.PROJECT_VERSION.replaceFirst(/-SNAPSHOT$/, '')
-                    env.DREMIO_VERSION = "${baseVersion}-dremio-${env.BUILD_TIMESTAMP}-${env.HADOOP_COMMIT.take(8)}"
-                    currentBuild.displayName = "#${currentBuild.id} - ${env.DREMIO_VERSION}"
-                    currentBuild.description = "${env.GIT_BRANCH}: ${env.DREMIO_VERSION}"
-                }
+               script {
+                   checkout scm
+                   withMaven(
+                       maven: 'Maven 3.3',
+                       mavenLocalRepo: '.repository',
+                   ) {
+                       PROJECT_VERSION = readMavenPom().getVersion()
+                       VERSION="${PROJECT_VERSION}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
+                       MVN_SET_VERSION_CMD = "mvn -B versions:set versions:set-property -Dproperty=hadoop.version -DnewVersion=${VERSION}"
+                       MVN_DEPLOY_CMD = "mvn clean deploy -Pnative -Drequire.snappy -Drequire.openssl -Drequire.fuse -Pdist -Dtar -DskipTests -DskipTests -DaltDeploymentRepository=dremio.nexus::default::https://repository.drem.io/content/repositories/releases/"
+                       LIBHADOOP_SO_COPY_CMD = "cp hadoop-dist/target/hadoop-${VERSION}/lib/native/libhadoop.so.* libhadoop.so"
+                   }
+              }
             }
         }
-
-        stage('Build Native Artifacts') {
+        stage('Build libhadoop.so') {
             parallel {
                 stage('x86') {
                     agent {
-                        kubernetes {
-                            agentInjection true
-                            defaultContainer 'agent'
-                            cloud 'kubernetes'
-                            yamlFile 'dev-support/arm-x86-build/agent-amd64.yaml'
-                        }
+                        label 'ci-hadoop-v3'
                     }
                     steps {
-                        script {
-                            buildAndDeployNative('linux', true)
-                        }
+                       script {
+                           checkout scm
+                           withMaven(
+                                maven: 'Maven 3.3',
+                                mavenLocalRepo: '.repository',
+                           ) {
+                                sh "${MVN_SET_VERSION_CMD}"
+                                sh "${MVN_DEPLOY_CMD}"
+                                sh "${LIBHADOOP_SO_COPY_CMD}"
+                                sh "jar cvf hadoop-common-native-${PROJECT_VERSION}-linux.jar libhadoop.so"
+                                sh "mvn -B -N deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-common-native-${PROJECT_VERSION}-linux.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-common-native -Dversion=${VERSION} -Dclassifier=linux -Dpackaging=jar"
+                           }
+                      }
                     }
                 }
-
                 stage('ARM') {
                     agent {
-                        kubernetes {
-                            agentInjection true
-                            defaultContainer 'agent'
-                            cloud 'kubernetes'
-                            yamlFile 'dev-support/arm-x86-build/agent-arm64.yaml'
-                        }
+                        label 'ci-hadoop-v1_central1'
                     }
                     steps {
                         script {
-                            buildAndDeployNative('linux-aarch64', false)
-                        }
+                             checkout scm
+                             withMaven(
+                                 maven: 'Maven 3.3',
+                                 mavenLocalRepo: '.repository'
+                             ) {
+                                sh "${MVN_SET_VERSION_CMD}"
+                                sh "${MVN_DEPLOY_CMD}"
+                                sh "${LIBHADOOP_SO_COPY_CMD}"
+                                sh "jar cvf hadoop-common-native-${PROJECT_VERSION}-linux-aarch64.jar libhadoop.so"
+                                sh "mvn -B -N deploy:deploy-file -Durl=https://repository.drem.io/content/repositories/releases/ -DrepositoryId=dremio.nexus -Dfile='hadoop-common-native-${PROJECT_VERSION}-linux-aarch64.jar' -DgroupId=org.apache.hadoop -DartifactId=hadoop-common-native -Dversion=${VERSION} -Dclassifier=linux-aarch64 -Dpackaging=jar"
+                             }
+                       	}
                     }
                 }
             }
