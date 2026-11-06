@@ -51,6 +51,8 @@ spec:
           mountPath: /certs
         - name: docker-data
           mountPath: /var/lib/docker
+        - name: workspace-volume
+          mountPath: /jenkins
   nodeSelector:
     kubernetes.io/arch: amd64
     kubernetes.io/os: linux
