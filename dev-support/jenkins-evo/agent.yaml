@@ -41,11 +41,11 @@ spec:
         requests:
           cpu: "8"
           memory: 24Gi
-          ephemeral-storage: 32Gi
+          ephemeral-storage: 2Gi
         limits:
           cpu: "12"
           memory: 32Gi
-          ephemeral-storage: 80Gi
+          ephemeral-storage: 10Gi
       volumeMounts:
         - name: docker-certs
           mountPath: /certs
@@ -61,6 +61,12 @@ spec:
     - name: docker-certs
       emptyDir: {}
     - name: docker-data
-      emptyDir: {}
+      ephemeral:
+        volumeClaimTemplate:
+          spec:
+            accessModes: [ReadWriteOnce]
+            resources:
+              requests:
+                storage: 80Gi
     - name: workspace-volume
       emptyDir: {}
