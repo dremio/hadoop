@@ -17,9 +17,10 @@
 def jenkinsAgentImage = 'us-west1-docker.pkg.dev/dremio-1093/jenkins/jenkins-agent:v43'
 def cloud = 'jenkins1'
 def nodeSelector = 'cloud.google.com/gke-nodepool=c4d-standard-64'
-// Nexus raw proxy of https://github.com/ (releases and tag archives only). Used
-// by the Docker image build (pkg-resolver scripts fall back to github.com if it
-// fails) and for the yarn download of the catalog webapp. Keep the trailing slash.
+// Nexus raw proxy of https://github.com/ (releases and tag archives only), used by
+// the Docker image build (pkg-resolver scripts fall back to github.com if it
+// fails). Keep the trailing slash. The yarn download of the catalog webapp is
+// mirrored through yarnDownloadRoot in the Maven global settings file below.
 def githubMirror = 'https://repository.drem.io/repository/github-proxy/'
 
 podTemplate(
@@ -86,7 +87,6 @@ USER builder' | docker build -t hadoop-build:latest -
           variable: 'MAVEN_GLOBAL_SETTINGS'
         )
       ]) {
-        withEnv(["GITHUB_MIRROR=${githubMirror}"]) {
         sh '''
           set -euo pipefail
           docker run --rm --init \
@@ -98,10 +98,8 @@ USER builder' | docker build -t hadoop-build:latest -
             mvn \
               --batch-mode \
               --global-settings "${MAVEN_GLOBAL_SETTINGS}" \
-              -DyarnDownloadRoot="${GITHUB_MIRROR}yarnpkg/yarn/releases/download/" \
               clean install -Pnative -DskipShade -DskipNativeTests
         '''
-        }
       }
     }
 }
