@@ -14,6 +14,7 @@ import hudson.model.*
 def deployArch(String dockerfile, String classifier, String settingsFile) {
   def nexusUrl = 'https://repository.drem.io/content/repositories/releases/'
   // Nexus raw proxy of https://github.com/ (see build.jenkinsfile); keep the trailing slash.
+  // yarnDownloadRoot comes from the Maven global settings file.
   def githubMirror = 'https://repository.drem.io/repository/github-proxy/'
   def projectVersion = readMavenPom().getVersion()
   def version = "${projectVersion}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
@@ -43,7 +44,6 @@ def deployArch(String dockerfile, String classifier, String settingsFile) {
           -Dproperty=hadoop.version -DnewVersion=${version} && \
         mvn clean deploy -Pnative -Drequire.snappy -Drequire.openssl \
           -Drequire.fuse -Pdist -Dtar -DskipTests \
-          -DyarnDownloadRoot=${githubMirror}yarnpkg/yarn/releases/download/ \
           --global-settings ${settingsFile} \
           -DaltDeploymentRepository=dremio.nexus::default::${nexusUrl} && \
         cp hadoop-dist/target/hadoop-${version}/lib/native/libhadoop.so.* libhadoop.so && \
