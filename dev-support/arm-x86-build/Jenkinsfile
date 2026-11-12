@@ -13,6 +13,8 @@ import hudson.model.*
 
 def deployArch(String dockerfile, String classifier, String settingsFile) {
   def nexusUrl = 'https://repository.drem.io/content/repositories/releases/'
+  // Nexus raw proxy of https://github.com/ (see build.jenkinsfile); keep the trailing slash.
+  def githubMirror = 'https://repository.drem.io/repository/github-proxy/'
   def projectVersion = readMavenPom().getVersion()
   def version = "${projectVersion}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
   echo "Publishing version: ${version} (${classifier})"
@@ -27,6 +29,7 @@ def deployArch(String dockerfile, String classifier, String settingsFile) {
 
   sh """
     docker build -t hadoop-build:latest \
+      --build-arg GITHUB_MIRROR=${githubMirror} \
       -f dev-support/docker/${dockerfile} dev-support/docker/
   """
 
@@ -40,6 +43,7 @@ def deployArch(String dockerfile, String classifier, String settingsFile) {
           -Dproperty=hadoop.version -DnewVersion=${version} && \
         mvn clean deploy -Pnative -Drequire.snappy -Drequire.openssl \
           -Drequire.fuse -Pdist -Dtar -DskipTests \
+          -DyarnDownloadRoot=${githubMirror}yarnpkg/yarn/releases/download/ \
           --global-settings ${settingsFile} \
           -DaltDeploymentRepository=dremio.nexus::default::${nexusUrl} && \
         cp hadoop-dist/target/hadoop-${version}/lib/native/libhadoop.so.* libhadoop.so && \
@@ -55,6 +59,9 @@ def deployArch(String dockerfile, String classifier, String settingsFile) {
 
 pipeline {
   agent none
+  options {
+    timeout(time: 3, unit: 'HOURS')
+  }
   stages {
     stage('Deploy') {
       parallel {
