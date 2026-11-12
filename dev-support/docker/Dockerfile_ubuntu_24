@@ -88,6 +88,7 @@ ENV HADOOP_SKIP_YETUS_VERIFICATION true
 ####
 # Install packages
 ####
+ARG GITHUB_MIRROR
 RUN pkg-resolver/install-maven.sh ubuntu:noble
 RUN pkg-resolver/install-spotbugs.sh ubuntu:noble
 RUN pkg-resolver/install-boost.sh ubuntu:noble
