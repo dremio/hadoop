@@ -33,6 +33,28 @@
 
   <!-- Do not add dependencies here, add them to the POM of the leaf module -->
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <!-- Keep this aggregator aligned with the catalog leaf modules. -->
+            <exclude>hadoop-yarn-applications-catalog/hadoop-yarn-applications-catalog-webapp/package.json</exclude>
+            <exclude>hadoop-yarn-applications-catalog/hadoop-yarn-applications-catalog-webapp/.yarnrc</exclude>
+            <exclude>hadoop-yarn-applications-catalog/hadoop-yarn-applications-catalog-webapp/src/main/resources/appcatalog.properties</exclude>
+            <exclude>hadoop-yarn-applications-catalog/hadoop-yarn-applications-catalog-webapp/src/main/webapp/css/img/loading.svg</exclude>
+            <exclude>hadoop-yarn-applications-catalog/hadoop-yarn-applications-catalog-webapp/src/test/resources/log4j.properties</exclude>
+            <exclude>hadoop-yarn-applications-catalog/hadoop-yarn-applications-catalog-webapp/src/test/resources/configsets/exampleCollection/conf/params.json</exclude>
+            <exclude>hadoop-yarn-applications-catalog/hadoop-yarn-applications-catalog-webapp/src/test/javascript/karma.conf.js</exclude>
+            <exclude>hadoop-yarn-applications-catalog/hadoop-yarn-applications-catalog-docker/src/main/resources/jaas.config</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <modules>
     <module>hadoop-yarn-applications-distributedshell</module>
     <module>hadoop-yarn-applications-unmanaged-am-launcher</module>
