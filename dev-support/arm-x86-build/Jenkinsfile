@@ -38,7 +38,7 @@ def deployArch(String dockerfile, String classifier, String settingsFile) {
     docker run --rm --init \
       -v "\$(pwd)":/build \
       -v "${settingsFile}":"${settingsFile}":ro \
-      -w /build -e MAVEN_OPTS="-Xmx4g" \
+      -w /build -e MAVEN_OPTS="-Xmx4g" -e GITHUB_MIRROR=${githubMirror} \
       hadoop-build:latest bash -c '\
         mvn -B versions:set versions:set-property \
           -Dproperty=hadoop.version -DnewVersion=${version} && \

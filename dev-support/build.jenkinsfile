@@ -19,7 +19,8 @@ def cloud = 'jenkins1'
 def nodeSelector = 'cloud.google.com/gke-nodepool=c4d-standard-64'
 // Nexus raw proxy of https://github.com/ (releases and tag archives only), used by
 // the Docker image build (pkg-resolver scripts fall back to github.com if it
-// fails). Keep the trailing slash. The yarn download of the catalog webapp is
+// fails) and, as GITHUB_MIRROR, by the googletest download of the native client
+// build. Keep the trailing slash. The yarn download of the catalog webapp is
 // mirrored through yarnDownloadRoot in the Maven global settings file below.
 def githubMirror = 'https://repository.drem.io/repository/github-proxy/'
 
@@ -87,9 +88,11 @@ USER builder' | docker build -t hadoop-build:latest -
           variable: 'MAVEN_GLOBAL_SETTINGS'
         )
       ]) {
+        withEnv(["GITHUB_MIRROR=${githubMirror}"]) {
         sh '''
           set -euo pipefail
           docker run --rm --init \
+            -e GITHUB_MIRROR \
             -v "$(pwd)":/build \
             -v "${MAVEN_GLOBAL_SETTINGS}":"${MAVEN_GLOBAL_SETTINGS}":ro \
             -w /build \
@@ -100,6 +103,7 @@ USER builder' | docker build -t hadoop-build:latest -
               --global-settings "${MAVEN_GLOBAL_SETTINGS}" \
               clean install -Pnative -DskipShade -DskipNativeTests
         '''
+        }
       }
     }
 }
