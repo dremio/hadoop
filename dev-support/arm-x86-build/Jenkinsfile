@@ -13,6 +13,9 @@ import hudson.model.*
 
 def deployArch(String dockerfile, String classifier, String settingsFile) {
   def nexusUrl = 'https://repository.drem.io/content/repositories/releases/'
+  // Nexus raw proxy of https://github.com/ (see build.jenkinsfile); keep the trailing slash.
+  // yarnDownloadRoot comes from the Maven global settings file.
+  def githubMirror = 'https://repository.drem.io/repository/github-proxy/'
   def projectVersion = readMavenPom().getVersion()
   def version = "${projectVersion}-dremio-${BUILD_TIMESTAMP}-${GIT_COMMIT[0..7]}"
   echo "Publishing version: ${version} (${classifier})"
@@ -27,6 +30,7 @@ def deployArch(String dockerfile, String classifier, String settingsFile) {
 
   sh """
     docker build -t hadoop-build:latest \
+      --build-arg GITHUB_MIRROR=${githubMirror} \
       -f dev-support/docker/${dockerfile} dev-support/docker/
   """
 
@@ -34,7 +38,7 @@ def deployArch(String dockerfile, String classifier, String settingsFile) {
     docker run --rm --init \
       -v "\$(pwd)":/build \
       -v "${settingsFile}":"${settingsFile}":ro \
-      -w /build -e MAVEN_OPTS="-Xmx4g" \
+      -w /build -e MAVEN_OPTS="-Xmx4g" -e GITHUB_MIRROR=${githubMirror} \
       hadoop-build:latest bash -c '\
         mvn -B versions:set versions:set-property \
           -Dproperty=hadoop.version -DnewVersion=${version} && \
@@ -55,6 +59,9 @@ def deployArch(String dockerfile, String classifier, String settingsFile) {
 
 pipeline {
   agent none
+  options {
+    timeout(time: 3, unit: 'HOURS')
+  }
   stages {
     stage('Deploy') {
       parallel {

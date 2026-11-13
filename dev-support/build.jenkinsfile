@@ -17,6 +17,12 @@
 def jenkinsAgentImage = 'us-west1-docker.pkg.dev/dremio-1093/jenkins/jenkins-agent:v43'
 def cloud = 'jenkins1'
 def nodeSelector = 'cloud.google.com/gke-nodepool=c4d-standard-64'
+// Nexus raw proxy of https://github.com/ (releases and tag archives only), used by
+// the Docker image build (pkg-resolver scripts fall back to github.com if it
+// fails) and, as GITHUB_MIRROR, by the googletest download of the native client
+// build. Keep the trailing slash. The yarn download of the catalog webapp is
+// mirrored through yarnDownloadRoot in the Maven global settings file below.
+def githubMirror = 'https://repository.drem.io/repository/github-proxy/'
 
 podTemplate(
   cloud: cloud,
@@ -59,9 +65,11 @@ node(POD_LABEL) {
       // Create a non-root user (uid 1000) in the image so that:
       // 1. File permission tests work (root bypasses all permission checks)
       // 2. Java's UnixLoginModule can resolve the UID to a username
+      withEnv(["GITHUB_MIRROR=${githubMirror}"]) {
       sh '''
         set -euo pipefail
         docker build \
+          --build-arg GITHUB_MIRROR="${GITHUB_MIRROR}" \
           -t hadoop-build-base:latest \
           -f dev-support/docker/Dockerfile_ubuntu_20 \
           dev-support/docker/
@@ -70,6 +78,7 @@ node(POD_LABEL) {
 RUN groupadd -g 1000 builder && useradd -u 1000 -g 1000 -m builder
 USER builder' | docker build -t hadoop-build:latest -
       '''
+      }
     }
 
     stage('Build & Test') {
@@ -79,9 +88,11 @@ USER builder' | docker build -t hadoop-build:latest -
           variable: 'MAVEN_GLOBAL_SETTINGS'
         )
       ]) {
+        withEnv(["GITHUB_MIRROR=${githubMirror}"]) {
         sh '''
           set -euo pipefail
           docker run --rm --init \
+            -e GITHUB_MIRROR \
             -v "$(pwd)":/build \
             -v "${MAVEN_GLOBAL_SETTINGS}":"${MAVEN_GLOBAL_SETTINGS}":ro \
             -w /build \
@@ -92,6 +103,7 @@ USER builder' | docker build -t hadoop-build:latest -
               --global-settings "${MAVEN_GLOBAL_SETTINGS}" \
               clean install -Pnative -DskipShade -DskipNativeTests
         '''
+        }
       }
     }
 }
