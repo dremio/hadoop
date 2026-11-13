@@ -118,9 +118,18 @@ include(FetchContent)
 # Install googletest
 # As per the approach documented in the GoogleTest repo -
 # https://github.com/google/googletest/blob/e649993a402d96afe25fbf3413749adf0f2947f6/googletest/README.md#incorporating-into-an-existing-cmake-project
+set(GOOGLETEST_URLS
+  https://github.com/google/googletest/archive/703bd9caab50b139428cea1aaff9974ebee5742e.zip
+)
+# Try the GitHub mirror (if GITHUB_MIRROR is set) before github.com
+if(NOT "$ENV{GITHUB_MIRROR}" STREQUAL "")
+  string(REGEX REPLACE "/+$" "" GITHUB_MIRROR_URL "$ENV{GITHUB_MIRROR}")
+  list(INSERT GOOGLETEST_URLS 0
+    ${GITHUB_MIRROR_URL}/google/googletest/archive/703bd9caab50b139428cea1aaff9974ebee5742e.zip)
+endif()
 FetchContent_Declare(
   googletest
-  URL https://github.com/google/googletest/archive/703bd9caab50b139428cea1aaff9974ebee5742e.zip
+  URL ${GOOGLETEST_URLS}
 )
 # The commit SHA 703bd9caab50b139428cea1aaff9974ebee5742e in the URL above corresponds to the
 # tag release-1.10.0 in the googletest repository.
