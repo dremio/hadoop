@@ -94,7 +94,6 @@ import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.VersionInfo;
 import org.codehaus.jettison.json.JSONObject;
-import org.eclipse.jetty.util.ajax.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -228,7 +227,7 @@ public class RBFMetrics implements RouterMBean, FederationMBean {
       // Order the namenodes
       final List<MembershipState> namenodes = response.getNamenodeMemberships();
       if (namenodes == null || namenodes.size() == 0) {
-        return JSON.toString(info);
+        return JSON.getDefault().toJSON(info);
       }
       List<MembershipState> namenodesOrder = new ArrayList<>(namenodes);
       Collections.sort(namenodesOrder, MembershipState.NAME_COMPARATOR);
@@ -252,7 +251,7 @@ public class RBFMetrics implements RouterMBean, FederationMBean {
           e.getMessage());
       return "{}";
     }
-    return JSON.toString(info);
+    return JSON.getDefault().toJSON(info);
   }
 
   @Override
@@ -281,7 +280,7 @@ public class RBFMetrics implements RouterMBean, FederationMBean {
       LOG.error("Cannot retrieve nameservices for JMX: {}", e.getMessage());
       return "{}";
     }
-    return JSON.toString(info);
+    return JSON.getDefault().toJSON(info);
   }
 
   @Override
@@ -334,7 +333,7 @@ public class RBFMetrics implements RouterMBean, FederationMBean {
           "Cannot generate JSON of mount table from store: {}", e.getMessage());
       return "[]";
     }
-    return JSON.toString(info);
+    return JSON.getDefault().toJSON(info);
   }
 
   @Override
@@ -376,7 +375,7 @@ public class RBFMetrics implements RouterMBean, FederationMBean {
       LOG.error("Cannot get Routers JSON from the State Store", e);
       return "{}";
     }
-    return JSON.toString(info);
+    return JSON.getDefault().toJSON(info);
   }
 
   /**
@@ -595,7 +594,7 @@ public class RBFMetrics implements RouterMBean, FederationMBean {
     innerInfo.put("stdDev", StringUtils.format("%.2f%%", dev));
     info.put("nodeUsage", innerInfo);
 
-    return JSON.toString(info);
+    return JSON.getDefault().toJSON(info);
   }
 
   @Override
