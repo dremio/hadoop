@@ -101,7 +101,7 @@ USER builder' | docker build -t hadoop-build:latest -
             mvn \
               --batch-mode \
               --global-settings "${MAVEN_GLOBAL_SETTINGS}" \
-              clean install -Pnative -DskipShade -DskipNativeTests
+              clean install -Pnative -DskipNativeTests
         '''
         }
       }
